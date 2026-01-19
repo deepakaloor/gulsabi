@@ -9,8 +9,8 @@
     <title>Cannon Color Range</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💣</text></svg>">
-    
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Permanent+Marker&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --bg-hue: 210;
@@ -54,7 +54,6 @@
         @keyframes hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         @keyframes recoil { 0% { transform: translateY(0); } 30% { transform: translateY(15px) scaleY(0.9); } 100% { transform: translateY(0); } }
-
         .shake-screen { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
         .anim-drop { animation: dropSwing 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .anim-hit { animation: swingImpact 0.5s ease-out; }
@@ -67,17 +66,22 @@
         .timer-bar { height: 100%; width: 100%; background: #00C853; transition: width 0.1s linear; }
 
         .ui-header {
-            width: 100%; padding: 15px 20px;
+            width: 100%; 
+            /* Fix for iPhone Notch */
+            padding: max(10px, env(safe-area-inset-top)) 15px 10px 15px;
             display: flex; justify-content: space-between; align-items: flex-start;
             position: absolute; top: 0; left: 0; z-index: 100;
             pointer-events: none;
         }
         .ui-header > * { pointer-events: auto; }
 
+        .stat-group { display: flex; align-items: center; gap: 8px; }
+        
         .stat-pill { 
-            background: var(--glass); padding: 5px 15px; border-radius: 20px; 
+            background: var(--glass); padding: 5px 12px; border-radius: 20px; 
             font-size: 1.1rem; color: #444; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             margin-bottom: 5px; backdrop-filter: blur(5px); border: 2px solid white;
+            white-space: nowrap; /* Prevents wrapping on small screens */
         }
         
         .btn-circle {
@@ -92,19 +96,20 @@
             width: 100%; height: 100%;
             display: flex; flex-direction: column;
             justify-content: flex-end; 
-            padding-bottom: 10px;
+            padding-bottom: env(safe-area-inset-bottom); /* Fix for iPhone Bottom Bar */
         }
 
-        /* --- TARGET --- */
+        /* --- TARGET ASSEMBLY --- */
         .stage-area {
-            position: absolute; top: 0; left: 0; width: 100%; height: 65%;
-            display: flex; justify-content: center; align-items: flex-start;
+            position: absolute; top: 0; left: 0; width: 100%; height: 60%;
+            display: flex; justify-content: center; align-items: center; /* Center Vertically */
             z-index: 10; pointer-events: none;
         }
 
         .target-assembly {
             display: flex; flex-direction: column; align-items: center;
-            transform-origin: top center; margin-top: -30px;
+            transform-origin: top center;
+            margin-top: -5vh; 
         }
         
         .rope-container {
@@ -156,8 +161,11 @@
         }
         .chalk-label { font-size: 0.8rem; display: block; text-align: center; opacity: 0.9; margin-bottom: -5px; color: #FF8A80;}
 
-        /* HOST */
-        .host-area { position: absolute; z-index: 5; transition: all 0.3s ease; }
+        /* --- HOST (Gulsabi) --- */
+        .host-area {
+            position: absolute; z-index: 25; /* Higher than Board (10) */
+            transition: all 0.3s ease;
+        }
         .host-bubble {
             width: 100px; height: 100px; border-radius: 50%; border: 4px solid white;
             background: #FFF8DC; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
@@ -169,14 +177,26 @@
         .host-bubble.sad { transform: rotate(-10deg) scale(0.9); border-color: #FF5252; filter: grayscale(1); }
         .host-bubble.thinking { border-color: #FFD600; }
 
-        @media (min-width: 601px) { .host-area { top: 50%; right: 5%; transform: translateY(-50%); } .host-bubble { width: 140px; height: 140px; } }
-        @media (max-width: 600px) { .host-area { top: 80px; left: 15px; } .host-bubble { width: 80px; height: 80px; } }
+        /* Responsive Gulsabi Placement */
+        @media (min-width: 601px) {
+            .host-area { top: 50%; right: 5%; transform: translateY(-50%); }
+            .host-bubble { width: 140px; height: 140px; }
+        }
+        @media (max-width: 600px) {
+            /* Mobile: Top Left, Under Header */
+            .host-area { top: 90px; left: 10px; }
+            .host-bubble { width: 80px; height: 80px; border-width: 3px; }
+        }
 
-        /* CONTROLS */
-        .controls-area { width: 100%; z-index: 20; display: flex; flex-direction: column; align-items: center; }
-        .powerup-dock { height: 35px; width: 100%; display: flex; justify-content: center; gap: 8px; margin-bottom: 5px; pointer-events: none; }
+        /* --- CONTROLS --- */
+        .controls-area {
+            width: 100%; z-index: 20;
+            display: flex; flex-direction: column; align-items: center;
+            padding-bottom: 10px;
+        }
+        .powerup-dock { height: 30px; width: 100%; display: flex; justify-content: center; gap: 8px; margin-bottom: 5px; pointer-events: none; }
         .active-powerup {
-            background: white; padding: 4px 10px; border-radius: 12px;
+            background: white; padding: 3px 10px; border-radius: 12px;
             display: flex; align-items: center; gap: 5px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15); animation: popIn 0.3s;
         }
@@ -185,15 +205,18 @@
         .cannon-deck {
             width: 100%; background: var(--glass); backdrop-filter: blur(15px);
             border-radius: 30px 30px 0 0; border-top: 3px solid rgba(255,255,255,0.8);
-            padding: 15px 5px 30px 5px; display: flex; justify-content: space-evenly; align-items: flex-end;
+            padding: 10px 5px 30px 5px; display: flex; justify-content: space-evenly; align-items: flex-end;
             box-shadow: 0 -5px 40px rgba(0,0,0,0.1);
         }
-        .cannon-wrapper { display: flex; flex-direction: column; align-items: center; width: 20%; max-width: 80px; cursor: pointer; transition: transform 0.05s; }
+        .cannon-wrapper { display: flex; flex-direction: column; align-items: center; width: 22%; max-width: 80px; cursor: pointer; transition: transform 0.05s; }
         .cannon-wrapper:active { transform: scale(0.9); }
         .cannon-btn { width: 100%; aspect-ratio: 1/1.3; }
+        
+        /* Mobile Fixed Label */
         .cannon-label {
-            margin-top: 5px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; color: #555;
-            background: rgba(255,255,255,0.9); padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 5px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; color: #555;
+            background: rgba(255,255,255,0.95); padding: 3px 10px; border-radius: 10px; border: 1px solid #eee;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap;
         }
         .svg-barrel { fill: currentColor; stroke: rgba(0,0,0,0.3); stroke-width: 2px; }
         .cannon-fire .barrel-group { animation: recoil 0.15s ease-out; }
@@ -252,7 +275,6 @@
         .instruct-item { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; font-size: 1.2rem; color: #555; }
         .instruct-icon { font-size: 1.8rem; width: 30px; text-align: center; }
 
-        @media (max-width: 380px) { .host-area { top: 90px; right: 2%; } .host-bubble { width: 70px; height: 70px; } .rope-container { gap: 120px; } }
     </style>
 </head>
 <body>
@@ -276,18 +298,21 @@
     </div>
 
     <div class="game-layout">
+        
         <div class="stage-area">
             <div class="target-assembly" id="targetAssembly">
                 <div class="rope-container"><div class="rope"></div><div class="rope"></div></div>
                 <div class="target-board" id="cardContainer"></div>
             </div>
         </div>
+
         <div class="host-area">
             <div class="host-bubble" id="hostBubble">
                 <img src="gulsabi-normal.png" id="hostImg" onerror="useFallbackAvatar()">
                 <span class="emoji-fallback" id="hostEmoji" style="display:none">🐵</span>
             </div>
         </div>
+
         <div class="controls-area">
             <div class="powerup-dock" id="powerupBar"></div>
             <div class="cannon-deck" id="cannonDeck"></div>
@@ -395,12 +420,10 @@
             osc.start(); osc.stop(audioCtx.currentTime + dur);
         }
 
-        // IMPROVED BGM: Speeds up properly
         function startBGM() {
             if(bgmTimer) clearInterval(bgmTimer);
             const notes = [330, 0, 330, 392, 440, 0, 392, 0, 330, 0, 262, 0, 294, 294, 262, 0];
             let step = 0;
-            // Interval gets smaller (faster) as level increases. Min interval 100ms.
             const speed = Math.max(100, 180 - (state.level * 4)); 
             bgmTimer = setInterval(() => {
                 if(!state.isPaused && !state.muted && state.currentCard) {
@@ -625,8 +648,7 @@
         function nextLevel() {
             document.getElementById('levelOverlay').classList.remove('visible');
             state.level++; state.hue = (state.hue + 40) % 360; updateUI(); 
-            startLevel(); 
-            startBGM(); // Update Music Speed
+            startLevel(); startBGM();
         }
 
         function updateUI() {
