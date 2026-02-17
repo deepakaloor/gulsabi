@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+    <title>Color Cannon – Gulsabi Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent;}
+        html,body{width:100%;height:100%;overflow:hidden;position:fixed;font-family:'Fredoka One',cursive;}
+        body{background:#4FC3F7;display:flex;flex-direction:column;align-items:stretch;}
+
+        /* ── BACKGROUND ── */
+        .sky{position:fixed;inset:0;z-index:0;background:linear-gradient(175deg,#0288D1 0%,#29B6F6 30%,#4FC3F7 55%,#81D4FA 78%,#B3E5FC 100%);}
+        .sun{position:fixed;top:2.5vh;right:6vw;z-index:1;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#FFF176 50%,#FFD600 75%,#FFA000 100%);box-shadow:0 0 50px 20px rgba(255,200,0,.4);animation:sunPulse 3.5s ease-in-out infinite;}
+        @keyframes sunPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+        .ground{position:fixed;bottom:0;left:0;right:0;z-index:2;height:30vh;background:linear-gradient(180deg,#66BB6A 0%,#388E3C 100%);border-radius:50% 50% 0 0/2vh 2vh 0 0;}
+
+        /* ── TIMER ── */
+        .twrap{width:100%;height:10px;position:fixed;top:0;z-index:900;background:rgba(0,0,0,.14);}
+        .tbar{height:100%;width:100%;background:#69F0AE;transition:width .1s linear;}
+
+        /* ── HEADER ── */
+        .hdr{width:100%;padding:15px;display:flex;justify-content:space-between;position:fixed;top:10px;z-index:800;pointer-events:none;}
+        .pill{background:rgba(255,255,255,.93);padding:.4em .8em;border-radius:2em;border:3px solid white;pointer-events:auto;font-size:0.9rem;box-shadow:0 4px 14px rgba(0,0,0,.15); display: flex; align-items: center; gap: 4px;}
+        #livesEl { color: #FF5252; font-size: 1.1rem; letter-spacing: 2px; }
+
+        /* ── CARD AREA ── */
+        .cardzone{position:fixed;top:12%;bottom:40%;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:center; perspective: 1000px;}
+        .board{width:clamp(200px,60vw,300px);height:clamp(200px,60vw,300px);background:linear-gradient(145deg,#C27C3A,#7B4A1E);border:8px solid #3E1F00;border-radius:22px;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 10px 32px rgba(0,0,0,0.3); transition: transform 0.1s ease-out; will-change: transform;}
+        .iframe{width:84%;height:84%;background:white;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+        .iframe img{width:100%;height:100%;object-fit:contain;}
+
+        .impact-shake { animation: impactWiggle 0.4s ease-out; }
+        @keyframes impactWiggle {
+            0% { transform: scale(1) rotate(0deg); }
+            20% { transform: scale(1.1) rotate(5deg); }
+            40% { transform: scale(0.9) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* ── GULSABI BIG FACE STRIP ── */
+        .gstrip{position:fixed;bottom:clamp(130px,26vh,190px);left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:center;gap:15px;padding:0 20px;}
+        .gface{width:100px;height:100px;border-radius:50%;border:5px solid white;overflow:hidden;background:white;box-shadow:0 6px 20px rgba(0,0,0,0.25); transition: transform 0.2s;}
+        .gface img{width:100%;height:100%;object-fit:cover;}
+        .gmood{background:rgba(255,255,255,.95);padding:.5em 1.2em;border-radius:1.2em;font-size:1.1rem;border:3px solid white;color:#333;box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+
+        /* ── CATAPULT DECK ── */
+        .deck{position:fixed;bottom:0;left:0;right:0;z-index:600;background:linear-gradient(180deg,transparent 0%,rgba(255,255,255,.98) 25%);padding:10px 10px calc(20px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:flex-end;}
+        .cw{display:flex;flex-direction:column;align-items:center;width:23%;max-width:90px;cursor:pointer;transition:transform 0.15s;}
+        .cw svg{width:100%;height:auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3));}
+        .clabel{font-size:0.8rem;font-weight:bold;padding:.2em .6em;border-radius:.6em;border:2.5px solid white;margin-top:4px;white-space:nowrap;box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
+
+        .recoil { animation: cRecoil 0.3s ease-out; }
+        @keyframes cRecoil {
+            0% { transform: scale(1); }
+            30% { transform: scale(0.8) translateY(10px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+
+        /* ── CANNONBALL (GPU Accelerated) ── */
+        .cannonball {
+            position: fixed;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset -4px -4px 6px rgba(0,0,0,0.5);
+            will-change: transform;
+        }
+
+        .ov{position:fixed;inset:0;z-index:7000;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:.3s;background:rgba(0,0,0,0.8);backdrop-filter:blur(5px);}
+        .ov.show{visibility:visible;opacity:1;}
+        .mc{background:white;padding:2rem;border-radius:28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1.2rem;width:88%;max-width:350px;}
+        .bigbtn{background:linear-gradient(135deg,#FF6B6B,#FF8853);color:white;border:none;padding:1em;font-size:1.3rem;border-radius:3em;cursor:pointer;font-weight:bold;width:100%;box-shadow:0 8px 25px rgba(255,107,107,.45);}
+        #mbtn{position:fixed;bottom:20vh;right:15px;z-index:700;padding:8px 12px;border-radius:25px;border:2px solid white;background:white;font-weight:bold;font-size:0.75rem;}
+        .adrop{animation:dropIn 0.6s cubic-bezier(.17,.88,.32,1.2) forwards;}
+        @keyframes dropIn{0%{transform:translateY(-100vh);}100%{transform:translateY(0);}}
+    </style>
+</head>
+<body>
+
+<div class="sky"></div>
+<div class="sun"></div>
+<div class="ground"></div>
+<div class="twrap"><div class="tbar" id="tbar"></div></div>
+
+<div class="hdr">
+    <div class="pill">Lives: <span id="livesEl">❤️❤️❤️❤️</span></div>
+    <div class="pill" id="lvlEl">Lv.1</div>
+    <div class="pill">Score: <span id="scoreEl">0</span></div>
+</div>
+
+<div class="cardzone">
+    <div id="tasm"><div class="board" id="card"></div></div>
+</div>
+
+<div class="gstrip">
+    <div class="gface" id="gface"><img id="gimg" src="gulsabi-normal.png"></div>
+    <div class="gmood" id="gmoodText">Let's Play!</div>
+</div>
+
+<button id="mbtn" onclick="toggleMute()">Music: On</button>
+<div class="deck" id="deck"></div>
+
+<div class="ov show" id="ovStart">
+    <div class="mc">
+        <img style="width:100px; height:100px; border-radius:50%; border:4px solid #FFD600" src="gulsabi-happy.png">
+        <h1 style="color:#FF6B6B; font-size:2rem;">Color Cannon</h1>
+        <p>Ready to help Gulsabi?</p>
+        <button class="bigbtn" onclick="initGame()">PLAY NOW</button>
+    </div>
+</div>
+
+<div class="ov" id="ovEnd">
+    <div class="mc">
+        <img style="width:100px; height:100px; border-radius:50%;" id="endFace" src="gulsabi-sad.png">
+        <h1 id="endTitle">Game Over</h1>
+        <p>Score: <strong id="endScore" style="font-size:2.5rem; color:#FF6B6B">0</strong></p>
+        <button class="bigbtn" onclick="initGame()">RESTART</button>
+    </div>
+</div>
+
+<script>
+/* ── AUDIO & ASSET PRELOADING ── */
+const AF = 'audio/';
+const A = 'assets/';
+const VO_FILES = {
+    start: AF + 'v_start.mp3',
+    timeLow: AF + 'v_time_low.mp3',
+    gameover: AF + 'v_gameover.mp3',
+    win: AF + 'v_win.mp3',
+    powerup: AF + 'v_powerup.mp3',
+    oops: AF + 'oops.mp3'
+};
+
+const ALL = [
+    {id:'blue', label:'Blue', hex:'#2196F3', dark:'#0D47A1', items:['blue-bird.jpg','blue-fish.jpg']},
+    {id:'green', label:'Green', hex:'#4CAF50', dark:'#1B5E20', items:['green-frog.jpg','green-leaf.jpg']},
+    {id:'red', label:'Red', hex:'#F44336', dark:'#B71C1C', items:['red-apple.jpg','red-car.jpg']},
+    {id:'yellow', label:'Yellow', hex:'#FDD835', dark:'#F57F17', items:['yellow-banana.jpg','yellow-sun.jpg']}
+];
+
+let VO_OBJECTS = {};
+let AC = null, muted = false, bgOn = false, nextNoteTime = 0, timerID = null, step = 0;
+let gs = {}, gi = null, active = [], gameRunning = false;
+
+function preloadAssets() {
+    ALL.forEach(col => col.items.forEach(file => { const img = new Image(); img.src = A + file; }));
+    ['normal', 'happy', 'sad', 'thinking'].forEach(m => { const img = new Image(); img.src = `gulsabi-${m}.png`; });
+}
+
+const getAC = () => { if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); return AC; };
+
+function setupVO() {
+    for (let key in VO_FILES) {
+        VO_OBJECTS[key] = new Audio(VO_FILES[key]);
+        VO_OBJECTS[key].load();
+    }
+}
+
+function playVO(key) {
+    if (muted || !VO_OBJECTS[key]) return;
+    getAC().resume();
+    const sound = VO_OBJECTS[key];
+    sound.pause(); sound.currentTime = 0;
+    sound.play().catch(() => {});
+}
+
+function playNote(freq, time, dur, vol, type='triangle') {
+    if(muted) return;
+    const osc = getAC().createOscillator(), gain = AC.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, time);
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(vol, time + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    osc.connect(gain); gain.connect(AC.destination);
+    osc.start(time); osc.stop(time + dur);
+}
+
+function scheduler() {
+    while (nextNoteTime < getAC().currentTime + 0.1) {
+        const bpm = 125 + (gs.level * 10), secondsPerBeat = 60.0 / bpm;
+        playNote([110, 164, 138, 110][step % 4], nextNoteTime, secondsPerBeat, 0.1, 'sine');
+        nextNoteTime += 0.25 * secondsPerBeat;
+        step++;
+    }
+    timerID = setTimeout(scheduler, 25);
+}
+
+function startMusic() { if(!bgOn && !muted) { bgOn=true; nextNoteTime = getAC().currentTime; scheduler(); } }
+function stopMusic() { clearTimeout(timerID); bgOn=false; }
+function toggleMute() { muted=!muted; document.getElementById('mbtn').textContent=muted?'Music: Off':'Music: On'; muted?stopMusic():startMusic(); }
+
+/* ── GAME LOGIC ── */
+document.addEventListener('visibilitychange', () => { if (gameRunning && document.hidden) endGame(false); });
+
+function initGame(){
+    getAC().resume(); setupVO(); preloadAssets();
+    document.querySelectorAll('.ov').forEach(e => e.classList.remove('show'));
+    gs = {score: 0, lives: 4, level: 1, timer: 10, tmax: 10, busy: false};
+    active = [...ALL]; gameRunning = true;
+    updateUI(); renderCannons(); dealCard(); startMusic();
+    setTimeout(() => playVO('start'), 150);
+    if(gi) clearInterval(gi); gi = setInterval(tick, 100);
+}
+
+function tick(){
+    if(gs.busy) return; gs.timer -= 0.1;
+    document.getElementById('tbar').style.width = (gs.timer/gs.tmax)*100+'%';
+    if(gs.timer < 3.0 && gs.timer > 2.8) playVO('timeLow');
+    if(gs.timer <= 0) handleMiss();
+}
+
+function dealCard(){
+    gs.timer = gs.tmax; gs.busy = false;
+    const col = active[Math.floor(Math.random()*active.length)];
+    gs.card = {cid: col.id, file: col.items[Math.floor(Math.random()*col.items.length)]};
+    document.getElementById('card').innerHTML = `<div class="iframe"><img src="${A}${gs.card.file}" onerror="this.src='gulsabi-normal.png'"></div>`;
+    const tasm = document.getElementById('tasm');
+    tasm.classList.remove('adrop'); void tasm.offsetWidth; tasm.classList.add('adrop');
+}
+
+function fireCannonball(startEl, color, onHit) {
+    const ball = document.createElement('div'), startRect = startEl.getBoundingClientRect(), targetRect = document.getElementById('card').getBoundingClientRect();
+    ball.className = 'cannonball'; ball.style.backgroundColor = color;
+    startEl.classList.add('recoil'); setTimeout(() => startEl.classList.remove('recoil'), 300);
+    const x1 = startRect.left + startRect.width / 2, y1 = startRect.top, x2 = targetRect.left + targetRect.width / 2, y2 = targetRect.top + targetRect.height / 2;
+    document.body.appendChild(ball);
+    const duration = 500, startTime = performance.now();
+    function animate(currentTime) {
+        const elapsed = currentTime - startTime, progress = Math.min(elapsed / duration, 1);
+        const currentX = x1 + (x2 - x1) * progress, currentY = y1 + (y2 - y1) * progress - (Math.sin(progress * Math.PI) * 160);
+        ball.style.transform = `translate3d(${currentX - x1}px, ${currentY - y1}px, 0) scale(${1 + Math.sin(progress * Math.PI) * 0.6})`;
+        ball.style.left = `${x1}px`; ball.style.top = `${y1}px`;
+        if (progress < 1) requestAnimationFrame(animate);
+        else { ball.remove(); triggerImpact(); onHit(); }
+    }
+    requestAnimationFrame(animate);
+}
+
+function triggerImpact() {
+    document.getElementById('card').classList.add('impact-shake');
+    document.getElementById('gface').classList.add('impact-shake');
+    setTimeout(() => {
+        document.getElementById('card').classList.remove('impact-shake');
+        document.getElementById('gface').classList.remove('impact-shake');
+    }, 400);
+}
+
+function fire(cid, el){
+    if(gs.busy) return; gs.busy = true;
+    const color = active.find(c => c.id === cid).hex;
+    fireCannonball(el, color, () => {
+        if(cid === gs.card.cid){
+            gs.score += 100; if(gs.score % 500 === 0) { gs.level++; playVO('powerup'); }
+            updateUI(); setTimeout(dealCard, 350);
+        } else handleMiss();
+    });
+}
+
+function handleMiss(){
+    gs.lives--; playVO('oops'); updateUI();
+    if(gs.lives <= 0) endGame(false); else setTimeout(dealCard, 800);
+}
+
+function endGame(win){ 
+    gameRunning = false; clearInterval(gi); stopMusic(); 
+    document.getElementById('endScore').textContent = gs.score; document.getElementById('ovEnd').classList.add('show');
+    playVO('gameover');
+}
+
+function updateUI(){
+    document.getElementById('scoreEl').textContent = gs.score;
+    document.getElementById('livesEl').textContent = "❤️".repeat(gs.lives);
+    document.getElementById('lvlEl').textContent = 'Lv.' + gs.level;
+}
+
+function renderCannons(){
+    const deck = document.getElementById('deck'); deck.innerHTML = '';
+    active.forEach(col => {
+        const btn = document.createElement('div'); btn.className = 'cw';
+        btn.innerHTML = `
+        <svg viewBox="0 0 80 95">
+            <rect x="10" y="75" width="60" height="12" rx="4" fill="#5D4037" stroke="#3E2723" stroke-width="2"/>
+            <circle cx="20" cy="85" r="7" fill="#212121" stroke="white" stroke-width="1.5"/>
+            <circle cx="60" cy="85" r="7" fill="#212121" stroke="white" stroke-width="1.5"/>
+            <rect x="25" y="45" width="6" height="35" fill="#795548" stroke="#3E2723" stroke-width="1.5"/>
+            <rect x="49" y="45" width="6" height="35" fill="#795548" stroke="#3E2723" stroke-width="1.5"/>
+            <rect x="37" y="20" width="6" height="60" rx="3" fill="#8D6E63" stroke="#3E2723" stroke-width="1.5" transform="rotate(-10, 40, 75)"/>
+            <circle cx="40" cy="18" r="16" fill="${col.hex}" stroke="white" stroke-width="3"/>
+        </svg>
+        <div class="clabel" style="background:${col.hex};color:white">${col.label}</div>`;
+        btn.onclick = () => fire(col.id, btn);
+        deck.appendChild(btn);
+    });
+}
+</script>
+</body>
+</html>
