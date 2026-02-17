@@ -24,7 +24,7 @@
         .hdr{width:100%;padding:clamp(10px, 2vh, 15px);display:flex;justify-content:space-between;position:relative;z-index:800;pointer-events:none;}
         .pill{background:rgba(255,255,255,.93);padding:.4em .8em;border-radius:2em;border:3px solid white;pointer-events:auto;font-size:0.85rem;box-shadow:0 4px 14px rgba(0,0,0,.15); display: flex; align-items: center; gap: 4px;}
 
-        /* ── CARD ZONE (Upper Middle) ── */
+        /* ── CARD ZONE ── */
         .cardzone{flex: 1; display:flex; align-items:center; justify-content:center; position:relative; z-index:60; max-height: 45vh;}
         .board{width:clamp(180px,50vw,260px);height:clamp(180px,50vw,260px);background:linear-gradient(145deg,#C27C3A,#7B4A1E);border:8px solid #3E1F00;border-radius:22px;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 10px 32px rgba(0,0,0,0.3); transition: transform 0.1s; will-change: transform;}
         .iframe{width:84%;height:84%;background:white;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
@@ -37,13 +37,13 @@
             40% { transform: scale(0.9) rotate(-5deg); }
         }
 
-        /* ── GULSABI STRIP (Centered Middle) ── */
+        /* ── GULSABI STRIP ── */
         .gstrip{height: 110px; display:flex; align-items:center; justify-content:center; gap:12px; padding:0 15px; position:relative; z-index:500;}
         .gface{width:85px; height:85px; border-radius:50%; border:4px solid white; overflow:hidden; background:white; box-shadow:0 6px 20px rgba(0,0,0,0.25);}
         .gface img{width:100%; height:100%; object-fit:cover;}
         .gmood{background:rgba(255,255,255,.95); padding:.5em 1em; border-radius:1.2em; font-size:0.95rem; border:2.5px solid white; color:#333; max-width: 160px;}
 
-        /* ── CATAPULT DECK (Bottom - No Overlap) ── */
+        /* ── CATAPULT DECK ── */
         .deck{background:linear-gradient(180deg,transparent 0%,rgba(255,255,255,.98) 25%); padding:10px 10px calc(15px + env(safe-area-inset-bottom)); display:flex; justify-content:space-around; align-items:flex-end; position:relative; z-index:600;}
         .cw{display:flex; flex-direction:column; align-items:center; width:22%; max-width:80px; cursor:pointer; transition:transform 0.15s;}
         .cw svg{width:100%; height:auto; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3));}
@@ -90,7 +90,6 @@
 </div>
 
 <button id="mbtn" onclick="toggleMute()">Music: On</button>
-
 <div class="deck" id="deck"></div>
 
 <div class="ov show" id="ovStart">
@@ -112,6 +111,7 @@
 </div>
 
 <script>
+/* ── AUDIO SYSTEM ── */
 const AF = 'audio/', A = 'assets/';
 const VO_FILES = { start: AF+'v_start.mp3', timeLow: AF+'v_time_low.mp3', gameover: AF+'v_gameover.mp3', win: AF+'v_win.mp3', powerup: AF+'v_powerup.mp3', oops: AF+'oops.mp3' };
 const ALL = [
@@ -123,11 +123,6 @@ const ALL = [
 
 let VO_OBJECTS = {}, AC = null, muted = false, bgOn = false, nextNoteTime = 0, timerID = null, step = 0;
 let gs = {}, gi = null, active = [], gameRunning = false;
-
-function preloadAssets() {
-    ALL.forEach(col => col.items.forEach(file => { const img = new Image(); img.src = A + file; }));
-    ['normal', 'happy', 'sad', 'thinking'].forEach(m => { const img = new Image(); img.src = `gulsabi-${m}.png`; });
-}
 
 const getAC = () => { if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); return AC; };
 function setupVO() { for (let key in VO_FILES) { VO_OBJECTS[key] = new Audio(VO_FILES[key]); VO_OBJECTS[key].load(); } }
@@ -141,10 +136,20 @@ function playNote(freq, time, dur, vol, type='triangle') {
     osc.connect(g); g.connect(AC.destination); osc.start(time); osc.stop(time + dur);
 }
 
+// ADDICTIVE MUSIC ENGINE
 function scheduler() {
     while (nextNoteTime < getAC().currentTime + 0.1) {
-        const bpm = 125 + (gs.level * 12), s = 60.0 / bpm;
-        playNote([110, 164, 138, 110][step % 4], nextNoteTime, s, 0.1, 'sine');
+        // Speed increases with level
+        const bpm = 125 + (gs.level * 12); 
+        const s = 60.0 / bpm;
+        
+        // Addictive Bass (A-Minor style)
+        const bass = [110, 110, 164, 110, 138, 110, 164, 110];
+        playNote(bass[step % 8], nextNoteTime, s, 0.12, 'sine');
+        
+        // Beat
+        if(step % 2 === 0) playNote(2200, nextNoteTime, 0.04, 0.04, 'square');
+        
         nextNoteTime += 0.25 * s; step++;
     }
     timerID = setTimeout(scheduler, 25);
@@ -154,10 +159,9 @@ function startMusic() { if(!bgOn && !muted) { bgOn=true; nextNoteTime = getAC().
 function stopMusic() { clearTimeout(timerID); bgOn=false; }
 function toggleMute() { muted=!muted; document.getElementById('mbtn').textContent=muted?'Music: Off':'Music: On'; muted?stopMusic():startMusic(); }
 
-document.addEventListener('visibilitychange', () => { if (gameRunning && document.hidden) endGame(false); });
-
 function initGame(){
-    getAC().resume(); setupVO(); preloadAssets();
+    getAC().resume(); // CRITICAL: Resume audio context on user gesture
+    setupVO(); 
     document.querySelectorAll('.ov').forEach(e => e.classList.remove('show'));
     gs = {score: 0, lives: 4, level: 1, timer: 10, tmax: 10, busy: false};
     active = [...ALL]; gameRunning = true;
