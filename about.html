@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -24,7 +24,7 @@
             background-color: #f0faff;
             color: var(--text-dark);
             overflow-x: hidden;
-            padding-top: 95px;
+            padding-top: 80px;
         }
 
         /* =============================================
@@ -70,64 +70,36 @@
            SCROLL PROGRESS BAR
            ============================================= */
         .progress-bar {
-            position: fixed; top: 95px; left: 0; height: 5px;
+            position: fixed; top: 80px; left: 0; height: 5px;
             background: linear-gradient(90deg, var(--gulsabi-yellow), var(--cape-red), var(--hero-blue));
-            width: 0%; z-index: 999; transition: width 0.1s linear, opacity 0.25s ease;
+            width: 0%; z-index: 999; transition: width 0.1s linear;
             box-shadow: 0 0 10px rgba(255,214,0,0.5);
         }
-        .progress-bar.hidden { opacity: 0; }
 
         /* =============================================
            NAVIGATION
            ============================================= */
         nav {
-            position: fixed; top: 0; width: 100%; height: 90px;
-            background: rgba(255,255,255,0.96); border-bottom: 5px solid var(--text-dark);
-            display: flex; align-items: center;
+            position: fixed; top: 0; width: 100%; height: 80px;
+            background: white; border-bottom: 5px solid var(--text-dark);
+            display: flex; justify-content: space-between; align-items: center;
             padding: 0 5%; z-index: 1000;
             animation: navDrop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both;
-            transition: background-color 0.35s ease, box-shadow 0.35s ease, transform 0.3s ease;
-            backdrop-filter: blur(3px) saturate(120%);
-            --nav-content-alpha: 1;
         }
-        nav.nav-hidden {
-            transform: translateY(-130%);
-            opacity: 0;
-            pointer-events: none;
-            border-bottom: 0 !important;
-            box-shadow: none !important;
-            background-color: rgba(255,255,255,0) !important;
-            backdrop-filter: none;
-            visibility: hidden;
-        }
-        nav.nav-hidden .nav-logo,
-        nav.nav-hidden .nav-links,
-        nav.nav-hidden .nav-btn,
-        nav.nav-hidden .hamburger { opacity: 0; }
         @keyframes navDrop { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 
         .nav-logo {
+            font-weight: 800; font-size: clamp(1.3rem, 4vw, 1.8rem);
+            color: var(--hero-blue); letter-spacing: 2px;
             cursor: pointer; flex-shrink: 0;
-            animation: logoBounce 3s ease-in-out infinite;
-            transform-origin: center bottom;
-            opacity: var(--nav-content-alpha);
-            transition: opacity 0.3s ease;
+            animation: logoWobble 4s ease-in-out infinite;
         }
-        .nav-logo img { filter: drop-shadow(3px 3px 0px rgba(255,79,79,0.7)); }
-        @keyframes logoBounce {
-            0%,100% { transform: scale(1) rotate(-1deg); }
-            25%     { transform: scale(1.08) rotate(1.5deg); }
-            50%     { transform: scale(1.04) rotate(-0.5deg); }
-            75%     { transform: scale(1.1) rotate(2deg); }
+        @keyframes logoWobble {
+            0%,100% { letter-spacing: 2px; }
+            50%      { letter-spacing: 5px; color: var(--cape-red); }
         }
 
-        .nav-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; opacity: var(--nav-content-alpha); transition: opacity 0.3s ease; }
+        .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; }
         .nav-link {
             font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 600;
             color: var(--text-dark); text-decoration: none;
@@ -158,14 +130,13 @@
             box-shadow: 4px 4px 0px var(--text-dark);
             transition: 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
             cursor: pointer; font-family: 'Fredoka'; font-size: 1rem;
-            white-space: nowrap; flex-shrink: 0; opacity: var(--nav-content-alpha);
+            white-space: nowrap; flex-shrink: 0;
         }
         .nav-btn:hover { transform: scale(1.12) rotate(3deg); box-shadow: 6px 6px 0 var(--cape-red); }
 
         .hamburger {
             display: none; flex-direction: column; gap: 5px;
             cursor: pointer; padding: 6px; border: none; background: none; z-index: 1001;
-            opacity: var(--nav-content-alpha); transition: opacity 0.3s ease;
         }
         .hamburger span {
             display: block; width: 28px; height: 3px; border-radius: 3px;
@@ -178,7 +149,7 @@
         .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
 
         .mobile-menu {
-            position: fixed; top: 90px; left: 0; width: 100%;
+            position: fixed; top: 80px; left: 0; width: 100%;
             background: white; border-bottom: 5px solid var(--text-dark);
             padding: 0 5%; z-index: 999;
             max-height: 0; overflow: hidden;
@@ -226,10 +197,6 @@
             font-size: clamp(1rem, 3vw, 1.8rem); font-weight: 600;
             position: relative; z-index: 1;
             opacity: 0; animation: fadeUp 0.8s ease forwards 1s; padding: 0 16px;
-            line-height: 1.35;
-            min-height: calc(1.35em * 2);
-            display: flex; align-items: center; justify-content: center;
-            text-align: center;
         }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -312,7 +279,7 @@
         }
         @keyframes badgeDrop { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 
-        /* WHO IS GULSABI - stat grid */
+        /* WHO IS GULSABI — stat grid */
         .who-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -420,22 +387,10 @@
             display: flex; justify-content: flex-end;
             margin-top: -22px; margin-right: clamp(12px, 12%, 15%);
         }
-        .thought-avatar-img {
+        .thought-avatar .media-box {
             width: clamp(80px, 16vw, 150px); height: clamp(80px, 16vw, 150px);
-            object-fit: contain; display: block; flex-shrink: 0;
-            animation: thinkingFloat 3s ease-in-out infinite, thinkingWobble 6s ease-in-out infinite;
-            filter: drop-shadow(0 8px 16px rgba(0,163,224,0.3));
-            transform-origin: center bottom;
-        }
-        @keyframes thinkingFloat {
-            0%, 100% { transform: translateY(0) rotate(-2deg); }
-            50%       { transform: translateY(-14px) rotate(2deg); }
-        }
-        @keyframes thinkingWobble {
-            0%, 100% { filter: drop-shadow(0 8px 16px rgba(0,163,224,0.3)); }
-            25%      { filter: drop-shadow(0 10px 20px rgba(255,214,0,0.5)); }
-            50%      { filter: drop-shadow(0 12px 24px rgba(155,89,182,0.4)); }
-            75%      { filter: drop-shadow(0 10px 20px rgba(255,79,79,0.4)); }
+            border-radius: 50%; border-style: solid; background: var(--gulsabi-yellow);
+            flex-shrink: 0; margin: 0;
         }
 
         /* =============================================
@@ -544,8 +499,7 @@
            ============================================= */
         .sparkle {
             position: fixed; pointer-events: none; z-index: 9998;
-            width: 28px; height: 28px; border-radius: 50%;
-            animation: sparkleAnim 0.8s ease-out forwards;
+            font-size: 1.2rem; animation: sparkleAnim 0.8s ease-out forwards;
         }
         @keyframes sparkleAnim {
             0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
@@ -556,16 +510,16 @@
            RESPONSIVE BREAKPOINTS
            ============================================= */
 
-        /* Tablet â‰¤ 860px */
+        /* Tablet ≤ 860px */
         @media (max-width: 860px) {
             .pillar-grid { grid-template-columns: 1fr; }
             .thought-bubble { border-radius: 30px; }
             .bubble-dot-1, .bubble-dot-2 { display: none; }
         }
 
-        /* Mobile â‰¤ 700px */
+        /* Mobile ≤ 700px */
         @media (max-width: 700px) {
-            .nav-right .nav-links, .nav-right > .nav-btn { display: none; }
+            .nav-links, nav > .nav-btn { display: none; }
             .hamburger { display: flex; }
 
             .who-grid { grid-template-columns: 1fr; }
@@ -585,12 +539,12 @@
             footer { clip-path: polygon(0 5%, 100% 0, 100% 100%, 0% 100%); }
         }
 
-        /* Small phones â‰¤ 400px */
+        /* Small phones ≤ 400px */
         @media (max-width: 400px) {
-            body { padding-top: 75px; }
+            body { padding-top: 70px; }
             nav { height: 70px; padding: 0 4%; }
-            .progress-bar { top: 75px; }
-            .mobile-menu { top: 75px; }
+            .progress-bar { top: 70px; }
+            .mobile-menu { top: 70px; }
             .nav-logo { font-size: 1.15rem; letter-spacing: 1px; }
             .who-grid { grid-template-columns: 1fr; gap: 10px; }
             .comic-panel { padding: 18px 14px; }
@@ -605,32 +559,30 @@
 
     <!-- ======== NAVIGATION ======== -->
     <nav>
-        <div class="nav-logo"><img src="images/gulsabi-logo.png" alt="GULSABI" style="height:56px;width:auto;display:block;"></div>
-        <div class="nav-right">
-            <ul class="nav-links">
-                <li><a href="index.html" class="nav-link" onclick="setActive(this)">Home</a></li>
-                <li><a href="about.html" class="nav-link active" onclick="setActive(this)">About</a></li>
-            </ul>
-            <button class="nav-btn" onclick="showPopup()">Gul Gul Gulsabi! ✨</button>
-            <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Open menu">
-                <span></span><span></span><span></span>
-            </button>
-        </div>
+        <div class="nav-logo">GULSABI</div>
+        <ul class="nav-links">
+            <li><a href="#" class="nav-link active" onclick="setActive(this)">Home</a></li>
+            <li><a href="#about" class="nav-link" onclick="setActive(this)">About</a></li>
+        </ul>
+        <button class="nav-btn" onclick="showPopup()">Gul Gul Gulsabi! 🌟</button>
+        <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
     </nav>
 
     <div class="mobile-menu" id="mobileMenu">
         <ul>
-            <li><a href="index.html" class="nav-link" onclick="setActive(this); toggleMenu()">Home</a></li>
-            <li><a href="about.html" class="nav-link active" onclick="setActive(this); toggleMenu()">About</a></li>
-            <li><button class="nav-btn" onclick="toggleMenu(); showPopup()">Gul Gul Gulsabi! ✨</button></li>
+            <li><a href="#" class="nav-link active" onclick="setActive(this); toggleMenu()">Home</a></li>
+            <li><a href="#about" class="nav-link" onclick="setActive(this); toggleMenu()">About</a></li>
+            <li><button class="nav-btn" onclick="toggleMenu(); showPopup()">Gul Gul Gulsabi! 🌟</button></li>
         </ul>
     </div>
 
     <!-- ======== HERO ======== -->
     <header class="hero">
-        <span class="starburst star1">&#10022;</span>
-        <span class="starburst star2">&#10022;</span>
-        <span class="starburst star3">&#10022;</span>
+        <span class="starburst star1">★</span>
+        <span class="starburst star2">✦</span>
+        <span class="starburst star3">★</span>
         <h1>BEYOND THE SCREEN</h1>
         <p class="hero-sub" id="heroSub"></p>
     </header>
@@ -645,34 +597,35 @@
                 <span class="animated-heading">Who is Gulsabi?</span>
             </h2>
 
-            <div class="media-box video-placeholder" style="padding:0;overflow:hidden;background:#000;">
-                <video src="images/gulsabi-origin-story.mp4" poster="images/gulsabi-origin-story-thumb.jpg" controls style="width:100%;height:100%;min-height:clamp(200px,40vw,450px);display:block;object-fit:cover;border-radius:16px;"></video>
+            <div class="media-box video-placeholder">
+                <div class="play-icon">🎬</div>
+                <p style="position:absolute; bottom:16px; opacity:0.7; font-size:clamp(0.78rem,2vw,1rem);">VIDEO: The Gulsabi Origin Story</p>
             </div>
 
             <p style="font-size:clamp(0.95rem,2.5vw,1.4rem); line-height:1.85; margin-top:20px;">
-                Meet <strong>Gulsabi</strong> - the world's first thinking superhero built for the next generation! He doesn't punch villains or fly through skies. Instead, he wields the one weapon that changes everything: a question. Armed with endless curiosity and a bright yellow cape, Gulsabi is on a mission to turn every child on the planet into a <strong>fearless thinker</strong> - one <em>"But WHY?"</em> at a time.
+                Meet <strong>Gulsabi</strong> — the world's first thinking superhero built for the next generation! He doesn't punch villains or fly through skies. Instead, he wields the one weapon that changes everything: a question. Armed with endless curiosity and a bright yellow cape, Gulsabi is on a mission to turn every child on the planet into a <strong>fearless thinker</strong> — one <em>"But WHY?"</em> at a time.
             </p>
 
             <div class="who-grid">
                 <div class="who-stat">
-                    <span class="who-stat-icon"><img src="images/who-built-for-icon.svg" alt="Globe - Built For" style="width:clamp(40px,6vw,60px);height:clamp(40px,6vw,60px);object-fit:cover;border-radius:50%;border:2px solid #00A3E0;"></span>
+                    <span class="who-stat-icon">🌍</span>
                     <div class="who-stat-label">Built For</div>
                     <div class="who-stat-val">Every curious kid, in every corner of the world</div>
                 </div>
                 <div class="who-stat">
-                    <span class="who-stat-icon"><img src="images/who-superpower-icon.svg" alt="Superhero" style="width:clamp(40px,6vw,60px);height:clamp(40px,6vw,60px);object-fit:cover;border-radius:50%;border:2px solid #FF4F4F;"></span>
+                    <span class="who-stat-icon">🦸</span>
                     <div class="who-stat-label">Superpower</div>
                     <div class="who-stat-val">Critical Thinking & Unstoppable Curiosity</div>
                 </div>
                 <div class="who-stat">
-                    <span class="who-stat-icon"><img src="images/who-mission-icon.svg" alt="Mission Target" style="width:clamp(40px,6vw,60px);height:clamp(40px,6vw,60px);object-fit:cover;border-radius:50%;border:2px solid #FFD600;"></span>
+                    <span class="who-stat-icon">🎯</span>
                     <div class="who-stat-label">Mission</div>
                     <div class="who-stat-val">Transform young viewers into lifelong visionaries</div>
                 </div>
                 <div class="who-stat">
-                    <span class="who-stat-icon"><img src="images/who-battle-cry-icon.svg" alt="Battle Cry" style="width:clamp(40px,6vw,60px);height:clamp(40px,6vw,60px);object-fit:cover;border-radius:50%;border:2px solid #9b59b6;"></span>
+                    <span class="who-stat-icon">💬</span>
                     <div class="who-stat-label">Battle Cry</div>
-                    <div class="who-stat-val">"Gul Gul Gulsabi - Think it through!"</div>
+                    <div class="who-stat-val">"Gul Gul Gulsabi — Think it through!"</div>
                 </div>
             </div>
         </section>
@@ -683,18 +636,18 @@
                 Bridging the "Gulsabi Gap"
             </h2>
             <div class="media-box img-placeholder" style="background:var(--vision-bg);">
-                <img src="images/gulsabi-bridge.jpg" alt="Gulsabi bridge" style="width:100%;height:auto;border-radius:16px;display:block;">
+                <span style="font-weight:bold; color:var(--text-dark); text-align:center; padding:16px; font-size:clamp(0.85rem,2vw,1rem);">INFOGRAPHIC: CONSUMPTION VS. CURIOSITY</span>
             </div>
             <div class="pillar-grid">
                 <div class="pillar-card reveal-pop">
                     <span class="pillar-num">01</span>
                     <h4>Ask First, Watch Later</h4>
-                    <p style="font-size:clamp(0.88rem,2vw,1rem); line-height:1.6;">Every Gulsabi episode ends with a challenge - not an answer. Kids don't just watch; they wonder, experiment, and discover on their own.</p>
+                    <p style="font-size:clamp(0.88rem,2vw,1rem); line-height:1.6;">Every Gulsabi episode ends with a challenge — not an answer. Kids don't just watch; they wonder, experiment, and discover on their own.</p>
                 </div>
                 <div class="pillar-card reveal-pop" style="transition-delay:0.15s;">
                     <span class="pillar-num">02</span>
                     <h4>Universal Stories, Global Minds</h4>
-                    <p style="font-size:clamp(0.88rem,2vw,1rem); line-height:1.6;">Stories built around everyday curiosities - rain, shadows, bridges, bees - that every child anywhere on the planet instantly connects with.</p>
+                    <p style="font-size:clamp(0.88rem,2vw,1rem); line-height:1.6;">Stories built around everyday curiosities — rain, shadows, bridges, bees — that every child anywhere on the planet instantly connects with.</p>
                 </div>
                 <div class="pillar-card reveal-pop" style="transition-delay:0.3s;">
                     <span class="pillar-num">03</span>
@@ -713,14 +666,14 @@
         </h2>
         <div class="variant-grid">
             <div class="variant-card buddy-mode reveal-left">
-                <video src="images/gulsabi-buddy-mode.mp4" autoplay loop muted playsinline style="width:100%;height:auto;display:block;border:none;background:none;"></video>
+                <div class="media-box img-placeholder" style="min-height:150px;"><span style="color:#aaa; padding:8px; text-align:center; font-size:0.85rem;">IMAGE: BUDDY GULSABI</span></div>
                 <h3 style="font-size:clamp(1.2rem,3vw,1.8rem); margin:10px 0 6px;">Buddy Mode</h3>
-                <p style="font-size:clamp(0.88rem,2vw,1rem); line-height:1.7;"><strong>The Curious Companion.</strong> Gulsabi sits beside your child, explores the world together, and whispers the best question in every situation: <em>"Hey - but WHY?"</em></p>
+                <p style="font-size:clamp(0.88rem,2vw,1rem); line-height:1.7;"><strong>The Curious Companion.</strong> Gulsabi sits beside your child, explores the world together, and whispers the best question in every situation: <em>"Hey — but WHY?"</em></p>
             </div>
             <div class="variant-card super-mode reveal-right">
-                <video src="images/gulsabi-super-mode.mp4" autoplay loop muted playsinline style="width:100%;height:auto;display:block;border:none;background:none;"></video>
+                <div class="media-box img-placeholder" style="min-height:150px;"><span style="color:#888; padding:8px; text-align:center; font-size:0.85rem;">IMAGE: SUPER GULSABI</span></div>
                 <h3 style="font-size:clamp(1.2rem,3vw,1.8rem); margin:10px 0 6px;">Super Mode</h3>
-                <p style="font-size:clamp(0.88rem,2vw,1rem); line-height:1.7;"><strong>The Logical Leader.</strong> Cape on, brain activated! In Super Mode, Gulsabi tackles real puzzles - from "why is the sky blue?" to "how do bridges stand?" - turning every question into a mini-adventure.</p>
+                <p style="font-size:clamp(0.88rem,2vw,1rem); line-height:1.7;"><strong>The Logical Leader.</strong> Cape on, brain activated! In Super Mode, Gulsabi tackles real puzzles — from "why is the sky blue?" to "how do bridges stand?" — turning every question into a mini-adventure.</p>
             </div>
         </div>
 
@@ -737,7 +690,9 @@
                 <div class="bubble-dot-2"></div>
             </div>
             <div class="thought-avatar">
-                <img src="images/gulsabi-thinking.png" alt="Thinking Gulsabi" class="thought-avatar-img">
+                <div class="media-box img-placeholder" style="border-style:solid; background:var(--gulsabi-yellow); margin:0;">
+                    <span style="font-size:0.65rem; text-align:center; padding:4px;">THINKING GULSABI</span>
+                </div>
             </div>
         </section>
 
@@ -747,30 +702,30 @@
                 <span class="animated-heading">The Gulsabi Ecosystem</span>
             </h2>
             <p style="font-size:clamp(0.9rem,2.2vw,1.2rem); line-height:1.8; margin-bottom:10px;">
-                Gulsabi doesn't live in just one screen he's everywhere your child learns and grows. From binge-worthy YouTube episodes to hands-on activity kits you build together at the dinner table, the Gulsabi universe is a <strong>complete curiosity ecosystem</strong> for families around the world.
+                Gulsabi doesn't live in just one screen — he's everywhere your child learns and grows. From binge-worthy YouTube episodes to hands-on activity kits you build together at the dinner table, the Gulsabi universe is a <strong>complete curiosity ecosystem</strong> for families around the world.
             </p>
             <div class="media-box img-placeholder" style="min-height:140px; border-color:var(--mint-green);">
-                <img src="images/gulsabi-ecosystem-map.jpg" alt="The Gulsabi Ecosystem Map" style="width:100%;height:auto;border-radius:16px;display:block;">
+                <span style="color:#666; padding:16px; text-align:center; font-size:clamp(0.8rem,2vw,1rem);">IMAGE: THE GULSABI ECOSYSTEM MAP</span>
             </div>
 
             <div class="roadmap-row">
                 <div class="roadmap-item reveal-pop">
                     <div class="step-num">1</div>
-                    <span class="roadmap-icon"><img src="images/watch-adventures-icon.svg" alt="Watch adventures icon" style="width:clamp(40px,6vw,64px);height:clamp(40px,6vw,64px);object-fit:cover;border-radius:12px;border:2px solid #00A3E0;"></span>
+                    <span class="roadmap-icon">📺</span>
                     <h4>WATCH</h4>
                     <p>High-Quality YouTube Adventures</p>
                 </div>
                 <div class="road-line"></div>
                 <div class="roadmap-item reveal-pop" style="transition-delay:0.15s;">
                     <div class="step-num">2</div>
-                    <span class="roadmap-icon"><img src="images/play-brain-icon.svg" alt="Play brain training icon" style="width:clamp(40px,6vw,64px);height:clamp(40px,6vw,64px);object-fit:cover;border-radius:12px;border:2px solid #9b59b6;"></span>
+                    <span class="roadmap-icon">🧠</span>
                     <h4>PLAY</h4>
                     <p>Logic-Based Brain-Training Apps</p>
                 </div>
                 <div class="road-line"></div>
                 <div class="roadmap-item reveal-pop" style="transition-delay:0.3s;">
                     <div class="step-num">3</div>
-                    <span class="roadmap-icon"><img src="images/touch-kits-icon.svg" alt="Touch activity kits icon" style="width:clamp(40px,6vw,64px);height:clamp(40px,6vw,64px);object-fit:cover;border-radius:12px;border:2px solid #2ecc71;"></span>
+                    <span class="roadmap-icon">🎨</span>
                     <h4>TOUCH</h4>
                     <p>Hands-On Educational Activity Kits</p>
                 </div>
@@ -782,9 +737,9 @@
     <!-- ======== FOOTER ======== -->
     <footer>
         <h2 style="font-size:clamp(1.4rem,5vw,3rem); margin-bottom:22px; position:relative; z-index:1;">Ready to think it through?</h2>
-        <button class="btn-call" onclick="showPopup()">GUL GUL GULSABI! ⚡</button>
+        <button class="btn-call" onclick="showPopup()">GUL GUL GULSABI!</button>
         <p style="margin-top:clamp(28px,6vw,60px); opacity:0.8; position:relative; z-index:1; font-size:clamp(0.82rem,2vw,1rem); line-height:1.8;">
-            &copy; 2026 Gulsabi Ecosystem. A <a href="https://pixnut.com/" style="color:white; font-weight:700; text-decoration:none;">Pixnut</a> Creation.<br>Made for Curious Minds, Everywhere.
+            &copy; 2026 Gulsabi Ecosystem. A <a href="#" style="color:white; font-weight:700; text-decoration:none;">Pixnut</a> Creation.<br>Made for Curious Minds, Everywhere.
         </p>
     </footer>
 
@@ -793,12 +748,7 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2 style="color:var(--cape-red); margin-bottom:12px; font-size:clamp(1.4rem,5vw,2.5rem); animation:wiggle 2s infinite;">Gul Gul Gulsabi!</h2>
             <p style="font-size:clamp(0.9rem,2.5vw,1.3rem); color:var(--text-dark); margin-bottom:18px;">Ready to join the "Why" Generation? Connect with us for brain-teasing fun!</p>
-            <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;animation:pulsePop 1.5s ease-in-out infinite;">
-                <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" title="YouTube" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#FF4F4F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">▶️</a>
-                <a href="index.html#games" title="Games Page" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#FFD600;color:#2c3e50;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">🎮</a>
-                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" title="Instagram" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#9b59b6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">📸</a>
-                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" title="Facebook" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#00A3E0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">👍</a>
-            </div>
+            <div style="font-size:clamp(2rem,8vw,4rem); margin-bottom:14px; animation:pulsePop 1.5s ease-in-out infinite;">🎬 🧠 📸</div>
             <button onclick="hidePopup()" style="background:var(--text-dark); color:white; padding:12px 28px; border-radius:30px; border:none; cursor:pointer; font-family:'Fredoka'; font-weight:600; font-size:clamp(0.88rem,2vw,1rem); transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">Close Fun Box</button>
         </div>
     </div>
@@ -823,40 +773,11 @@
         document.body.appendChild(q);
     });
 
-    /* === SCROLL PROGRESS + NAV FADE === */
-    const mainNav = document.querySelector('nav');
-    let lastScrollY = window.scrollY;
-    function handleScrollEffects() {
-        const scrollable = document.body.scrollHeight - window.innerHeight;
-        document.getElementById('progressBar').style.width = (window.scrollY / scrollable * 100) + '%';
-
-        const delta = window.scrollY - lastScrollY;
-        const scrollingUpStrong = delta < -4;
-        const downOrFlat = delta >= -1;
-        const pastHidePoint = window.scrollY > 140;
-
-        const fadeDistance = 360;
-        const t = Math.min(window.scrollY / fadeDistance, 1);
-        let navAlpha = 0.96 - (0.22 * t);
-        const shadowAlpha = 0.04 + (0.14 * t);
-        let contentAlpha = 1 - (0.18 * t);
-        if (scrollingUpStrong && window.scrollY > 0) {
-            navAlpha = Math.min(0.97, navAlpha + 0.16);
-            contentAlpha = Math.min(1, contentAlpha + 0.14);
-        }
-
-        mainNav.style.backgroundColor = `rgba(255,255,255,${navAlpha.toFixed(2)})`;
-        mainNav.style.boxShadow = `0 8px 24px rgba(44,62,80,${shadowAlpha.toFixed(2)})`;
-        mainNav.style.setProperty('--nav-content-alpha', contentAlpha.toFixed(2));
-
-        const menuOpen = document.getElementById('mobileMenu').classList.contains('open');
-        const shouldHideNav = downOrFlat && pastHidePoint && !menuOpen;
-        mainNav.classList.toggle('nav-hidden', shouldHideNav);
-        document.getElementById('progressBar').classList.toggle('hidden', shouldHideNav);
-        lastScrollY = window.scrollY;
-    }
-    window.addEventListener('scroll', handleScrollEffects, { passive: true });
-    handleScrollEffects();
+    /* === SCROLL PROGRESS === */
+    window.addEventListener('scroll', () => {
+        document.getElementById('progressBar').style.width =
+            (window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100) + '%';
+    });
 
     /* === REVEAL ON SCROLL === */
     const observer = new IntersectionObserver(entries => {
@@ -865,24 +786,16 @@
     document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-pop').forEach(el => observer.observe(el));
 
     /* === HERO TYPEWRITER === */
-    const phrases = [
-        { text: 'Igniting the "Why" Generation', emoji: '🌟' },
-        { text: 'Where Curiosity Becomes Superpower', emoji: '⚡' },
-        { text: 'Think First. Then Act!', emoji: '🧠' },
-        { text: 'A Hero for Every Curious Mind', emoji: '🌍' }
-    ];
+    const phrases = ['Igniting the "Why" Generation 🚀', 'Where Curiosity Becomes Superpower ⚡', 'Think First. Then Act! 🧠', 'A Hero for Every Curious Mind 🌍'];
     let pIdx = 0, cIdx = 0, typing = true;
     const subEl = document.getElementById('heroSub');
     function typeWriter() {
         const cur = phrases[pIdx];
         if (typing) {
-            subEl.textContent = cur.text.slice(0, ++cIdx);
-            if (cIdx === cur.text.length) {
-                subEl.textContent = `${cur.text} ${cur.emoji}`;
-                typing = false; setTimeout(typeWriter, 1800); return;
-            }
+            subEl.textContent = cur.slice(0, ++cIdx);
+            if (cIdx === cur.length) { typing = false; setTimeout(typeWriter, 1800); return; }
         } else {
-            subEl.textContent = cur.text.slice(0, --cIdx);
+            subEl.textContent = cur.slice(0, --cIdx);
             if (cIdx === 0) { typing = true; pIdx = (pIdx + 1) % phrases.length; }
         }
         setTimeout(typeWriter, typing ? 65 : 35);
@@ -890,7 +803,7 @@
     setTimeout(typeWriter, 1200);
 
     /* === QUOTE TYPEWRITER === */
-    const quote = '"The goal of education is not to fill a bucket, but to light a fire - and Gulsabi is the spark."';
+    const quote = '"The goal of education is not to fill a bucket, but to light a fire — and Gulsabi is the spark."';
     const quoteEl = document.getElementById('quoteText');
     let qStarted = false;
     new IntersectionObserver(entries => {
@@ -903,23 +816,16 @@
         });
     }, { threshold: 0.3 }).observe(document.querySelector('.thought-bubble'));
 
-    /* === CURSOR SPARKLES - desktop only === */
-    const sparkChars = [
-        '\u2728', // sparkle
-        '\u2B50', // star
-        '\u2757', // exclamation
-        '\u2753', // question
-        '\u26A1', // lightning
-        '\uD83D\uDCA1' // light bulb
-    ];
+    /* === CURSOR SPARKLES — desktop only === */
+    const sparks = ['✦','★','?','!','💡','⚡'];
     let sc = 0;
     if (window.matchMedia('(pointer:fine)').matches) {
         document.addEventListener('mousemove', e => {
             if (++sc % 8) return;
-            const s = document.createElement('span');
+            const s = document.createElement('div');
             s.className = 'sparkle';
-            s.textContent = sparkChars[Math.floor(Math.random() * sparkChars.length)];
-            s.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(255,255,255,0.12);`;
+            s.textContent = sparks[Math.floor(Math.random() * sparks.length)];
+            s.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;color:hsl(${Math.random()*360},90%,55%);`;
             document.body.appendChild(s);
             setTimeout(() => s.remove(), 800);
         });
@@ -946,7 +852,7 @@
     function showPopup() { document.getElementById('gulsabiPopup').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
     function hidePopup() { document.getElementById('gulsabiPopup').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
-    /* === 3D TILT - desktop only === */
+    /* === 3D TILT — desktop only === */
     if (window.matchMedia('(pointer:fine)').matches) {
         document.querySelectorAll('.comic-panel').forEach(panel => {
             panel.addEventListener('mousemove', e => {
@@ -968,24 +874,13 @@
     const ks = document.createElement('style');
     ks.textContent = `@keyframes powClick{0%{opacity:1;transform:translate(-50%,-50%) scale(0.5) rotate(-10deg)}60%{opacity:1;transform:translate(-50%,-80%) scale(1.2) rotate(5deg)}100%{opacity:0;transform:translate(-50%,-120%) scale(0.8) rotate(-5deg)}}`;
     document.head.appendChild(ks);
-    const powImgs = [
-        { src: 'https://placehold.co/64x64/FFD600/2c3e50?text=POW!', alt: 'POW' },
-        { src: 'https://placehold.co/64x64/FF4F4F/ffffff?text=ZAP!', alt: 'ZAP' },
-        { src: 'https://placehold.co/64x64/00A3E0/ffffff?text=WHY?', alt: 'WHY' },
-        { src: 'https://placehold.co/64x64/2ecc71/ffffff?text=WOW!', alt: 'WOW' },
-        { src: 'https://placehold.co/64x64/9b59b6/ffffff?text=IDEA', alt: 'Idea' },
-    ];
     document.addEventListener('click', e => {
-        const p = document.createElement('img');
-        const pi = powImgs[Math.floor(Math.random() * powImgs.length)];
-        p.src = pi.src; p.alt = pi.alt;
-        p.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:64px;height:64px;border-radius:16px;border:3px solid #2c3e50;box-shadow:3px 3px 0 #2c3e50;pointer-events:none;z-index:99999;animation:powClick 0.7s ease-out forwards;transform:translate(-50%,-50%);`;
+        const p = document.createElement('div');
+        p.textContent = ['POW!','ZAP!','WHY?','WOW!','💡'][Math.floor(Math.random()*5)];
+        p.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;font-family:'Fredoka',sans-serif;font-size:1.8rem;font-weight:700;color:var(--gulsabi-yellow);text-shadow:3px 3px 0 var(--text-dark);pointer-events:none;z-index:99999;animation:powClick 0.7s ease-out forwards;transform:translate(-50%,-50%);`;
         document.body.appendChild(p);
         setTimeout(() => p.remove(), 700);
     });
     </script>
 </body>
 </html>
-
-
-

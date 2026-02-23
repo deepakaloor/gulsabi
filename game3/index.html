@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GULSABI - Odd One Out</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="start-screen" class="screen">
+            <div class="intro-content">
+                <h1 class="logo-text">GULSABI</h1>
+                <div class="info-card">
+                    <p>ODD ONE OUT QUIZ</p>
+                    <ul>
+                        <li>5 Rounds</li>
+                        <li>6 Questions per Round</li>
+                        <li>10 Seconds Each</li>
+                    </ul>
+                    <button id="start-btn">ARE YOU READY?</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-hud" class="hidden">
+            <div class="header">
+                <span id="round-label">ROUND 1</span>
+                <div class="timer-container">
+                    <div id="timer-bar"></div>
+                </div>
+                <span id="score-label">Score: 0</span>
+            </div>
+
+            <div id="quiz-grid">
+                </div>
+
+            <div class="footer">
+                <div id="gulsabi-character"></div>
+                <div id="message-box">Find the odd one!</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

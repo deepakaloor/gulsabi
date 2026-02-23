@@ -1,0 +1,43 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Arial', sans-serif; background: #1a1a1a; color: white; overflow: hidden; }
+
+#game-container {
+    width: 100vw; height: 100vh;
+    display: flex; flex-direction: column;
+}
+
+.screen { 
+    position: absolute; width: 100%; height: 100%; 
+    display: flex; justify-content: center; align-items: center; 
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+}
+
+.hidden { display: none !important; }
+
+/* Grid Logic */
+#quiz-grid {
+    flex: 1; display: grid; gap: 10px; padding: 20px;
+    align-content: center; justify-content: center;
+}
+
+/* Dynamic Grid Classes */
+.grid-5 { grid-template-columns: repeat(2, 1fr); }
+.grid-10 { grid-template-columns: repeat(3, 1fr); }
+.grid-20 { grid-template-columns: repeat(4, 1fr); }
+
+#quiz-grid img {
+    width: 100%; max-width: 120px; border-radius: 10px;
+    background: white; padding: 5px; transition: transform 0.2s;
+}
+
+/* Timer Bar */
+.timer-container { width: 60%; height: 15px; background: #333; border-radius: 10px; overflow: hidden; }
+#timer-bar { width: 100%; height: 100%; background: #2ecc71; transition: width 0.1s linear; }
+
+/* Pulse animation for last second */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); background: #ff0000; }
+    100% { transform: scale(1); }
+}
+.timer-pulse { animation: pulse 0.2s infinite; }
