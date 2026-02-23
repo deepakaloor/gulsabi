@@ -18,6 +18,8 @@ This file documents the structure, conventions, and development workflows for th
 gulsabi/
 ├── CNAME                    # GitHub Pages custom domain → gulsabi.com
 ├── index.html               # Landing page (Gulsabi World hub)
+├── about/
+│   └── index.html           # About page (Gulsabi, mission, Pixnut)
 ├── assets/                  # Shared media for landing page
 │   ├── hero-video.mp4       # Full-screen hero section background
 │   ├── Normal 1.mp4         # Costume section video loop (normal Gulsabi)
@@ -163,6 +165,14 @@ python3 -m http.server 8080
 3. Test on both desktop and mobile viewport sizes (games support touch events)
 4. Verify audio works (browser may require a user gesture before audio plays — this is by design)
 
+### Nav Bar
+
+Both `index.html` and `about/index.html` share a fixed nav bar pattern:
+- Transparent by default; gets a dark blurred background (`rgba(0,0,0,0.65)` + `backdrop-filter`) once the user scrolls past 50px
+- Brand link on the left; page links on the right
+- Active page uses `.active-link` class (yellow underline)
+- Nav CSS lives in each page's own `<style>` block — keep them in sync when modifying shared nav styles
+
 ### Adding a New Game
 
 1. Create `game3/index.html` (self-contained, following the same pattern as `game1` and `game2`)
@@ -201,7 +211,8 @@ Do not use `git add -A` or `git add .` carelessly — the `game2/assets/` direct
 
 There is no automated test suite. Validate changes manually:
 
-- **Landing page:** Check scroll animations, video autoplay, game card hover effects, responsive layout at ≤1100px
+- **Landing page:** Check scroll animations, video autoplay, game card hover effects, responsive layout at ≤1100px, nav bar scroll behaviour
+- **About page:** Check all four sections render, character image loads from `../game2/gulsabi-happy.png`, game cards link correctly with `../` paths, nav active state shows "About" underlined
 - **Sky Adventure:** Verify collision detection, power-up timers, score/level progression, audio triggers
 - **Cannon Color Range:** Verify color matching logic, timer, mood sprite changes, cannon animation, all 8 color categories
 
