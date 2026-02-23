@@ -242,16 +242,66 @@
         
         footer a { color: var(--gulsabi-yellow); font-weight: bold; }
 
+        /* --- Nav --- */
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.3s ease, padding 0.3s ease;
+        }
+
+        .nav.scrolled {
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            padding: 14px 40px;
+        }
+
+        .nav-brand {
+            color: var(--pure-white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 0px var(--cape-red);
+        }
+
+        .nav-links { display: flex; gap: 30px; }
+
+        .nav-links a {
+            color: var(--pure-white);
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 6px 0;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active-link { border-bottom-color: var(--gulsabi-yellow); }
+
         @media (max-width: 1100px) {
             .costume-row { flex-direction: column; gap: 30px; }
             .center-text-content { order: 0; margin: 30px 0; }
             .costume-circle { width: 280px; height: 280px; }
             .hero-title { font-size: 3rem; }
             .center-text-content h2 { font-size: 2.5rem; }
+            .nav { padding: 16px 20px; }
+            .nav.scrolled { padding: 10px 20px; }
         }
     </style>
 </head>
 <body>
+
+    <nav class="nav" id="nav">
+        <a href="index.html" class="nav-brand">Gulsabi World</a>
+        <div class="nav-links">
+            <a href="index.html" class="active-link">Home</a>
+            <a href="about/index.html">About</a>
+        </div>
+    </nav>
 
     <section class="hero-section">
         <video class="video-bg" autoplay muted loop playsinline>
@@ -318,7 +368,11 @@
     </footer>
 
     <script>
-        // Animation Observer Only
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
