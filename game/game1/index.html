@@ -70,6 +70,16 @@
 
         .level-indicator {
             color: #FFD700;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .hud-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            min-width: 120px;
+            pointer-events: auto;
         }
 
         #start-screen, #game-over-screen {
@@ -137,23 +147,21 @@
         .item-desc { font-size: 8px; color: #ccc; display: block;}
 
         .top-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            width: 108px;
             pointer-events: auto;
-            display: flex;
-            gap: 15px; 
         }
 
         .icon-btn {
             background: rgba(0, 0, 0, 0.4); 
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border: 2px solid rgba(255,255,255,0.5);
             color: white;
-            font-size: 18px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -263,19 +271,20 @@
     <canvas id="gameCanvas"></canvas>
 
     <div id="ui-layer">
-        <div class="top-controls">
-            <button id="help-btn" class="icon-btn" title="Help">?</button>
-            <button id="fullscreen-btn" class="icon-btn" title="Fullscreen">&#9974;</button>
-            <button id="sound-toggle" class="icon-btn" title="Mute">&#9835;</button>
-        </div>
-
         <div class="hud">
             <div class="hud-left">
                 <div id="scoreDisplay">SCORE: 0</div>
-                <div id="heartsDisplay" class="hearts">â¤ï¸â¤ï¸â¤ï¸</div>
+                <div id="heartsDisplay" class="hearts">LIVES: 3</div>
                 <div id="comboDisplay" class="combo-text">COMBO x1</div>
             </div>
-            <div id="levelDisplay" class="level-indicator">LEVEL: 1</div>
+            <div class="hud-right">
+                <div id="levelDisplay" class="level-indicator">LEVEL: 1</div>
+                <div class="top-controls">
+                    <button id="help-btn" class="icon-btn" title="Help">?</button>
+                    <button id="fullscreen-btn" class="icon-btn" title="Fullscreen">&#9974;</button>
+                    <button id="sound-toggle" class="icon-btn" title="Mute">&#9835;</button>
+                </div>
+            </div>
         </div>
         
         <div id="powerup-msg">SUPERPOWER!</div>
@@ -287,21 +296,21 @@
             
             <div class="instructions-box">
                 <div class="instruction-row">
-                    <span class="instruction-icon">ðŸ¦„</span>
+                    <span class="instruction-icon">&#129412;</span>
                     <div>
                         <span class="item-name" style="color:#FFD700;">UNICORN</span>
                         <span class="item-desc">Invincibility Shield (6s)</span>
                     </div>
                 </div>
                 <div class="instruction-row">
-                    <span class="instruction-icon">ðŸš€</span>
+                    <span class="instruction-icon">&#128640;</span>
                     <div>
                         <span class="item-name" style="color:#F44336;">JETPACK</span>
                         <span class="item-desc">Auto-Fly & Shoot Lasers</span>
                     </div>
                 </div>
                 <div class="instruction-row">
-                    <span class="instruction-icon">ðŸŸ¡</span>
+                    <span class="instruction-icon">&#128993;</span>
                     <div>
                         <span class="item-name" style="color:#FFF176;">COIN</span>
                         <span class="item-desc">+5 Score Bonus</span>
@@ -311,10 +320,10 @@
                 <div class="separator"></div>
 
                 <div class="instruction-row">
-                    <span class="instruction-icon">âš ï¸</span>
+                    <span class="instruction-icon">&#9888;</span>
                     <div>
                         <span class="item-name" style="color:#FF5252;">AVOID!</span>
-                        <span class="item-desc">Aliens ðŸ‘½ & Asteroids ðŸŒ‘</span>
+                        <span class="item-desc">Aliens & Asteroids</span>
                     </div>
                 </div>
             </div>
@@ -334,21 +343,21 @@
                 </div>
 
                 <div class="instruction-row">
-                    <span class="instruction-icon">ðŸ¦„</span>
+                    <span class="instruction-icon">&#129412;</span>
                     <div>
                         <span class="item-name" style="color:#FFD700;">UNICORN</span>
                         <span class="item-desc">Invincibility Shield</span>
                     </div>
                 </div>
                 <div class="instruction-row">
-                    <span class="instruction-icon">ðŸš€</span>
+                    <span class="instruction-icon">&#128640;</span>
                     <div>
                         <span class="item-name" style="color:#F44336;">JETPACK</span>
                         <span class="item-desc">Auto-Fly & Shoot Lasers</span>
                     </div>
                 </div>
                 <div class="instruction-row">
-                    <span class="instruction-icon">ðŸŸ¡</span>
+                    <span class="instruction-icon">&#128993;</span>
                     <div>
                         <span class="item-name" style="color:#FFF176;">COIN</span>
                         <span class="item-desc">+5 Score Bonus</span>
@@ -358,10 +367,10 @@
                 <div class="separator"></div>
 
                 <div class="instruction-row">
-                    <span class="instruction-icon">âš ï¸</span>
+                    <span class="instruction-icon">&#9888;</span>
                     <div>
                         <span class="item-name" style="color:#FF5252;">AVOID!</span>
-                        <span class="item-desc">Aliens ðŸ‘½ & Asteroids ðŸŒ‘</span>
+                        <span class="item-desc">Aliens & Asteroids</span>
                     </div>
                 </div>
             </div>
@@ -435,6 +444,8 @@
         let comboTimer = 0;
         let topCampFrames = 0;
         let topObstacleCooldown = 0;
+        let nextLevelScore = 260;
+        const MAX_LEVEL = 10;
 
         const SKY_COLORS = [
             ['#81D4FA', '#E1F5FE'],
@@ -556,24 +567,43 @@
 
         class Entity {
             constructor(t){this.type=t;this.w=50;this.h=50;this.x=canvas.width;this.y=Math.random()*(canvas.height-100);this.speed=gameSpeed;this.del=false;this.angle=0;this.nm=false;
-            if(t==='coin'){this.w=30;this.h=30;}if(t==='unicorn'||t==='jetpack'){this.w=60;this.h=40;}}
+            if(t==='coin'){this.w=30;this.h=30;}
+            if(t==='unicorn'){this.w=68;this.h=52;}
+            if(t==='jetpack'){this.w=60;this.h=40;}}
             update(){this.x-=this.speed;if(this.x+this.w<-50)this.del=true;if(this.type!=='asteroid'){this.angle+=0.1;this.y+=Math.sin(this.angle)*1.5;}else{this.angle+=0.05;}if((this.type==='alien'||this.type==='asteroid') && frames%5===0) particles.push(new Particle(this.x+this.w,this.y+this.h/2,'red_trail'));}
             draw(ctx){
                 ctx.save(); ctx.translate(this.x+this.w/2, this.y+this.h/2);
                 if(this.type==='coin'){ctx.scale(Math.abs(Math.sin(frames*0.1)),1);ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(0,0,15,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#DAA520';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='#FFF';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('$',0,2);}
                 else if(this.type==='asteroid'){ctx.rotate(this.angle);ctx.fillStyle='#795548';ctx.beginPath();ctx.moveTo(0,-22);ctx.lineTo(18,-15);ctx.lineTo(25,0);ctx.lineTo(15,20);ctx.lineTo(-5,25);ctx.lineTo(-22,10);ctx.lineTo(-20,-15);ctx.fill();ctx.fillStyle='#4E342E';ctx.beginPath();ctx.arc(-5,-5,6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(10,10,4,0,Math.PI*2);ctx.fill();}
                 else if(this.type==='alien'){ctx.fillStyle='#81D4FA';ctx.globalAlpha=0.6;ctx.beginPath();ctx.arc(0,-10,15,Math.PI,0);ctx.fill();ctx.globalAlpha=1.0;ctx.fillStyle='#76FF03';ctx.beginPath();ctx.arc(0,-10,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='black';ctx.fillRect(-3,-12,2,2);ctx.fillRect(3,-12,2,2);ctx.fillStyle='#424242';ctx.beginPath();ctx.ellipse(0,0,25,10,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#555'; ctx.fillRect(-28, -2, 6, 8); ctx.fillRect(22, -2, 6, 8);ctx.fillStyle='#222'; ctx.fillRect(-32, 0, 10, 3); ctx.fillRect(22, 0, 10, 3);ctx.fillStyle='#F44336'; ctx.beginPath(); ctx.arc(-32, 1.5, 1.5, 0, Math.PI*2); ctx.fill();ctx.beginPath(); ctx.arc(32, 1.5, 1.5, 0, Math.PI*2); ctx.fill();ctx.fillStyle='#757575'; ctx.fillRect(-30,-2,10,4);ctx.fillRect(20,-2,10,4);ctx.fillStyle='#F44336';for(let i=-1;i<=1;i++){ctx.beginPath();ctx.arc(i*15,0,3,0,Math.PI*2);ctx.fill();}}
-                else if(this.type==='unicorn'){ctx.shadowColor='#FFFFFF';ctx.shadowBlur=9;ctx.fillStyle='#FFF';ctx.beginPath();ctx.ellipse(0,6,21,10,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(-16,-8,11,10,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=`hsl(${(frames*4)%360},70%,62%)`;ctx.beginPath();ctx.arc(-17,-14,8,Math.PI,0);ctx.fill();ctx.beginPath();ctx.moveTo(20,6);ctx.lineTo(34,0);ctx.lineTo(34,12);ctx.fill();ctx.fillStyle='#FFD700';ctx.beginPath();ctx.moveTo(-19,-14);ctx.lineTo(-13,-30);ctx.lineTo(-7,-14);ctx.fill();ctx.fillStyle='#FFF';ctx.beginPath();ctx.arc(-11,16,4,0,Math.PI*2);ctx.arc(10,16,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
+                else if(this.type==='unicorn'){
+                    const bob = Math.sin(frames * 0.12) * 2;
+                    ctx.translate(0, bob);
+                    ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+                    ctx.shadowBlur = 10;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = '46px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+                    ctx.fillText('🦄', 0, 4);
+                    ctx.shadowBlur = 0;
+                }
                 else if(this.type==='jetpack'){ctx.fillStyle = '#CFD8DC'; ctx.fillRect(-15, -15, 10, 30); ctx.fillRect(5, -15, 10, 30);ctx.fillStyle = '#546E7A'; ctx.fillRect(-8, -10, 16, 20);ctx.fillStyle = '#FFEB3B'; ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(6, -5); ctx.lineTo(2, 2); ctx.lineTo(6, 2); ctx.lineTo(-2, 12); ctx.lineTo(0, 4); ctx.lineTo(-4, 4); ctx.closePath(); ctx.fill();ctx.fillStyle = '#FF5722'; ctx.fillRect(-18, -5, 36, 8);ctx.fillStyle = '#37474F'; ctx.beginPath(); ctx.moveTo(-15, 15); ctx.lineTo(-10, 22); ctx.lineTo(-5, 15); ctx.fill();ctx.beginPath(); ctx.moveTo(5, 15); ctx.lineTo(10, 22); ctx.lineTo(15, 15); ctx.fill();const fL = Math.random() * 12 + 8;ctx.fillStyle = '#FF5722'; ctx.beginPath(); ctx.moveTo(-13, 22); ctx.lineTo(-10, 22 + fL); ctx.lineTo(-7, 22); ctx.fill();ctx.beginPath(); ctx.moveTo(7, 22); ctx.lineTo(10, 22 + fL); ctx.lineTo(13, 22); ctx.fill();}
                 ctx.restore();
             }
         }
 
         const gulsabi = {
-            x:50,y:200,w:58,h:58,vy:0,gravity:0.15,lift:-4,invincible:0,autopilot:0,hurt:0,spin:0,
+            x:50,y:200,w:58,h:58,vy:0,gravity:0.15,lift:-4,invincible:0,autopilot:0,hurt:0,spin:0,lastShot:0,shotCooldown:180,
             update:function(){
                 const isAP=Date.now()<this.autopilot;
-                if(isAP){this.y+=(canvas.height/2-this.y)*0.1;this.vy=0;if(frames%10===0){projectiles.push(new Projectile(this.x+30,this.y+20));audio.playSound('laser');}}
+                if(isAP){
+                    const target = entities
+                        .filter(e => !e.del && (e.type === 'alien' || e.type === 'asteroid') && (e.x + e.w) >= this.x)
+                        .sort((a, b) => a.x - b.x)[0];
+                    const targetY = target ? (target.y + (target.h / 2) - (this.h / 2)) : (canvas.height / 2);
+                    this.y += (targetY - this.y) * 0.12;
+                    this.vy = 0;
+                }
                 else{if(inputActive){this.vy+=this.lift*0.15;if(this.vy<-5)this.vy=-5;}this.vy+=this.gravity;if(this.vy>4)this.vy=4;this.y+=this.vy;}
                 if(this.spin>0)this.spin-=0.2;
                 if(this.y<0)this.y=0;
@@ -590,7 +620,21 @@
             }
         };
 
-        function handleStart(e){ if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='INPUT'&&currentState===STATE.PLAYING){inputActive=true;audio.playSound('jump');}}
+        function fireJetpackShot(){
+            const now = Date.now();
+            if (currentState !== STATE.PLAYING || now >= gulsabi.autopilot) return false;
+            if (now - gulsabi.lastShot < gulsabi.shotCooldown) return true;
+            projectiles.push(new Projectile(gulsabi.x + gulsabi.w - 5, gulsabi.y + (gulsabi.h / 2)));
+            gulsabi.lastShot = now;
+            audio.playSound('laser');
+            return true;
+        }
+        function handleStart(e){
+            if(e.target.tagName==='BUTTON' || e.target.tagName==='INPUT') return;
+            if(currentState!==STATE.PLAYING) return;
+            if (fireJetpackShot()) return;
+            inputActive=true;audio.playSound('jump');
+        }
         function handleEnd(){inputActive=false;}
         window.addEventListener('mousedown',handleStart); window.addEventListener('mouseup',handleEnd);
         window.addEventListener('touchstart',handleStart,{passive:false}); window.addEventListener('touchend',handleEnd);
@@ -603,17 +647,52 @@
             resize();
         }
 
+        function getDifficulty() {
+            const lvl = Math.max(1, Math.min(level, MAX_LEVEL));
+            return {
+                obstacleSpeed: Math.min(2.8 + (lvl - 1) * 0.35, 6.0),
+                spawnInterval: Math.max(100 - (lvl - 1) * 5, 52),
+                obstacleBurstChance: Math.min(0.05 + (lvl - 1) * 0.02, 0.24),
+                powerupChance: Math.max(0.28 - (lvl - 1) * 0.015, 0.16),
+                maxObstaclesOnScreen: Math.min(3 + Math.floor((lvl - 1) / 2), 7),
+                topPunishCooldown: Math.max(42 - (lvl - 1) * 2, 20)
+            };
+        }
+
+        function levelUp() {
+            if (level >= MAX_LEVEL) return;
+            level++;
+            gameSpeed = getDifficulty().obstacleSpeed;
+            nextLevelScore += 260 + (level * 110);
+            gulsabi.spin = Math.PI * 2;
+            audio.playVoice("levelUp");
+            updateHUD();
+        }
+
         function spawn() {
-            if(frames % (120 - level * 10) === 0) {
-                let r = Math.random(); let type = 'asteroid';
-                if(r < 0.1) type = 'jetpack'; else if(r < 0.25) type = 'unicorn'; else if(r < 0.4) type = 'coin'; else if(r < 0.7) type = 'alien';
+            const d = getDifficulty();
+            if (frames % d.spawnInterval === 0) {
+                let r = Math.random();
+                let type = 'asteroid';
+                const powerupChance = d.powerupChance;
+                if (r < powerupChance * 0.25) type = 'jetpack';
+                else if (r < powerupChance * 0.55) type = 'unicorn';
+                else if (r < powerupChance) type = 'coin';
+                else if (r < (powerupChance + 0.38)) type = 'alien';
                 entities.push(new Entity(type));
+
+                const obstacleCount = entities.filter(e => !e.del && (e.type === 'alien' || e.type === 'asteroid')).length;
+                if ((type === 'alien' || type === 'asteroid') && obstacleCount < d.maxObstaclesOnScreen && Math.random() < d.obstacleBurstChance) {
+                    const extra = new Entity(Math.random() < 0.55 ? 'asteroid' : 'alien');
+                    extra.y = Math.max(10, Math.min(canvas.height - extra.h - 10, Math.random() * (canvas.height - extra.h)));
+                    entities.push(extra);
+                }
             }
             if (topCampFrames > 90 && topObstacleCooldown <= 0) {
                 const forced = new Entity(Math.random() < 0.5 ? 'asteroid' : 'alien');
                 forced.y = Math.random() * Math.min(80, canvas.height * 0.18);
                 entities.push(forced);
-                topObstacleCooldown = 45;
+                topObstacleCooldown = d.topPunishCooldown;
             }
         }
 
@@ -634,7 +713,7 @@
         }
 
         function updateHUD() {
-            scoreDisplay.innerText = `SCORE: ${score}`; heartsDisplay.innerText = 'â¤ï¸'.repeat(lives); levelDisplay.innerText = `LEVEL: ${level}`;
+            scoreDisplay.innerText = `SCORE: ${score}`; heartsDisplay.innerText = `LIVES: ${lives}`; levelDisplay.innerText = `LEVEL: ${level}`;
             if(combo > 1) { comboDisplay.innerText = `COMBO x${combo}`; comboDisplay.style.display = 'block'; comboDisplay.style.transform = `scale(${1 + combo*0.1})`; }
             else comboDisplay.style.display = 'none';
         }
@@ -674,7 +753,7 @@
             }
             for(let i=particles.length-1;i>=0;i--){particles[i].update();if(particles[i].life<=0)particles.splice(i,1);}
             for(let i=floatingTexts.length-1;i>=0;i--){floatingTexts[i].update();if(floatingTexts[i].life<=0)floatingTexts.splice(i,1);}
-            if(score>level*300){level++;if(level>5)level=5;gameSpeed+=0.5;gulsabi.spin=Math.PI*2;audio.playVoice("levelUp");updateHUD();}
+            while (score >= nextLevelScore && level < MAX_LEVEL) levelUp();
             if(Date.now()>gulsabi.invincible&&Date.now()>gulsabi.autopilot)powerupMsg.style.opacity=0;
         }
 
@@ -706,8 +785,8 @@
         function startGame() {
             audio.init(); audio.startMusic();
             audio.playVoice('chant');
-            score = 0; level = 1; gameSpeed = 3; lives = 3; combo = 1;
-            gulsabi.x = 50; gulsabi.y = canvas.height/2; gulsabi.vy = 0; gulsabi.invincible = 0; gulsabi.autopilot = 0; topCampFrames = 0; topObstacleCooldown = 0;
+            score = 0; level = 1; nextLevelScore = 260; gameSpeed = getDifficulty().obstacleSpeed; lives = 3; combo = 1;
+            gulsabi.x = 50; gulsabi.y = canvas.height/2; gulsabi.vy = 0; gulsabi.invincible = 0; gulsabi.autopilot = 0; gulsabi.lastShot = 0; topCampFrames = 0; topObstacleCooldown = 0;
             entities = []; projectiles = []; particles = []; floatingTexts = [];
             updateHUD(); startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; currentState = STATE.PLAYING;
         }

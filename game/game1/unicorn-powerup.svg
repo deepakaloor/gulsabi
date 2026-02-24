@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 96" role="img" aria-label="Unicorn">
+  <defs>
+    <linearGradient id="mane" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff6ec7"/>
+      <stop offset="50%" stop-color="#9c6bff"/>
+      <stop offset="100%" stop-color="#4dd0ff"/>
+    </linearGradient>
+    <linearGradient id="horn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe082"/>
+      <stop offset="100%" stop-color="#ffb300"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="67" cy="55" rx="34" ry="18" fill="#ffffff" stroke="#d6d6d6" stroke-width="3"/>
+  <ellipse cx="38" cy="41" rx="17" ry="14" fill="#ffffff" stroke="#d6d6d6" stroke-width="3"/>
+  <path d="M27 32 C33 23, 43 22, 50 31 C43 34, 33 36, 27 32 Z" fill="url(#mane)"/>
+  <path d="M39 22 L47 5 L53 23 Z" fill="url(#horn)" stroke="#f57f17" stroke-width="2"/>
+
+  <circle cx="42" cy="41" r="2.4" fill="#222"/>
+  <circle cx="43.2" cy="40.1" r="0.9" fill="#fff"/>
+  <path d="M47 45 C50 47, 54 47, 57 45" fill="none" stroke="#bdbdbd" stroke-width="2" stroke-linecap="round"/>
+
+  <path d="M100 54 C111 50, 118 54, 118 60 C111 62, 103 60, 100 54 Z" fill="url(#mane)"/>
+
+  <rect x="54" y="67" width="8" height="20" rx="3" fill="#ffffff" stroke="#d6d6d6" stroke-width="2"/>
+  <rect x="71" y="67" width="8" height="20" rx="3" fill="#ffffff" stroke="#d6d6d6" stroke-width="2"/>
+  <rect x="87" y="66" width="8" height="21" rx="3" fill="#ffffff" stroke="#d6d6d6" stroke-width="2"/>
+
+  <ellipse cx="58" cy="87" rx="5" ry="2.5" fill="#efefef"/>
+  <ellipse cx="75" cy="87" rx="5" ry="2.5" fill="#efefef"/>
+  <ellipse cx="91" cy="87" rx="5" ry="2.5" fill="#efefef"/>
+</svg>
