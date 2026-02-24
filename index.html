@@ -13,6 +13,7 @@
             --cape-red: #FF4F4F;       
             --pure-white: #ffffff;
             --text-dark: #2c3e50;
+            --nav-height: 90px;
             
             /* Animation Easings */
             --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
@@ -29,7 +30,7 @@
             overflow-x: hidden;
             background-color: #f0faff;
             color: var(--text-dark);
-            padding-top: 95px;
+            padding-top: var(--nav-height);
         }
 
         a { text-decoration: none; }
@@ -104,7 +105,7 @@
         /* --- Section 1: Hero --- */
         .hero-section {
             position: relative;
-            height: calc(100vh - 95px);
+            height: 100vh;
             min-height: 620px;
             width: 100%;
             overflow: hidden;
@@ -265,8 +266,8 @@
             min-height: 72vh;
             overflow: hidden;
             margin: 40px 0 0;
-            border-top: 8px solid var(--hero-blue);
-            border-bottom: 8px solid var(--hero-blue);
+            border-top: 0;
+            border-bottom: 0;
         }
 
         .costume-row {
@@ -476,32 +477,32 @@
         nav {
             position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
-            height: 90px;
+            height: var(--nav-height);
             background: rgba(255,255,255,0.96);
             border-bottom: 5px solid var(--text-dark);
             z-index: 1000;
             display: flex;
             align-items: center;
             padding: 0 5%;
-            transition: background-color 0.35s ease, box-shadow 0.35s ease, transform 0.3s ease;
-            backdrop-filter: blur(3px) saturate(120%);
+            transition: background-color 0.35s ease, box-shadow 0.35s ease, transform 0.3s ease, border-color 0.3s ease;
+            backdrop-filter: blur(8px) saturate(140%);
             --nav-content-alpha: 1;
+            box-shadow: 0 10px 28px rgba(44,62,80,0.08);
+        }
+        nav.nav-scrolled {
+            background: rgba(255,255,255,0.92);
+            border-bottom-color: rgba(44,62,80,0.85);
+            box-shadow: 0 14px 34px rgba(44,62,80,0.16);
         }
         nav.nav-hidden {
-            transform: translateY(-130%);
-            opacity: 0;
-            pointer-events: none;
-            border-bottom: 0 !important;
-            box-shadow: none !important;
-            background-color: rgba(255,255,255,0) !important;
+            transform: translateY(calc(-1 * var(--nav-height) - 8px));
+            border-bottom-color: transparent;
+            box-shadow: none;
+            background: rgba(255,255,255,0);
             backdrop-filter: none;
-            visibility: hidden;
         }
-        nav.nav-hidden .nav-logo,
-        nav.nav-hidden .nav-links,
-        nav.nav-hidden .nav-btn,
-        nav.nav-hidden .hamburger { opacity: 0; }
 
         .nav-logo {
             opacity: var(--nav-content-alpha);
@@ -556,6 +557,10 @@
 
         .nav-link:hover,
         .nav-link.active { color: var(--hero-blue); }
+        .nav-link:hover {
+            background: rgba(0,163,224,0.08);
+            transform: translateY(-2px);
+        }
         .nav-link.active::before {
             content: '';
             position: absolute;
@@ -584,6 +589,11 @@
             font-size: 1rem;
             white-space: nowrap;
             opacity: var(--nav-content-alpha);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .nav-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 6px 6px 0 var(--cape-red);
         }
 
         .hamburger {
@@ -614,11 +624,11 @@
 
         .mobile-menu {
             position: fixed;
-            top: 90px;
+            top: var(--nav-height);
             left: 0;
             width: 100%;
             background: white;
-            border-bottom: 5px solid var(--text-dark);
+            border-bottom: 0;
             padding: 0 5%;
             z-index: 999;
             max-height: 0;
@@ -626,7 +636,7 @@
             transition: max-height 0.45s ease, padding 0.3s ease;
         }
 
-        .mobile-menu.open { max-height: 280px; padding: 20px 5% 28px; }
+        .mobile-menu.open { max-height: 280px; padding: 20px 5% 28px; border-bottom: 5px solid var(--text-dark); }
         .mobile-menu ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
         .mobile-menu .nav-link { font-size: 1.3rem; padding: 12px 20px; }
         .mobile-menu .nav-btn { margin-top: 8px; width: 100%; text-align: center; }
@@ -645,10 +655,11 @@
         }
 
         @media (max-width: 400px) {
-            body { padding-top: 75px; }
-            nav { height: 70px; }
-            .mobile-menu { top: 75px; }
-            .hero-section { height: calc(100vh - 75px); min-height: 500px; }
+            :root { --nav-height: 70px; }
+            body { padding-top: var(--nav-height); }
+            nav { height: var(--nav-height); }
+            .mobile-menu { top: var(--nav-height); }
+            .hero-section { height: 100vh; min-height: 500px; }
         }
     </style>
 </head>
@@ -663,7 +674,7 @@
                 <li><a href="index.html" class="nav-link active" onclick="setActive(this)">Home</a></li>
                 <li><a href="about.html" class="nav-link" onclick="setActive(this)">About</a></li>
             </ul>
-            <button class="nav-btn" onclick="window.location.href='about.html'">Gul Gul Gulsabi! &#10024;</button>
+            <button class="nav-btn" onclick="showPopup()">Gul Gul Gulsabi!</button>
             <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Open menu">
                 <span></span><span></span><span></span>
             </button>
@@ -674,7 +685,7 @@
         <ul>
             <li><a href="index.html" class="nav-link active" onclick="setActive(this); toggleMenu()">Home</a></li>
             <li><a href="about.html" class="nav-link" onclick="setActive(this); toggleMenu()">About</a></li>
-            <li><button class="nav-btn" onclick="window.location.href='about.html'">Gul Gul Gulsabi! &#10024;</button></li>
+            <li><button class="nav-btn" onclick="toggleMenu(); showPopup()">Gul Gul Gulsabi!</button></li>
         </ul>
     </div>
 
@@ -751,7 +762,7 @@
 
     <footer>
         <h2 style="font-size:clamp(1.4rem,5vw,3rem); margin-bottom:22px; position:relative; z-index:1;">Ready to think it through?</h2>
-        <button class="btn-call" onclick="showPopup()">GUL GUL GULSABI! ⚡</button>
+        <button class="btn-call" onclick="showPopup()">GUL GUL GULSABI! &#9889;</button>
         <p style="margin-top:clamp(28px,6vw,60px); opacity:0.8; position:relative; z-index:1; font-size:clamp(0.82rem,2vw,1rem); line-height:1.8;">
             &copy; 2026 Gulsabi Ecosystem. A <a href="https://pixnut.com/" style="color:white; font-weight:700; text-decoration:none;">Pixnut</a> Creation.<br>Made for Curious Minds, Everywhere.
         </p>
@@ -762,10 +773,10 @@
             <h2 style="color:var(--cape-red); margin-bottom:12px; font-size:clamp(1.4rem,5vw,2.5rem);">Gul Gul Gulsabi!</h2>
             <p style="font-size:clamp(0.9rem,2.5vw,1.3rem); color:var(--text-dark); margin-bottom:18px;">Ready to join the "Why" Generation? Connect with us for brain-teasing fun!</p>
             <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
-                <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" title="YouTube" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#FF4F4F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">▶️</a>
-                <a href="index.html#games" title="Games Page" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#FFD600;color:#2c3e50;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">🎮</a>
-                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" title="Instagram" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#9b59b6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">📸</a>
-                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" title="Facebook" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#00A3E0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">👍</a>
+                <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" title="YouTube" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#FF4F4F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">&#9654;&#65039;</a>
+                <a href="index.html#games" title="Games Page" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#FFD600;color:#2c3e50;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">&#127918;</a>
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" title="Instagram" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#9b59b6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">&#128248;</a>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" title="Facebook" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#00A3E0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;">&#128077;</a>
             </div>
             <button onclick="hidePopup()" style="background:var(--text-dark); color:white; padding:12px 28px; border-radius:30px; border:none; cursor:pointer; font-family:'Fredoka'; font-weight:600; font-size:clamp(0.88rem,2vw,1rem);">Close Fun Box</button>
         </div>
@@ -839,6 +850,7 @@
         function toggleMenu() {
             document.getElementById('mobileMenu').classList.toggle('open');
             document.getElementById('hamburger').classList.toggle('open');
+            mainNav.classList.remove('nav-hidden');
         }
 
         document.addEventListener('click', (e) => {
@@ -858,32 +870,21 @@
 
         const mainNav = document.querySelector('nav');
         let lastScrollY = window.scrollY;
-        function updateNavOnScroll() {
-            const delta = window.scrollY - lastScrollY;
-            const scrollingUpStrong = delta < -4;
-            const downOrFlat = delta >= -1;
-            const pastHidePoint = window.scrollY > 140;
-
-            const fadeDistance = 360;
-            const t = Math.min(window.scrollY / fadeDistance, 1);
-            let navAlpha = 0.96 - (0.22 * t);
-            const shadowAlpha = 0.04 + (0.14 * t);
-            let contentAlpha = 1 - (0.18 * t);
-            if (scrollingUpStrong && window.scrollY > 0) {
-                navAlpha = Math.min(0.97, navAlpha + 0.16);
-                contentAlpha = Math.min(1, contentAlpha + 0.14);
-            }
-
-            mainNav.style.backgroundColor = `rgba(255,255,255,${navAlpha.toFixed(2)})`;
-            mainNav.style.boxShadow = `0 8px 24px rgba(44,62,80,${shadowAlpha.toFixed(2)})`;
-            mainNav.style.setProperty('--nav-content-alpha', contentAlpha.toFixed(2));
-
+        const updateNavState = () => {
+            const currentY = window.scrollY;
             const menuOpen = document.getElementById('mobileMenu').classList.contains('open');
-            mainNav.classList.toggle('nav-hidden', downOrFlat && pastHidePoint && !menuOpen);
-            lastScrollY = window.scrollY;
-        }
-        window.addEventListener('scroll', updateNavOnScroll, { passive: true });
-        updateNavOnScroll();
+            mainNav.classList.toggle('nav-scrolled', currentY > 20);
+            if (menuOpen || currentY < 80) {
+                mainNav.classList.remove('nav-hidden');
+            } else if (currentY > lastScrollY + 4) {
+                mainNav.classList.add('nav-hidden');
+            } else if (currentY < lastScrollY - 4) {
+                mainNav.classList.remove('nav-hidden');
+            }
+            lastScrollY = currentY;
+        };
+        updateNavState();
+        window.addEventListener('scroll', updateNavState, { passive: true });
 
         function showPopup() {
             document.getElementById('gulsabiPopup').style.display = 'flex';
