@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Mission Icon</title>
+  <desc id="desc">A focused target with a center check mark representing mission completion.</desc>
+  <circle cx="60" cy="60" r="56" fill="#FFD600"/>
+  <circle cx="60" cy="60" r="46" fill="#ffe66a"/>
+
+  <circle cx="60" cy="60" r="24" fill="none" stroke="#2c3e50" stroke-width="4"/>
+  <circle cx="60" cy="60" r="12" fill="#2c3e50"/>
+  <path d="M55 60l4 4 8-9" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M60 18v10M60 92v10M18 60h10M92 60h10" stroke="#2c3e50" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Touch Activity Kits Icon</title>
+  <desc id="desc">A tapping hand over a kit box representing hands-on educational activities.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3dd37d"/>
+      <stop offset="1" stop-color="#24b965"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="22" fill="url(#bg)"/>
+  <rect x="28" y="72" width="72" height="28" rx="8" fill="#ffffff" opacity="0.95"/>
+  <rect x="34" y="78" width="26" height="16" rx="4" fill="#9beec0"/>
+  <rect x="68" y="78" width="26" height="16" rx="4" fill="#9beec0"/>
+  <g fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M68 58V42"/>
+    <path d="M58 66V50"/>
+    <path d="M78 64V52"/>
+    <path d="M68 58l14 14"/>
+  </g>
+  <circle cx="68" cy="30" r="6" fill="#ffffff"/>
+  <circle cx="68" cy="30" r="14" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.6"/>
+</svg>

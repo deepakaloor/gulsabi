@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Battle Cry Icon</title>
+  <desc id="desc">A chat bubble icon representing battle cry and voice.</desc>
+  <circle cx="60" cy="60" r="56" fill="#9b59b6"/>
+  <circle cx="60" cy="60" r="48" fill="#ab6fc3"/>
+  <path d="M33 42h54a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8H60l-14 12v-12H33a8 8 0 0 1-8-8V50a8 8 0 0 1 8-8z" fill="#ffffff"/>
+  <circle cx="46" cy="60" r="4" fill="#9b59b6"/>
+  <circle cx="60" cy="60" r="4" fill="#9b59b6"/>
+  <circle cx="74" cy="60" r="4" fill="#9b59b6"/>
+</svg>

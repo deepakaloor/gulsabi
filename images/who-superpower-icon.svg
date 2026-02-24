@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Superpower Icon</title>
+  <desc id="desc">A hero badge with a lightning mark to represent critical thinking power.</desc>
+  <circle cx="60" cy="60" r="56" fill="#FF4F4F"/>
+  <circle cx="60" cy="60" r="48" fill="#ff6666"/>
+  <path d="M60 24l24 10v18c0 18-9 32-24 44-15-12-24-26-24-44V34z" fill="#ffffff"/>
+  <path d="M65 40l-10 18h8l-8 18 16-22h-8z" fill="#FF4F4F"/>
+</svg>
