@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games | Gulsabi World</title>
+    <meta name="description" content="Play and install Gulsabi's curiosity-powered learning games for kids. Works offline on your phone!">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FFD600">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gulsabi Games">
+    <link rel="apple-touch-icon" href="games/game2/gulsabi-normal.png">
+    <link rel="icon" href="games/game2/gulsabi-normal.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gulsabi-yellow: #FFD600;
+            --hero-blue: #00A3E0;
+            --cape-red: #FF4F4F;
+            --pure-white: #ffffff;
+            --text-dark: #2c3e50;
+            --mint-green: #2ecc71;
+            --nav-height: 90px;
+            --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        a { text-decoration: none; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Fredoka', sans-serif;
+            overflow-x: hidden;
+            background: #f0faff;
+            color: var(--text-dark);
+            padding-top: var(--nav-height);
+            min-height: 100vh;
+        }
+
+        /* ── animated bg ── */
+        .bg-animate {
+            position: fixed; inset: 0; z-index: -1; background: #f0faff; overflow: hidden;
+        }
+        .bg-animate::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: radial-gradient(circle, rgba(0,163,224,0.12) 1.5px, transparent 1.5px);
+            background-size: 28px 28px;
+            animation: dotShift 12s linear infinite;
+        }
+        @keyframes dotShift { 0%{background-position:0 0;} 100%{background-position:56px 56px;} }
+        .bubble {
+            position: absolute; border-radius: 50%;
+            background: rgba(0,163,224,0.08);
+            border: 2px solid rgba(0,163,224,0.1);
+            animation: float-bg 20s infinite linear;
+        }
+        @keyframes float-bg {
+            0%{transform:translateY(100vh) scale(0);opacity:0;}
+            20%{opacity:0.6;}
+            80%{opacity:0.4;}
+            100%{transform:translateY(-10vh) scale(1.4);opacity:0;}
+        }
+
+        /* ── nav (shared idiom) ── */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: rgba(255,255,255,0.96);
+            border-bottom: 5px solid var(--text-dark);
+            z-index: 1000;
+            display: flex; align-items: center;
+            padding: 0 5%;
+            transition: background-color 0.35s ease, box-shadow 0.35s ease, transform 0.3s ease, border-color 0.3s ease;
+            backdrop-filter: blur(8px) saturate(140%);
+            --nav-content-alpha: 1;
+            box-shadow: 0 10px 28px rgba(44,62,80,0.08);
+        }
+        nav.nav-scrolled {
+            background: rgba(255,255,255,0.92);
+            border-bottom-color: rgba(44,62,80,0.85);
+            box-shadow: 0 14px 34px rgba(44,62,80,0.16);
+        }
+        nav.nav-hidden {
+            transform: translateY(calc(-1 * var(--nav-height) - 8px));
+            border-bottom-color: transparent;
+            box-shadow: none;
+            background: rgba(255,255,255,0);
+            backdrop-filter: none;
+        }
+        .nav-logo img { height: 56px; width: auto; display: block; }
+        .nav-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+        .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+        .nav-link {
+            font-size: 1.02rem; font-weight: 600;
+            color: var(--text-dark);
+            padding: 8px 14px;
+            border-radius: 50px;
+            border: 3px solid transparent;
+            position: relative;
+            transition: 0.25s ease;
+            display: block;
+        }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 4px; left: 50%;
+            width: 0; height: 3px; border-radius: 2px;
+            background: var(--hero-blue);
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after, .nav-link.active::after { width: 60%; }
+        .nav-link:hover, .nav-link.active { color: var(--hero-blue); }
+        .nav-link:hover { background: rgba(0,163,224,0.08); transform: translateY(-2px); }
+        .nav-link.active::before {
+            content: ''; position: absolute; top: 6px; right: 6px;
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--cape-red);
+            animation: dotBlink 1.5s ease-in-out infinite;
+        }
+        @keyframes dotBlink { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.6);opacity:0.5;} }
+        .nav-btn {
+            background: var(--gulsabi-yellow);
+            border: 3px solid var(--text-dark);
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            box-shadow: 4px 4px 0 var(--text-dark);
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 6px 6px 0 var(--cape-red); }
+        .hamburger {
+            display: none; flex-direction: column; gap: 5px;
+            cursor: pointer; padding: 6px; border: none; background: none;
+        }
+        .hamburger span { display: block; width: 28px; height: 3px; border-radius: 3px; background: var(--text-dark); transition: 0.35s ease; transform-origin: center; }
+        .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { transform: scaleX(0); opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        .mobile-menu {
+            position: fixed; top: var(--nav-height); left: 0; width: 100%;
+            background: white; padding: 0 5%; z-index: 999;
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.45s ease, padding 0.3s ease;
+        }
+        .mobile-menu.open { max-height: 360px; padding: 20px 5% 28px; border-bottom: 5px solid var(--text-dark); }
+        .mobile-menu ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .mobile-menu .nav-link { font-size: 1.3rem; padding: 12px 20px; }
+        .mobile-menu .nav-btn { margin-top: 8px; width: 100%; text-align: center; }
+
+        @media (max-width: 760px) {
+            .nav-right .nav-links, .nav-right > .nav-btn { display: none; }
+            .hamburger { display: flex; }
+        }
+
+        /* ── hero ── */
+        header.hero {
+            min-height: 36vh;
+            background: var(--hero-blue);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0% 100%);
+            border-bottom: 15px solid var(--gulsabi-yellow);
+            text-align: center;
+            padding: 40px 20px 80px;
+            position: relative; overflow: hidden;
+        }
+        header.hero::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.12) 2px, transparent 2px);
+            background-size: 30px 30px; opacity: 0.7;
+        }
+        header.hero h1 {
+            font-size: clamp(2rem, 6vw, 3.6rem);
+            text-shadow: 4px 4px 0 var(--cape-red);
+            position: relative; z-index: 1;
+            margin-bottom: 8px;
+        }
+        header.hero p {
+            font-size: clamp(0.95rem, 2.4vw, 1.25rem);
+            max-width: 600px;
+            opacity: 0.95;
+            position: relative; z-index: 1;
+            line-height: 1.5;
+        }
+
+        /* ── Install card (website only) ── */
+        .install-section {
+            max-width: 880px;
+            margin: 22px auto 0;
+            padding: 0 clamp(16px, 4vw, 30px);
+        }
+        .install-card {
+            background: linear-gradient(135deg, var(--gulsabi-yellow), #FFA000);
+            color: var(--text-dark);
+            border: 4px solid var(--text-dark);
+            border-radius: 22px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 6px 6px 0 var(--text-dark);
+        }
+        .install-icon-wrap {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            border: 3px solid var(--text-dark);
+            background: white;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 2px 0 var(--text-dark);
+        }
+        .install-icon-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .install-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+        .install-title { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 1.05rem; line-height: 1.2; }
+        .install-sub { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.85rem; opacity: 0.78; line-height: 1.3; }
+        .install-btn {
+            background: var(--cape-red);
+            color: white;
+            border: 3px solid var(--text-dark);
+            padding: 12px 22px;
+            border-radius: 50px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: 0.98rem;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--text-dark);
+            transition: transform 0.18s, box-shadow 0.18s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .install-btn:hover { transform: translateY(-2px); box-shadow: 6px 6px 0 var(--text-dark); }
+        .install-btn:active { transform: translateY(2px); box-shadow: 2px 2px 0 var(--text-dark); }
+
+        /* Hide the install card when running as the installed app */
+        body.standalone .install-section { display: none; }
+
+        @media (max-width: 480px) {
+            .install-card { padding: 14px 16px; flex-wrap: wrap; gap: 12px; }
+            .install-info { flex-basis: calc(100% - 70px); }
+            .install-btn { flex-basis: 100%; justify-content: center; font-size: 0.95rem; }
+        }
+
+        /* ── Update banner (visible in both website and installed app) ── */
+        .pwa-banner {
+            background: linear-gradient(135deg, #2DC572, #1F9A55);
+            color: white;
+            border: 4px solid #146B3A;
+            border-radius: 22px;
+            padding: 14px 18px;
+            margin: 18px auto 0;
+            max-width: 880px;
+            display: none;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 6px 6px 0 #146B3A;
+            font-weight: 600;
+        }
+        .pwa-banner.show { display: flex; }
+        .pwa-banner .pwa-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+        .pwa-banner .pwa-msg { flex: 1; font-size: clamp(0.85rem, 2.2vw, 1rem); line-height: 1.3; }
+        .pwa-banner .pwa-msg strong { display: block; font-weight: 700; }
+        .pwa-banner button {
+            background: white;
+            color: #146B3A;
+            border: 3px solid #146B3A;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 #146B3A;
+            transition: transform 0.18s, box-shadow 0.18s;
+            white-space: nowrap;
+        }
+        .pwa-banner button:hover { transform: translateY(-2px); box-shadow: 5px 5px 0 #146B3A; }
+        .pwa-banner button:active { transform: translateY(1px); box-shadow: 2px 2px 0 #146B3A; }
+
+        /* ── Install instructions modal content ── */
+        .install-steps {
+            text-align: left;
+            background: #FFF8E1;
+            border: 2.5px dashed #FFA000;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            line-height: 1.55;
+            margin: 4px 0 12px;
+            width: 100%;
+        }
+        .install-steps p { margin: 6px 0; }
+        .install-steps strong { color: var(--cape-red); }
+
+        /* ── PWA status ── */
+        .pwa-status {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.78rem; font-weight: 600;
+            background: white;
+            border: 2px solid var(--text-dark);
+            border-radius: 20px;
+            padding: 4px 10px;
+            margin: 16px auto 0;
+        }
+        .pwa-status .dot {
+            width: 9px; height: 9px; border-radius: 50%;
+            background: #BDBDBD;
+            box-shadow: 0 0 0 2px rgba(189,189,189,0.4);
+        }
+        .pwa-status.online .dot { background: var(--mint-green); box-shadow: 0 0 0 2px rgba(46,204,113,0.4); }
+        .pwa-status.offline .dot { background: var(--cape-red); box-shadow: 0 0 0 2px rgba(255,79,79,0.4); }
+        .pwa-status.installed { border-color: var(--mint-green); color: var(--mint-green); }
+        .pwa-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 0 20px; }
+
+        /* ── tiles ── */
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 30px clamp(16px, 4vw, 30px) 80px;
+        }
+        .section-heading {
+            text-align: center;
+            font-size: clamp(1.7rem, 4vw, 2.6rem);
+            color: var(--cape-red);
+            margin: 30px 0 16px;
+        }
+        .section-heading::after {
+            content: '';
+            display: block;
+            margin: 12px auto 0;
+            width: 80px; height: 5px;
+            background: var(--gulsabi-yellow);
+            border-radius: 3px;
+        }
+        .section-sub {
+            text-align: center;
+            font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+            color: var(--text-dark);
+            opacity: 0.78;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            line-height: 1.5;
+        }
+
+        .tile-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+        }
+        @media (min-width: 640px)  { .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+        @media (min-width: 1100px) { .tile-grid { grid-template-columns: repeat(3, 1fr); gap: 28px; } }
+        .tile {
+            background: white;
+            border: 4px solid var(--text-dark);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 6px 6px 0 var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.35s var(--ease-out-quint), box-shadow 0.35s var(--ease-out-quint);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .tile.active { opacity: 1; transform: translateY(0); }
+        .tile:hover {
+            transform: translateY(-8px);
+            box-shadow: 10px 12px 0 var(--cape-red);
+        }
+        .tile:active { transform: translateY(-2px) scale(0.985); box-shadow: 4px 4px 0 var(--cape-red); }
+
+        .tile-thumb {
+            aspect-ratio: 380 / 220;
+            background: linear-gradient(175deg, #29B6F6, #B3E5FC);
+            overflow: hidden;
+            border-bottom: 4px solid var(--text-dark);
+            display: block;
+        }
+        .tile-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s var(--ease-out-quint); }
+        .tile:hover .tile-thumb img { transform: scale(1.06); }
+
+        .tile-body { padding: 18px 20px 20px; display: flex; flex-direction: column; flex: 1; gap: 12px; }
+        .tile-body h3 {
+            font-size: clamp(1.35rem, 3vw, 1.6rem);
+            color: var(--cape-red);
+            line-height: 1.1;
+        }
+        .tile-desc {
+            font-size: clamp(0.95rem, 2.4vw, 1.05rem);
+            line-height: 1.5;
+            color: var(--text-dark);
+            opacity: 0.88;
+        }
+
+        .tile-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+        .badge {
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: 2px solid var(--text-dark);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+        .badge.age { background: #FFF8E1; color: #B88A00; border-color: #FFA000; }
+        .badge.mode-solo { background: #E1F5FE; color: #01579B; border-color: #0288D1; }
+        .badge.mode-duo { background: linear-gradient(135deg, #FFE082 0%, #81D4FA 100%); color: var(--text-dark); }
+
+        .tile-skills { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-top: 2px; }
+        .tile-skills .skill-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--mint-green);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .tile-skills .skill-chip {
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: #E8F8F0;
+            color: #1F9A55;
+            border-radius: 16px;
+            padding: 3px 10px;
+            line-height: 1.3;
+        }
+
+        .tile-play {
+            margin-top: 6px;
+            background: var(--cape-red);
+            color: white;
+            text-align: center;
+            padding: 14px 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            border: 3px solid var(--text-dark);
+            box-shadow: 4px 4px 0 var(--text-dark);
+            transition: transform 0.18s, box-shadow 0.18s;
+            font-size: 1.08rem;
+            letter-spacing: 0.5px;
+        }
+        .tile-play:hover { transform: translateY(-3px); box-shadow: 6px 7px 0 var(--text-dark); }
+        .tile-play:active { transform: translateY(2px); box-shadow: 2px 2px 0 var(--text-dark); }
+
+        /* ── small-mobile tweaks (< 400px) ── */
+        @media (max-width: 400px) {
+            .container { padding: 22px 12px 60px; }
+            .section-heading { font-size: 1.55rem; margin: 22px 0 8px; }
+            .section-sub { font-size: 0.92rem; margin-bottom: 20px; }
+            .tile-body { padding: 16px 16px 18px; gap: 10px; }
+            .tile-body h3 { font-size: 1.3rem; }
+            .tile-play { font-size: 1rem; padding: 13px; }
+            header.hero { min-height: 26vh; padding: 28px 18px 60px; }
+            .pwa-banner { padding: 12px 14px; gap: 10px; border-radius: 18px; box-shadow: 4px 4px 0 var(--text-dark); flex-wrap: wrap; }
+            .pwa-banner.update { box-shadow: 4px 4px 0 #146B3A; }
+            .pwa-banner .pwa-msg { font-size: 0.86rem; flex-basis: 100%; }
+            .pwa-banner .pwa-icon { font-size: 1.5rem; }
+            .pwa-banner button { padding: 7px 14px; font-size: 0.88rem; }
+        }
+        @media (min-width: 760px) and (max-width: 1099px) {
+            header.hero { min-height: 32vh; }
+        }
+
+        /* ── footer ── */
+        footer {
+            background: var(--cape-red);
+            padding: clamp(60px, 12vw, 100px) clamp(16px, 5vw, 20px) clamp(36px, 6vw, 60px);
+            text-align: center; color: white;
+            clip-path: polygon(0 10%, 100% 0, 100% 100%, 0% 100%);
+            position: relative; overflow: hidden;
+        }
+        footer::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+            background-size: 20px 20px; animation: dotShift 6s linear infinite;
+        }
+        footer p {
+            opacity: 0.85; line-height: 1.6;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            position: relative; z-index: 1;
+        }
+        footer a { color: white; font-weight: 700; }
+
+        /* ── popup ── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(44,62,80,0.9);
+            display: none; justify-content: center; align-items: center;
+            z-index: 9999; backdrop-filter: blur(8px); padding: 16px;
+        }
+        .modal-content {
+            background: white;
+            padding: clamp(22px, 5vw, 50px);
+            border-radius: clamp(20px, 4vw, 40px);
+            border: 5px solid var(--text-dark);
+            box-shadow: 12px 12px 0 var(--hero-blue);
+            max-width: 440px;
+            width: 100%; text-align: center;
+            animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+        }
+        @keyframes popIn { from{transform:scale(0.6) rotate(-5deg);opacity:0;} to{transform:scale(1) rotate(0);opacity:1;} }
+    </style>
+</head>
+<body>
+
+<div class="bg-animate" id="bgAnimate"></div>
+
+<nav>
+    <div class="nav-logo"><img src="images/gulsabi-logo.png" alt="GULSABI"></div>
+    <div class="nav-right">
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link" onclick="setActive(this)">Home</a></li>
+            <li><a href="about.html" class="nav-link" onclick="setActive(this)">About</a></li>
+            <li><a href="games.html" class="nav-link active" onclick="setActive(this)">Games</a></li>
+        </ul>
+        <button class="nav-btn" onclick="showPopup()">Gul Gul Gulsabi!</button>
+        <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+    <ul>
+        <li><a href="index.html" class="nav-link" onclick="setActive(this); toggleMenu()">Home</a></li>
+        <li><a href="about.html" class="nav-link" onclick="setActive(this); toggleMenu()">About</a></li>
+        <li><a href="games.html" class="nav-link active" onclick="setActive(this); toggleMenu()">Games</a></li>
+        <li><button class="nav-btn" onclick="toggleMenu(); showPopup()">Gul Gul Gulsabi!</button></li>
+    </ul>
+</div>
+
+<header class="hero">
+    <h1>The Gulsabi Arcade</h1>
+    <p>Curiosity-powered learning games. Install on your phone &mdash; play online or offline!</p>
+</header>
+
+<div class="pwa-row">
+    <span class="pwa-status" id="pwaStatus"><span class="dot"></span><span class="text">Connecting&hellip;</span></span>
+</div>
+
+<section class="install-section" id="installSection">
+    <div class="install-card">
+        <div class="install-icon-wrap"><img src="games/game2/gulsabi-normal.png" alt="Gulsabi"></div>
+        <div class="install-info">
+            <span class="install-title">Install Gulsabi Games</span>
+            <span class="install-sub">Add to your phone &mdash; play offline anytime, anywhere.</span>
+        </div>
+        <button class="install-btn" id="installBtn">&#128241; Install</button>
+    </div>
+</section>
+<div class="pwa-banner" id="updateBanner">
+    <span class="pwa-icon">&#128260;</span>
+    <span class="pwa-msg"><strong>New version available!</strong>Refresh to get the latest games.</span>
+    <button id="updateBtn">Update Now</button>
+</div>
+
+<main class="container">
+    <h2 class="section-heading">Pick a Game!</h2>
+    <p class="section-sub">Each game builds a different skill while keeping curiosity at the heart. Tap a tile to play.</p>
+
+    <div class="tile-grid">
+
+        <article class="tile">
+            <a href="games/game1/index.html" class="tile-thumb"><img src="assets/game1.svg" alt="Sky Adventure"></a>
+            <div class="tile-body">
+                <h3>Sky Adventure</h3>
+                <p class="tile-desc">A high-flying arcade dash &mdash; tap to fly, dodge asteroids and aliens, grab power-ups, and conquer 10 sky-themed levels.</p>
+                <div class="tile-meta">
+                    <span class="badge age">&#128104; Ages 5+</span>
+                    <span class="badge mode-solo">&#129305; Solo</span>
+                </div>
+                <div class="tile-skills">
+                    <span class="skill-label">&#127919; Builds</span>
+                    <span class="skill-chip">Reaction</span>
+                    <span class="skill-chip">Hand-eye</span>
+                    <span class="skill-chip">Focus</span>
+                </div>
+                <a href="games/game1/index.html" class="tile-play">PLAY NOW</a>
+            </div>
+        </article>
+
+        <article class="tile">
+            <a href="games/game2/index.html" class="tile-thumb"><img src="assets/game2.svg" alt="Cannon Color Range"></a>
+            <div class="tile-body">
+                <h3>Cannon Color Range</h3>
+                <p class="tile-desc">A color-matching cannon game. Spot the picture's color and fire the matching cannon before time runs out!</p>
+                <div class="tile-meta">
+                    <span class="badge age">&#128104; Ages 3+</span>
+                    <span class="badge mode-solo">&#129305; Solo</span>
+                </div>
+                <div class="tile-skills">
+                    <span class="skill-label">&#127919; Builds</span>
+                    <span class="skill-chip">Colors</span>
+                    <span class="skill-chip">Quick decisions</span>
+                    <span class="skill-chip">Matching</span>
+                </div>
+                <a href="games/game2/index.html" class="tile-play">PLAY NOW</a>
+            </div>
+        </article>
+
+        <article class="tile">
+            <a href="games/game3/index.html" class="tile-thumb"><img src="assets/game3.svg" alt="Odd One Out"></a>
+            <div class="tile-body">
+                <h3>Odd One Out</h3>
+                <p class="tile-desc">Spot the one card that's a different color from the rest. Levels get harder with more cards and tricky color combinations.</p>
+                <div class="tile-meta">
+                    <span class="badge age">&#128104; Ages 4+</span>
+                    <span class="badge mode-solo">&#129305; Solo</span>
+                </div>
+                <div class="tile-skills">
+                    <span class="skill-label">&#127919; Builds</span>
+                    <span class="skill-chip">Visual perception</span>
+                    <span class="skill-chip">Patterns</span>
+                    <span class="skill-chip">Attention</span>
+                </div>
+                <a href="games/game3/index.html" class="tile-play">PLAY NOW</a>
+            </div>
+        </article>
+
+        <article class="tile">
+            <a href="games/game4/index.html" class="tile-thumb"><img src="assets/game4.svg" alt="Memory Match"></a>
+            <div class="tile-body">
+                <h3>Memory Match</h3>
+                <p class="tile-desc">Flip the cards and find the matching pairs. Play the 10-level solo journey or face off with a friend on the same screen.</p>
+                <div class="tile-meta">
+                    <span class="badge age">&#128104; Ages 4+</span>
+                    <span class="badge mode-duo">&#128101; Solo + 2 Players</span>
+                </div>
+                <div class="tile-skills">
+                    <span class="skill-label">&#127919; Builds</span>
+                    <span class="skill-chip">Memory</span>
+                    <span class="skill-chip">Focus</span>
+                    <span class="skill-chip">Patterns</span>
+                    <span class="skill-chip">Turn-taking</span>
+                </div>
+                <a href="games/game4/index.html" class="tile-play">PLAY NOW</a>
+            </div>
+        </article>
+
+        <article class="tile">
+            <a href="games/game5/index.html" class="tile-thumb"><img src="assets/game5.svg" alt="Quiz Time"></a>
+            <div class="tile-body">
+                <h3>Quiz Time</h3>
+                <p class="tile-desc">Look, read, learn! Identify objects, colors, categories, and answer fun fact questions about each item.</p>
+                <div class="tile-meta">
+                    <span class="badge age">&#128104; Ages 5+</span>
+                    <span class="badge mode-solo">&#129305; Solo</span>
+                </div>
+                <div class="tile-skills">
+                    <span class="skill-label">&#127919; Builds</span>
+                    <span class="skill-chip">Vocabulary</span>
+                    <span class="skill-chip">Knowledge</span>
+                    <span class="skill-chip">Reading</span>
+                    <span class="skill-chip">Thinking</span>
+                </div>
+                <a href="games/game5/index.html" class="tile-play">PLAY NOW</a>
+            </div>
+        </article>
+
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2026 Gulsabi Ecosystem. A <a href="https://pixnut.com/">Pixnut</a> Creation.<br>Made for Curious Minds, Everywhere.</p>
+</footer>
+
+<!-- Install instructions modal — shown for browsers without native install prompt -->
+<div class="modal-overlay" id="installInfoModal" onclick="hideInstallInfo()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div style="width:80px; height:80px; border-radius:50%; border:4px solid var(--gulsabi-yellow); overflow:hidden; margin:0 auto 8px;">
+            <img src="games/game2/gulsabi-normal.png" alt="Gulsabi" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+        <h2 style="color:var(--cape-red); font-size:clamp(1.4rem,5vw,2rem); margin-bottom:4px;">Install Gulsabi</h2>
+        <p style="font-size:0.95rem; color:var(--text-dark); margin-bottom:8px;">Just a couple of taps:</p>
+        <div class="install-steps" id="installSteps"></div>
+        <button onclick="hideInstallInfo()" style="background:var(--text-dark); color:white; padding:12px 28px; border-radius:30px; border:none; cursor:pointer; font-family:'Fredoka'; font-weight:600; font-size:1rem;">Got it!</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="gulsabiPopup" onclick="hidePopup()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 style="color:var(--cape-red); margin-bottom:12px; font-size:clamp(1.4rem,5vw,2.5rem);">Gul Gul Gulsabi!</h2>
+        <p style="font-size:clamp(0.9rem,2.5vw,1.3rem); color:var(--text-dark); margin-bottom:18px;">Ready to join the "Why" Generation? Connect with us for brain-teasing fun!</p>
+        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+            <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" title="YouTube" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#FF4F4F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">&#9654;&#65039;</a>
+            <a href="games.html" title="Games Page" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#FFD600;color:#2c3e50;display:flex;align-items:center;justify-content:center;font-size:24px;">&#127918;</a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" title="Instagram" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#9b59b6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">&#128248;</a>
+            <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" title="Facebook" style="width:56px;height:56px;border-radius:12px;border:3px solid #2c3e50;background:#00A3E0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">&#128077;</a>
+        </div>
+        <button onclick="hidePopup()" style="background:var(--text-dark); color:white; padding:12px 28px; border-radius:30px; border:none; cursor:pointer; font-family:'Fredoka'; font-weight:600; font-size:clamp(0.88rem,2vw,1rem);">Close Fun Box</button>
+    </div>
+</div>
+
+<script>
+/* ── background bubbles ── */
+const bg = document.getElementById('bgAnimate');
+for(let i = 0; i < 18; i++){
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = `${Math.random()*90+40}px`;
+    b.style.cssText = `width:${size};height:${size};left:${Math.random()*100}%;animation-delay:${Math.random()*18}s;animation-duration:${Math.random()*10+16}s;`;
+    bg.appendChild(b);
+}
+
+/* ── tile reveal on scroll ── */
+const tileObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.tile').forEach((el, i) => {
+    el.style.transitionDelay = `${i * 70}ms`;
+    tileObserver.observe(el);
+});
+
+/* ── nav ── */
+function toggleMenu(){
+    document.getElementById('mobileMenu').classList.toggle('open');
+    document.getElementById('hamburger').classList.toggle('open');
+    mainNav.classList.remove('nav-hidden');
+}
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('mobileMenu');
+    const ham = document.getElementById('hamburger');
+    if(!menu.contains(e.target) && !ham.contains(e.target) && menu.classList.contains('open')){
+        menu.classList.remove('open'); ham.classList.remove('open');
+    }
+});
+function setActive(el){
+    document.querySelectorAll('.nav-link').forEach(l =>
+        l.classList.toggle('active', l.textContent.trim() === el.textContent.trim())
+    );
+}
+const mainNav = document.querySelector('nav');
+let lastScrollY = window.scrollY;
+const updateNavState = () => {
+    const currentY = window.scrollY;
+    const menuOpen = document.getElementById('mobileMenu').classList.contains('open');
+    mainNav.classList.toggle('nav-scrolled', currentY > 20);
+    if(menuOpen || currentY < 80) mainNav.classList.remove('nav-hidden');
+    else if(currentY > lastScrollY + 4) mainNav.classList.add('nav-hidden');
+    else if(currentY < lastScrollY - 4) mainNav.classList.remove('nav-hidden');
+    lastScrollY = currentY;
+};
+updateNavState();
+window.addEventListener('scroll', updateNavState, { passive: true });
+
+/* ── popup ── */
+function showPopup(){ document.getElementById('gulsabiPopup').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function hidePopup(){ document.getElementById('gulsabiPopup').style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+/* ─────────────────────────────────────────────────
+   PWA: install (website only) + service worker + update
+   ───────────────────────────────────────────────── */
+const pwaStatusEl = document.getElementById('pwaStatus');
+const pwaStatusText = pwaStatusEl.querySelector('.text');
+
+function isStandalone(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function isIos(){
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !/CriOS|FxiOS/.test(navigator.userAgent);
+}
+function isAndroid(){ return /android/i.test(navigator.userAgent); }
+
+function setPwaStatus(state, text){
+    pwaStatusEl.classList.remove('online','offline','installed');
+    pwaStatusEl.classList.add(state);
+    pwaStatusText.textContent = text;
+}
+function updateOnline(){
+    const installed = isStandalone();
+    if(navigator.onLine){
+        setPwaStatus(installed ? 'installed' : 'online', installed ? 'Installed • Online' : 'Online');
+    } else {
+        setPwaStatus('offline', installed ? 'Installed • Offline' : 'Offline (cached games work)');
+    }
+}
+window.addEventListener('online', updateOnline);
+window.addEventListener('offline', updateOnline);
+
+/* Toggle a body class so the install card hides automatically inside the installed app */
+function applyStandaloneClass(){
+    document.body.classList.toggle('standalone', isStandalone());
+}
+applyStandaloneClass();
+window.matchMedia('(display-mode: standalone)').addEventListener?.('change', () => {
+    applyStandaloneClass();
+    updateOnline();
+});
+updateOnline();
+
+/* Install button — always visible on the website */
+let deferredInstallPrompt = null;
+const installBtn = document.getElementById('installBtn');
+const installSection = document.getElementById('installSection');
+const installInfoModal = document.getElementById('installInfoModal');
+const installSteps = document.getElementById('installSteps');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+});
+
+window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    installSection.style.display = 'none';
+    applyStandaloneClass();
+    setPwaStatus('installed', 'Installed!');
+});
+
+function showInstallInfo(html){
+    installSteps.innerHTML = html;
+    installInfoModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function hideInstallInfo(){
+    installInfoModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+window.hideInstallInfo = hideInstallInfo;
+
+installBtn.addEventListener('click', async () => {
+    // 1. Native install prompt (Chrome/Edge/Android Chrome)
+    if(deferredInstallPrompt){
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        if(choice.outcome === 'accepted'){
+            installSection.style.display = 'none';
+        }
+        return;
+    }
+    // 2. Platform-specific instructions
+    if(isIos()){
+        showInstallInfo(
+            "<p>1. Tap the <strong>Share</strong> button at the bottom of Safari.</p>" +
+            "<p>2. Scroll down and tap <strong>Add to Home Screen</strong>.</p>" +
+            "<p>3. Tap <strong>Add</strong> in the top right corner.</p>"
+        );
+    } else if(isAndroid()){
+        showInstallInfo(
+            "<p>1. Tap the <strong>menu</strong> (⋮) in your browser.</p>" +
+            "<p>2. Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>" +
+            "<p>3. Confirm to install Gulsabi Games.</p>"
+        );
+    } else {
+        showInstallInfo(
+            "<p>1. Open your browser's <strong>menu</strong>.</p>" +
+            "<p>2. Look for <strong>Install</strong> or <strong>Add to Home screen</strong>.</p>" +
+            "<p>3. If you don't see it, try opening this page in <strong>Chrome</strong> or <strong>Edge</strong>.</p>"
+        );
+    }
+});
+
+const updateBanner = document.getElementById('updateBanner');
+const updateBtn = document.getElementById('updateBtn');
+
+/* ── service worker registration + hourly update poll ── */
+if('serviceWorker' in navigator){
+    window.addEventListener('load', async () => {
+        try {
+            const reg = await navigator.serviceWorker.register('service-worker.js');
+
+            // Listen for an updated SW finishing install — surface "Update" banner
+            const showUpdateIfPending = () => {
+                if(reg.waiting && navigator.serviceWorker.controller){
+                    updateBanner.style.display = 'flex';
+                }
+            };
+            showUpdateIfPending();
+            reg.addEventListener('updatefound', () => {
+                const sw = reg.installing;
+                if(!sw) return;
+                sw.addEventListener('statechange', () => {
+                    if(sw.state === 'installed' && navigator.serviceWorker.controller){
+                        updateBanner.style.display = 'flex';
+                    }
+                });
+            });
+
+            // Hourly update check — only when online
+            setInterval(() => {
+                if(navigator.onLine) reg.update().catch(()=>{});
+            }, 3600000);
+
+            // Update button: tell the waiting SW to take over, then reload
+            updateBtn.addEventListener('click', () => {
+                if(reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                // Reload as soon as the new SW becomes the controller
+                let reloaded = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if(reloaded) return;
+                    reloaded = true;
+                    window.location.reload();
+                });
+                // Safety: force reload if controllerchange doesn't fire within 1.5s
+                setTimeout(() => { if(!reloaded){ reloaded = true; window.location.reload(); } }, 1500);
+            });
+        } catch(e){
+            console.warn('Service worker registration failed:', e);
+        }
+    });
+}
+</script>
+</body>
+</html>

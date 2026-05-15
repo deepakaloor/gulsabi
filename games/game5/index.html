@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>Quiz Time – Gulsabi Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;position:fixed;font-family:'Fredoka One',cursive;}
+body{background:#4FC3F7;display:flex;flex-direction:column;align-items:stretch;justify-content:space-between;}
+
+/* ── BACKGROUND ── */
+.sky{position:fixed;inset:0;z-index:0;background:linear-gradient(175deg,#0288D1 0%,#29B6F6 30%,#4FC3F7 55%,#81D4FA 78%,#B3E5FC 100%);}
+.sun{position:fixed;top:2.5vh;right:6vw;z-index:1;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle,#FFF176 50%,#FFD600 75%,#FFA000 100%);box-shadow:0 0 50px 20px rgba(255,200,0,.4);animation:sunPulse 3.5s ease-in-out infinite;pointer-events:none;}
+@keyframes sunPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+.ground{position:fixed;bottom:0;left:0;right:0;z-index:2;height:8vh;background:linear-gradient(180deg,#66BB6A 0%,#388E3C 100%);border-radius:50% 50% 0 0/2vh 2vh 0 0;pointer-events:none;}
+.cloud{position:fixed;background:rgba(255,255,255,.85);border-radius:50px;z-index:2;pointer-events:none;}
+.cloud::before,.cloud::after{content:'';position:absolute;background:rgba(255,255,255,.85);border-radius:50%;}
+.c1{width:80px;height:24px;top:14vh;left:-90px;animation:cloudDrift 28s linear infinite;}
+.c1::before{width:36px;height:36px;top:-18px;left:10px;}
+.c1::after{width:28px;height:28px;top:-14px;left:40px;}
+.c2{width:60px;height:18px;top:6vh;left:-70px;opacity:.65;animation:cloudDrift 38s linear infinite 10s;}
+.c2::before{width:26px;height:26px;top:-14px;left:6px;}
+.c2::after{width:20px;height:20px;top:-10px;left:28px;}
+@keyframes cloudDrift{to{left:110vw;}}
+
+/* ── TIMER BAR ── */
+.twrap{width:100%;height:9px;position:fixed;top:0;z-index:900;background:rgba(0,0,0,.14);}
+.tbar{height:100%;width:100%;background:#69F0AE;transition:width .12s linear;}
+.tbar.low{background:#FFC107;}
+.tbar.critical{background:#FF5252;animation:tbarFlash .4s ease-in-out infinite;}
+@keyframes tbarFlash{0%,100%{opacity:1;}50%{opacity:.55;}}
+
+/* ── HEADER PILLS ── */
+.hdr{width:100%;padding:clamp(9px,1.5vh,14px) clamp(8px,2.5vw,16px) 4px;display:flex;flex-wrap:wrap;justify-content:center;gap:5px 6px;position:relative;z-index:800;pointer-events:none;}
+.pill{background:rgba(255,255,255,.93);padding:.32em .65em;border-radius:2em;border:2.5px solid white;font-size:0.72rem;box-shadow:0 4px 12px rgba(0,0,0,.15);display:flex;align-items:center;gap:3px;color:#333;white-space:nowrap;}
+.pill .pico{font-size:.85rem;}
+.pill.coins{background:linear-gradient(135deg,#FFE082,#FFD600);}
+
+/* ── BRAND ── */
+.brandbar{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:2px 0 0;position:relative;z-index:60;pointer-events:none;}
+.brandbar .top-row{display:flex;align-items:center;gap:8px;}
+.brandbar img{height:22px;width:auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25));}
+.brandbar .gtitle{color:white;font-size:.88rem;letter-spacing:1px;text-shadow:0 2px 4px rgba(0,0,0,.35);}
+.brandbar .roundlbl{color:rgba(255,255,255,.92);font-size:.7rem;font-family:'Fredoka',sans-serif;font-weight:600;letter-spacing:.5px;text-shadow:0 1px 2px rgba(0,0,0,.3);}
+
+/* ── POWER-UP TRAY ── */
+.ptray{display:flex;justify-content:center;gap:6px;padding:6px clamp(8px,3vw,12px) 2px;position:relative;z-index:65;pointer-events:none;}
+.pbtn{pointer-events:auto;background:rgba(255,255,255,.95);border:2.5px solid #fff;border-radius:18px;padding:5px 10px;display:flex;align-items:center;gap:5px;cursor:pointer;font-family:'Fredoka One',cursive;color:#333;font-size:.78rem;box-shadow:0 3px 0 rgba(0,0,0,.12);transition:transform .12s,box-shadow .12s,opacity .2s;}
+.pbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.12);}
+.pbtn[disabled]{opacity:.45;cursor:not-allowed;}
+.pbtn .picon{font-size:1.05rem;line-height:1;}
+.pbtn .pcost{background:#FFD600;border-radius:10px;padding:1px 6px;color:#3E2700;font-size:.7rem;display:inline-flex;align-items:center;gap:2px;}
+
+/* ── QUIZ CONTENT ── */
+.gridzone{flex:1;display:flex;align-items:center;justify-content:center;position:relative;z-index:60;padding:2px clamp(8px,3vw,16px);min-height:0;}
+.quiz-wrap{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.4vh,12px);width:100%;max-width:480px;}
+.quiz-image{width:clamp(110px,28vh,180px);height:clamp(110px,28vh,180px);border-radius:18px;overflow:hidden;background:white;border:4px solid #FFD600;box-shadow:0 8px 22px rgba(0,0,0,.32);position:relative;}
+.quiz-image img{width:100%;height:100%;object-fit:cover;display:block;}
+.quiz-image.pop{animation:imgPop .55s ease-out;}
+@keyframes imgPop{0%{transform:scale(.85);opacity:0;}60%{transform:scale(1.04);opacity:1;}100%{transform:scale(1);}}
+.quiz-image-label{position:absolute;bottom:0;left:0;right:0;background:rgba(45,197,114,.92);color:white;font-family:'Fredoka One',cursive;font-size:.82rem;text-align:center;padding:4px 6px;opacity:0;transition:opacity .25s;}
+.quiz-image-label.show{opacity:1;}
+.quiz-image-label.wrong-state{background:rgba(255,82,82,.92);}
+
+.quiz-q{font-family:'Fredoka One',cursive;font-size:clamp(1rem,3vw,1.3rem);color:white;text-shadow:0 2px 4px rgba(0,0,0,.45);text-align:center;line-height:1.2;}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%;}
+.opt{background:white;border:3px solid #0288D1;border-radius:14px;padding:10px 8px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(.84rem,2.6vw,1rem);color:#2c3e50;cursor:pointer;box-shadow:0 4px 0 rgba(2,136,209,.35);transition:transform .12s,box-shadow .15s,background .25s,color .25s,border-color .25s;text-align:center;line-height:1.15;min-height:42px;display:flex;align-items:center;justify-content:center;}
+.opt:hover:not(.disabled){transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.18);}
+.opt:active:not(.disabled){transform:translateY(2px);box-shadow:0 2px 0 rgba(2,136,209,.35);}
+.opt.correct{background:#2DC572;color:white;border-color:#1F9A55;box-shadow:0 4px 0 #146B3A;animation:optPulse .5s;}
+.opt.wrong{background:#FF5252;color:white;border-color:#B71C1C;box-shadow:0 4px 0 #8E0000;animation:optShake .45s;}
+.opt.fade{opacity:.32;}
+.opt.disabled{pointer-events:none;cursor:default;}
+.opt.hint{box-shadow:0 0 0 4px #FFD600,0 0 22px 4px rgba(255,214,0,.8);animation:hintPulse 1.2s ease-in-out 2;}
+@keyframes optPulse{0%{transform:scale(1);}40%{transform:scale(1.08);}100%{transform:scale(1);}}
+@keyframes optShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
+@keyframes hintPulse{0%,100%{box-shadow:0 0 0 4px #FFD600,0 0 22px 4px rgba(255,214,0,.8);}50%{box-shadow:0 0 0 6px #FFA000,0 0 32px 8px rgba(255,214,0,1);}}
+
+/* ── MOOD STRIP ── */
+.gstrip{height:64px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 12px;position:relative;z-index:500;}
+.gface{width:52px;height:52px;border-radius:50%;border:3px solid white;overflow:hidden;background:white;box-shadow:0 5px 14px rgba(0,0,0,.25);flex-shrink:0;}
+.gface img{width:100%;height:100%;object-fit:cover;}
+.gmood{background:rgba(255,255,255,.95);padding:.35em 1em;border-radius:1.2em;font-size:0.82rem;border:2.5px solid white;color:#333;max-width:200px;min-height:32px;display:flex;align-items:center;}
+
+/* ── CONTROLS ── */
+.controls{position:fixed;top:54px;right:10px;z-index:850;display:flex;flex-direction:column;gap:6px;}
+.ctrl-btn{background:rgba(255,255,255,.95);border:2.5px solid white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;box-shadow:0 4px 10px rgba(0,0,0,.18);transition:transform .15s;}
+.ctrl-btn:active{transform:scale(.9);}
+
+/* ── OVERLAYS ── */
+.ov{position:fixed;inset:0;z-index:7000;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:.3s;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);padding:14px;}
+.ov.show{visibility:visible;opacity:1;}
+.mc{background:white;padding:1.5rem 1.3rem;border-radius:26px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.75rem;width:100%;max-width:340px;max-height:94vh;overflow-y:auto;box-shadow:0 18px 50px rgba(0,0,0,.5);}
+.mc img.gface-modal{width:84px;height:84px;border-radius:50%;border:4px solid #FFD600;object-fit:cover;}
+.mc .logo-img{height:40px;width:auto;}
+.mc h1{font-size:1.55rem;color:#FF6B6B;line-height:1.1;}
+.mc h2{font-size:1.05rem;color:#0288D1;font-weight:normal;}
+.mc p{font-family:'Fredoka',sans-serif;font-weight:600;color:#333;font-size:.92rem;line-height:1.4;}
+.mc p.tag{color:#666;font-size:.82rem;}
+.mc .score-big{font-size:2.2rem;color:#FF6B6B;font-family:'Fredoka One',cursive;}
+.mc .hs{color:#FF6B6B;font-weight:bold;font-family:'Fredoka One',cursive;}
+.mc .stat-row{display:flex;justify-content:space-around;width:100%;gap:7px;}
+.mc .stat{flex:1;background:#F1F8FE;border:2px solid #0288D1;border-radius:13px;padding:7px 5px;}
+.mc .stat .label{font-size:.65rem;color:#0288D1;font-family:'Fredoka',sans-serif;font-weight:700;letter-spacing:.5px;}
+.mc .stat .val{font-size:1.05rem;color:#333;font-family:'Fredoka One',cursive;}
+.bigbtn{background:linear-gradient(135deg,#FF6B6B,#FF8853);color:white;border:none;padding:.85em 1.2em;font-size:1.05rem;border-radius:3em;cursor:pointer;font-weight:bold;width:100%;font-family:'Fredoka One',cursive;box-shadow:0 6px 0 #C44545;transition:transform .12s,box-shadow .12s;}
+.bigbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #C44545;}
+.bigbtn.green{background:linear-gradient(135deg,#2DC572,#1F9A55);box-shadow:0 6px 0 #146B3A;}
+.bigbtn.green:active{box-shadow:0 2px 0 #146B3A;}
+.bigbtn.yellow{background:linear-gradient(135deg,#FFD600,#FFA000);color:#3E2700;box-shadow:0 6px 0 #B88A00;}
+.bigbtn.yellow:active{box-shadow:0 2px 0 #B88A00;}
+.bigbtn[disabled]{opacity:.5;cursor:not-allowed;}
+.smbtn{background:#F1F8FE;color:#0288D1;border:2.5px solid #0288D1;padding:.5em 1em;font-size:.82rem;border-radius:2em;cursor:pointer;font-weight:bold;font-family:'Fredoka',sans-serif;}
+
+.howto{background:#FFF8E1;border:2.5px dashed #FFA000;border-radius:14px;padding:9px 12px;text-align:left;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.8rem;color:#555;width:100%;line-height:1.55;}
+.howto li{margin-left:16px;}
+.howto strong{color:#FF6B6B;}
+
+.journey{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;width:100%;padding:4px 0;}
+.jdot{width:24px;height:24px;border-radius:50%;background:#E0E0E0;border:2px solid #BDBDBD;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#666;font-family:'Fredoka',sans-serif;font-weight:700;}
+.jdot.s1{background:#CD7F32;border-color:#A0522D;color:white;}
+.jdot.s2{background:#C0C0C0;border-color:#909090;color:white;}
+.jdot.s3{background:linear-gradient(135deg,#FFD700,#FFA000);border-color:#B88A00;color:white;}
+
+.starrow{display:flex;gap:6px;justify-content:center;font-size:2rem;line-height:1;}
+.starrow .st{color:#E0E0E0;text-shadow:0 2px 0 #BDBDBD;transform:scale(.6);opacity:0;transition:transform .35s cubic-bezier(.17,.88,.32,1.4),opacity .35s;}
+.starrow .st.on{color:#FFD700;text-shadow:0 3px 0 #B88A00;transform:scale(1);opacity:1;}
+
+.streakbox{background:linear-gradient(135deg,#FF8853,#FF6B6B);color:white;padding:8px 14px;border-radius:18px;font-family:'Fredoka One',cursive;font-size:.85rem;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 0 #C44545;}
+
+.combo-popup{position:fixed;top:46%;left:50%;transform:translate(-50%,-50%) scale(.6);z-index:6500;font-family:'Fredoka One',cursive;font-size:2.2rem;color:#FFD600;text-shadow:3px 3px 0 #FF6B6B,4px 4px 0 #2c3e50;opacity:0;pointer-events:none;}
+.combo-popup.show{animation:comboBurst 1.1s ease-out forwards;}
+@keyframes comboBurst{
+  0%{transform:translate(-50%,-50%) scale(.4) rotate(-12deg);opacity:0;}
+  20%{transform:translate(-50%,-50%) scale(1.2) rotate(4deg);opacity:1;}
+  60%{transform:translate(-50%,-90%) scale(1) rotate(-2deg);opacity:1;}
+  100%{transform:translate(-50%,-140%) scale(.8) rotate(2deg);opacity:0;}
+}
+
+#toaster{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);z-index:8500;display:flex;flex-direction:column;gap:6px;pointer-events:none;width:min(330px,90vw);}
+.toast{background:linear-gradient(135deg,#0288D1,#01579B);color:white;border-radius:14px;padding:8px 12px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 22px rgba(0,0,0,.35);border:2.5px solid #FFD600;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.78rem;line-height:1.2;animation:toastIn .5s cubic-bezier(.17,.88,.32,1.4),toastOut .4s ease-in 3.5s forwards;}
+.toast .ticon{font-size:1.4rem;line-height:1;flex-shrink:0;}
+.toast .ttxt{flex:1;}
+.toast .ttxt strong{color:#FFD600;display:block;font-family:'Fredoka One',cursive;font-size:.88rem;}
+@keyframes toastIn{from{transform:translateY(-30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes toastOut{to{transform:translateY(-30px);opacity:0;}}
+
+.flashbox{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%);z-index:7500;font-family:'Fredoka One',cursive;font-size:2.4rem;color:#FFD600;text-shadow:3px 3px 0 #FF6B6B,5px 5px 0 #2c3e50;opacity:0;pointer-events:none;text-align:center;}
+.flashbox.show{animation:flashIn 2.6s ease-out forwards;}
+@keyframes flashIn{
+  0%{transform:translate(-50%,-50%) scale(.3) rotate(-15deg);opacity:0;}
+  15%{transform:translate(-50%,-50%) scale(1.25) rotate(5deg);opacity:1;}
+  30%{transform:translate(-50%,-50%) scale(1) rotate(-2deg);}
+  85%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:1;}
+  100%{transform:translate(-50%,-110%) scale(.7);opacity:0;}
+}
+
+.confetti-host{position:fixed;inset:0;z-index:7200;pointer-events:none;overflow:hidden;}
+.confetti{position:absolute;width:10px;height:14px;top:-20px;animation:confFall linear forwards;will-change:transform;}
+@keyframes confFall{0%{transform:translateY(-10vh) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:.85;}}
+
+@media (min-width:760px){
+  .pill{font-size:.88rem;padding:.4em .8em;}
+  .gmood{font-size:.95rem;max-width:280px;}
+  .gface{width:64px;height:64px;}
+  .brandbar img{height:28px;}
+  .brandbar .gtitle{font-size:1.05rem;}
+  .brandbar .roundlbl{font-size:.78rem;}
+  .ctrl-btn{width:42px;height:42px;font-size:1.2rem;}
+  .pbtn{font-size:.85rem;}
+  .opt{font-size:1.05rem;padding:14px 12px;}
+}
+@media (max-height:520px) and (orientation:landscape){
+  .ground{display:none;}
+  .gstrip{height:44px;}
+  .gface{width:36px;height:36px;}
+  .gmood{font-size:.7rem;padding:.2em .5em;}
+  .brandbar{display:none;}
+  .ptray{padding:3px 8px 0;}
+  .pbtn{padding:3px 7px;font-size:.7rem;}
+  .quiz-image{width:90px;height:90px;}
+}
+</style>
+</head>
+<body>
+
+<div class="sky"></div>
+<div class="sun"></div>
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
+<div class="ground"></div>
+<div class="twrap"><div class="tbar" id="tbar"></div></div>
+
+<div class="hdr">
+  <div class="pill" id="lvlEl"><span class="pico">&#127942;</span>Lv.1/10</div>
+  <div class="pill">Lives: <span id="livesEl">&#10084;&#10084;&#10084;</span></div>
+  <div class="pill">Score: <span id="scoreEl">0</span></div>
+  <div class="pill coins"><span class="pico">&#129689;</span><span id="coinEl">0</span></div>
+</div>
+
+<div class="brandbar">
+  <div class="top-row">
+    <img src="../../images/gulsabi-logo.png" alt="Gulsabi">
+    <span class="gtitle">QUIZ TIME</span>
+  </div>
+  <span class="roundlbl" id="roundLbl">Round 1 of 5</span>
+</div>
+
+<div class="ptray">
+  <button class="pbtn" id="pw5050" type="button"><span class="picon">&#9986;</span>50/50<span class="pcost">&#129689;<span>25</span></span></button>
+  <button class="pbtn" id="pwTime" type="button"><span class="picon">&#9201;&#65039;</span>+5s<span class="pcost">&#129689;<span>15</span></span></button>
+  <button class="pbtn" id="pwLife" type="button"><span class="picon">&#10084;&#65039;</span>+1<span class="pcost">&#129689;<span>40</span></span></button>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" id="muteBtn" title="Mute" aria-label="Mute">&#128266;</button>
+  <button class="ctrl-btn" id="pauseBtn" title="Pause" aria-label="Pause">&#10073;&#10073;</button>
+  <button class="ctrl-btn" id="helpBtn" title="How to play" aria-label="Help">?</button>
+</div>
+
+<div class="gridzone">
+  <div class="quiz-wrap">
+    <div class="quiz-image" id="qImg">
+      <img id="qImgEl" src="" alt="Quiz item">
+      <div class="quiz-image-label" id="qImgLabel"></div>
+    </div>
+    <div class="quiz-q" id="qText">Get ready!</div>
+    <div class="quiz-opts" id="qOpts"></div>
+  </div>
+</div>
+
+<div class="gstrip">
+  <div class="gface" id="gface"><img id="gimg" src="../game2/gulsabi-normal.png" alt="Gulsabi"></div>
+  <div class="gmood" id="gmoodText">Quiz time!</div>
+</div>
+
+<div class="combo-popup" id="comboPop"></div>
+<div class="flashbox" id="flashBox"></div>
+<div class="confetti-host" id="confettiHost"></div>
+<div id="toaster"></div>
+
+<!-- START -->
+<div class="ov show" id="ovStart">
+  <div class="mc">
+    <img class="logo-img" src="../../images/gulsabi-logo.png" alt="Gulsabi">
+    <img class="gface-modal" src="../game2/gulsabi-happy.png" alt="Happy Gulsabi">
+    <h1>Quiz Time</h1>
+    <p class="tag">Look, read, tap. Test what you know!</p>
+    <div id="streakBanner"></div>
+    <p id="startHighScore" class="hs">High Score: 0</p>
+    <div class="stat-row">
+      <div class="stat"><div class="label">STARS</div><div class="val" id="totalStars">0/30</div></div>
+      <div class="stat"><div class="label">COINS</div><div class="val" id="startCoins">&#129689; 0</div></div>
+    </div>
+    <div class="journey" id="journeyDots"></div>
+    <button class="bigbtn" id="startBtn">PLAY NOW</button>
+    <button class="smbtn" id="howBtn">How to Play</button>
+  </div>
+</div>
+
+<!-- LEVEL COMPLETE -->
+<div class="ov" id="ovLevel">
+  <div class="mc">
+    <img class="gface-modal" src="../game2/gulsabi-happy.png" alt="Happy Gulsabi">
+    <h1 id="levelTitle">Level Complete!</h1>
+    <div class="starrow" id="lvStars">
+      <span class="st">&#9733;</span><span class="st">&#9733;</span><span class="st">&#9733;</span>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="label">CORRECT</div><div class="val" id="lvCorrect">0</div></div>
+      <div class="stat"><div class="label">BEST STREAK</div><div class="val" id="lvStreak">0</div></div>
+      <div class="stat"><div class="label">TIME BONUS</div><div class="val" id="lvBonus">0</div></div>
+    </div>
+    <p>Score: <span class="hs" id="lvScore">0</span></p>
+    <p class="tag" id="lvCoinsEarned">&#129689; +0 coins</p>
+    <button class="bigbtn green" id="nextLevelBtn">NEXT LEVEL</button>
+  </div>
+</div>
+
+<!-- CONTINUE -->
+<div class="ov" id="ovContinue">
+  <div class="mc">
+    <img class="gface-modal" src="../game2/gulsabi-thinking.png" alt="Thinking Gulsabi">
+    <h1>Out of Lives!</h1>
+    <p>Spend coins to keep going with 2 fresh lives?</p>
+    <p><span class="hs"><span>&#129689;</span> 100</span></p>
+    <button class="bigbtn yellow" id="continueBtn">CONTINUE</button>
+    <button class="smbtn" id="quitBtn">End Game</button>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div class="ov" id="ovEnd">
+  <div class="mc">
+    <img class="gface-modal" id="endFace" src="../game2/gulsabi-sad.png" alt="Gulsabi">
+    <h1 id="endTitle">Game Over</h1>
+    <p>Score</p>
+    <p><span class="score-big" id="endScore">0</span></p>
+    <p id="endHighScore" class="hs">High Score: 0</p>
+    <p class="tag" id="endRunStats">Correct: 0 &middot; Best streak: 0</p>
+    <button class="bigbtn" id="restartBtn">PLAY AGAIN</button>
+    <button class="smbtn" id="endMenuBtn">Main Menu</button>
+  </div>
+</div>
+
+<!-- PAUSE -->
+<div class="ov" id="ovPause">
+  <div class="mc">
+    <img class="gface-modal" src="../game2/gulsabi-thinking.png" alt="Paused">
+    <h1>Paused</h1>
+    <p class="tag">Take a breath &mdash; we'll wait!</p>
+    <button class="bigbtn green" id="resumeBtn">RESUME</button>
+    <button class="smbtn" id="quitFromPause">End Game</button>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="ov" id="ovHow">
+  <div class="mc">
+    <img class="gface-modal" src="../game2/gulsabi-thinking.png" alt="Thinking Gulsabi">
+    <h1>How to Play</h1>
+    <div class="howto">
+      <ul>
+        <li>Look at the <strong>picture</strong>.</li>
+        <li>Read the <strong>question</strong>.</li>
+        <li>Tap the <strong>right answer</strong> before time runs out!</li>
+        <li>Wrong answer or timeout = lose a <strong>&#10084;</strong></li>
+        <li>Streaks = bonus <strong>score</strong> &amp; <strong>coins &#129689;</strong></li>
+        <li>Stuck? Use <strong>50/50</strong>, <strong>+5s</strong>, or <strong>+1 Life</strong>.</li>
+        <li>10 levels &mdash; how much do you know?</li>
+      </ul>
+    </div>
+    <button class="bigbtn" id="howCloseBtn">GOT IT!</button>
+  </div>
+</div>
+
+<script>
+/* ═════════════════════════════════════════════════
+   GULSABI QUIZ TIME — 10 levels, 71 rounds
+   ═════════════════════════════════════════════════ */
+
+const ASSET_PATH = '../game2/assets/';
+
+/* Each entry: { file, name, color, category } */
+const ITEMS = [
+  // BLUE
+  { file:'blue-Jeans.jpg',       name:'Jeans',       color:'blue',   category:'clothing' },
+  { file:'blue-bird.jpg',        name:'Bird',        color:'blue',   category:'animal' },
+  { file:'blue-blueberry.jpg',   name:'Blueberry',   color:'blue',   category:'fruit' },
+  { file:'blue-bluewhale.jpg',   name:'Whale',       color:'blue',   category:'animal' },
+  { file:'blue-butterfly.jpg',   name:'Butterfly',   color:'blue',   category:'animal' },
+  { file:'blue-crayon.jpg',      name:'Crayon',      color:'blue',   category:'object' },
+  { file:'blue-diamond.jpg',     name:'Diamond',     color:'blue',   category:'object' },
+  { file:'blue-fish.jpg',        name:'Fish',        color:'blue',   category:'animal' },
+  { file:'blue-peacock.jpg',     name:'Peacock',     color:'blue',   category:'animal' },
+  { file:'blue-water.jpg',       name:'Water',       color:'blue',   category:'nature' },
+  // BROWN
+  { file:'brown-baseball.jpg',   name:'Baseball',    color:'brown',  category:'sport' },
+  { file:'brown-biscut.jpg',     name:'Biscuit',     color:'brown',  category:'food' },
+  { file:'brown-box.jpg',        name:'Box',         color:'brown',  category:'object' },
+  { file:'brown-bread.jpg',      name:'Bread',       color:'brown',  category:'food' },
+  { file:'brown-chocolate.jpg',  name:'Chocolate',   color:'brown',  category:'food' },
+  { file:'brown-coconut.jpg',    name:'Coconut',     color:'brown',  category:'fruit' },
+  { file:'brown-monkey.jpg',     name:'Monkey',      color:'brown',  category:'animal' },
+  { file:'brown-potato.jpg',     name:'Potato',      color:'brown',  category:'vegetable' },
+  { file:'brown-teddy.jpg',      name:'Teddy',       color:'brown',  category:'toy' },
+  { file:'brown-woodlog.jpg',    name:'Wood Log',    color:'brown',  category:'object' },
+  // GREEN
+  { file:'green-ball.jpg',       name:'Ball',        color:'green',  category:'sport' },
+  { file:'green-brocolli.jpg',   name:'Broccoli',    color:'green',  category:'vegetable' },
+  { file:'green-cactus.jpg',     name:'Cactus',      color:'green',  category:'plant' },
+  { file:'green-cucumber.jpg',   name:'Cucumber',    color:'green',  category:'vegetable' },
+  { file:'green-diamond.jpg',    name:'Diamond',     color:'green',  category:'object' },
+  { file:'green-frog.jpg',       name:'Frog',        color:'green',  category:'animal' },
+  { file:'green-grasshopper.jpg',name:'Grasshopper', color:'green',  category:'animal' },
+  { file:'green-leaf.jpg',       name:'Leaf',        color:'green',  category:'plant' },
+  { file:'green-lemon.jpg',      name:'Lime',        color:'green',  category:'fruit' },
+  { file:'green-turtle.jpg',     name:'Turtle',      color:'green',  category:'animal' },
+  // ORANGE
+  { file:'orange-basketball.jpg',name:'Basketball',  color:'orange', category:'sport' },
+  { file:'orange-butterfly.jpg', name:'Butterfly',   color:'orange', category:'animal' },
+  { file:'orange-carrot.jpg',    name:'Carrot',      color:'orange', category:'vegetable' },
+  { file:'orange-cone.jpg',      name:'Cone',        color:'orange', category:'object' },
+  { file:'orange-fish.jpg',      name:'Fish',        color:'orange', category:'animal' },
+  { file:'orange-flower.jpg',    name:'Flower',      color:'orange', category:'plant' },
+  { file:'orange-fox.jpg',       name:'Fox',         color:'orange', category:'animal' },
+  { file:'orange-orange.jpg',    name:'Orange',      color:'orange', category:'fruit' },
+  { file:'orange-pumpkin.jpg',   name:'Pumpkin',     color:'orange', category:'vegetable' },
+  { file:'orange-tiger.jpg',     name:'Tiger',       color:'orange', category:'animal' },
+  // PINK
+  { file:'pink-brain.jpg',       name:'Brain',       color:'pink',   category:'object' },
+  { file:'pink-cottoncandy.jpg', name:'Cotton Candy',color:'pink',   category:'food' },
+  { file:'pink-doughnut.jpg',    name:'Doughnut',    color:'pink',   category:'food' },
+  { file:'pink-eraser.jpg',      name:'Eraser',      color:'pink',   category:'object' },
+  { file:'pink-flamingo.jpg',    name:'Flamingo',    color:'pink',   category:'animal' },
+  { file:'pink-lotus.jpg',       name:'Lotus',       color:'pink',   category:'plant' },
+  { file:'pink-peach.jpg',       name:'Peach',       color:'pink',   category:'fruit' },
+  { file:'pink-pig.jpg',         name:'Pig',         color:'pink',   category:'animal' },
+  { file:'pink-ribbon.jpg',      name:'Ribbon',      color:'pink',   category:'object' },
+  { file:'pink-shoe.jpg',        name:'Shoe',        color:'pink',   category:'clothing' },
+  // PURPLE
+  { file:'purple-beetroot.jpg',  name:'Beetroot',    color:'purple', category:'vegetable' },
+  { file:'purple-brinjal.jpg',   name:'Brinjal',     color:'purple', category:'vegetable' },
+  { file:'purple-crayon.jpg',    name:'Crayon',      color:'purple', category:'object' },
+  { file:'purple-crystal.jpg',   name:'Crystal',     color:'purple', category:'object' },
+  { file:'purple-fig.jpg',       name:'Fig',         color:'purple', category:'fruit' },
+  { file:'purple-flower.jpg',    name:'Flower',      color:'purple', category:'plant' },
+  { file:'purple-grapes.jpg',    name:'Grapes',      color:'purple', category:'fruit' },
+  { file:'purple-octopus.jpg',   name:'Octopus',     color:'purple', category:'animal' },
+  { file:'purple-plant.jpg',     name:'Plant',       color:'purple', category:'plant' },
+  { file:'purple-plum.jpg',      name:'Plum',        color:'purple', category:'fruit' },
+  // RED
+  { file:'red-apple.jpg',        name:'Apple',       color:'red',    category:'fruit' },
+  { file:'red-baloon.jpg',       name:'Balloon',     color:'red',    category:'toy' },
+  { file:'red-button.jpg',       name:'Button',      color:'red',    category:'object' },
+  { file:'red-car.jpg',          name:'Car',         color:'red',    category:'vehicle' },
+  { file:'red-chilli.jpg',       name:'Chilli',      color:'red',    category:'vegetable' },
+  { file:'red-crab.jpg',         name:'Crab',        color:'red',    category:'animal' },
+  { file:'red-grapes.jpg',       name:'Grapes',      color:'red',    category:'fruit' },
+  { file:'red-heart.jpg',        name:'Heart',       color:'red',    category:'object' },
+  { file:'red-rose.jpg',         name:'Rose',        color:'red',    category:'plant' },
+  { file:'red-tomato.jpg',       name:'Tomato',      color:'red',    category:'vegetable' },
+  // YELLOW
+  { file:'yellow-banana.jpg',    name:'Banana',      color:'yellow', category:'fruit' },
+  { file:'yellow-bus.jpg',       name:'Bus',         color:'yellow', category:'vehicle' },
+  { file:'yellow-cap.jpg',       name:'Cap',         color:'yellow', category:'clothing' },
+  { file:'yellow-cheese.jpg',    name:'Cheese',      color:'yellow', category:'food' },
+  { file:'yellow-corn.jpg',      name:'Corn',        color:'yellow', category:'vegetable' },
+  { file:'yellow-duck.jpg',      name:'Duck',        color:'yellow', category:'animal' },
+  { file:'yellow-lemon.jpg',     name:'Lemon',       color:'yellow', category:'fruit' },
+  { file:'yellow-sun.jpg',       name:'Sun',         color:'yellow', category:'nature' },
+  { file:'yellow-sunflower.jpg', name:'Sunflower',   color:'yellow', category:'plant' },
+  { file:'yellow-taxi.jpg',      name:'Taxi',        color:'yellow', category:'vehicle' }
+];
+
+/* Item-specific fact questions. Each entry: { q: question, a: correct, d: [3 distractors] }.
+   Items not listed here fall back to generic whatIs/whatColor/whatCategory questions. */
+const QUESTION_BANK = {
+  /* ── ANIMALS ── */
+  'blue-bird.jpg': [
+    { q:'What sound does a bird make?',         a:'Tweet',     d:['Roar','Moo','Quack'] },
+    { q:'How many legs does a bird have?',      a:'2',         d:['4','6','8'] },
+    { q:'Where do most birds sleep?',           a:'In nests',  d:['In water','Underground','In holes'] },
+    { q:'A bird has feathers and a...',         a:'Beak',      d:['Trunk','Tusk','Snout'] }
+  ],
+  'blue-bluewhale.jpg': [
+    { q:'Where does a whale live?',             a:'In the ocean', d:['In the desert','In the forest','In the sky'] },
+    { q:"A whale is the world's...",            a:'Biggest animal', d:['Smallest animal','Fastest bird','Smartest bug'] },
+    { q:'A whale breathes through its...',      a:'Blowhole',  d:['Nose','Ears','Eyes'] }
+  ],
+  'blue-butterfly.jpg': [
+    { q:'A butterfly starts life as a...',      a:'Caterpillar', d:['Tadpole','Chick','Puppy'] },
+    { q:'How many legs does a butterfly have?', a:'6',         d:['2','4','8'] },
+    { q:'A butterfly has bright...',            a:'Wings',     d:['Fur','Scales','Feathers'] }
+  ],
+  'orange-butterfly.jpg': [
+    { q:'A butterfly starts life as a...',      a:'Caterpillar', d:['Tadpole','Chick','Puppy'] },
+    { q:'How many legs does a butterfly have?', a:'6',         d:['2','4','8'] },
+    { q:'A butterfly has bright...',            a:'Wings',     d:['Fur','Scales','Feathers'] }
+  ],
+  'blue-fish.jpg': [
+    { q:'Where does a fish live?',              a:'In water',  d:['In the sky','Underground','In trees'] },
+    { q:'A fish breathes with...',              a:'Gills',     d:['Lungs','A nose','A mouth'] },
+    { q:'A fish moves using its...',            a:'Fins',      d:['Wings','Legs','Hands'] }
+  ],
+  'orange-fish.jpg': [
+    { q:'Where does a fish live?',              a:'In water',  d:['In the sky','Underground','In trees'] },
+    { q:'A fish breathes with...',              a:'Gills',     d:['Lungs','A nose','A mouth'] },
+    { q:'A fish moves using its...',            a:'Fins',      d:['Wings','Legs','Hands'] }
+  ],
+  'blue-peacock.jpg': [
+    { q:'A peacock is famous for its...',       a:'Tail',      d:['Long teeth','Sharp horns','Spotted skin'] },
+    { q:'A peacock is a kind of...',            a:'Bird',      d:['Reptile','Fish','Insect'] },
+    { q:'Can a peacock fly?',                   a:'A little',  d:['No, never','Yes, very far','Only in water'] }
+  ],
+  'brown-monkey.jpg': [
+    { q:'Where do monkeys love to play?',       a:'In trees',  d:['Under water','In sand','In snow'] },
+    { q:"A monkey's favorite food is often...", a:'Banana',    d:['Pizza','Cheese','Ice cream'] },
+    { q:'A monkey is a...',                     a:'Mammal',    d:['Bird','Reptile','Fish'] }
+  ],
+  'green-frog.jpg': [
+    { q:'What sound does a frog make?',         a:'Ribbit',    d:['Moo','Bark','Tweet'] },
+    { q:'A frog starts life as a...',           a:'Tadpole',   d:['Caterpillar','Chick','Puppy'] },
+    { q:'A frog can...',                        a:'Jump',      d:['Fly far','Run fast','Climb walls'] }
+  ],
+  'green-grasshopper.jpg': [
+    { q:'A grasshopper can...',                 a:'Jump far',  d:['Swim fast','Fly high','Climb walls'] },
+    { q:'A grasshopper has how many legs?',     a:'6',         d:['2','4','8'] },
+    { q:'A grasshopper is an...',               a:'Insect',    d:['Animal mammal','Fish','Bird'] }
+  ],
+  'green-turtle.jpg': [
+    { q:'A turtle moves...',                    a:'Slowly',    d:['Very fast','By flying','By jumping'] },
+    { q:'A turtle has a hard...',               a:'Shell',     d:['Fur coat','Beak','Tail'] },
+    { q:'A turtle can live in...',              a:'Both',      d:['Only air','Only fire','Only snow'] }
+  ],
+  'orange-fox.jpg': [
+    { q:'A fox is known for being...',          a:'Clever',    d:['Lazy','Loud','Slow'] },
+    { q:'A fox has a bushy...',                 a:'Tail',      d:['Trunk','Beak','Antler'] },
+    { q:'A fox is a kind of...',                a:'Mammal',    d:['Bird','Fish','Insect'] }
+  ],
+  'orange-tiger.jpg': [
+    { q:'What sound does a tiger make?',        a:'Roar',      d:['Tweet','Moo','Buzz'] },
+    { q:'A tiger has stripes on its...',        a:'Fur',       d:['Feathers','Shell','Scales'] },
+    { q:'A tiger is a kind of...',              a:'Big cat',   d:['Small dog','Bird','Fish'] }
+  ],
+  'pink-flamingo.jpg': [
+    { q:'A flamingo often stands on...',        a:'One leg',   d:['Three legs','Its head','Its tail'] },
+    { q:'A flamingo is a...',                   a:'Bird',      d:['Fish','Reptile','Mammal'] },
+    { q:"A flamingo's neck is...",              a:'Long',      d:['Tiny','Bumpy','Square'] }
+  ],
+  'pink-pig.jpg': [
+    { q:'What sound does a pig make?',          a:'Oink',      d:['Quack','Bark','Tweet'] },
+    { q:'A pig is a...',                        a:'Farm animal', d:['Wild bird','Sea creature','Insect'] },
+    { q:"A pig's nose is called a...",          a:'Snout',     d:['Beak','Trunk','Antenna'] }
+  ],
+  'purple-octopus.jpg': [
+    { q:'How many arms does an octopus have?',  a:'8',         d:['2','4','6'] },
+    { q:'Where does an octopus live?',          a:'In the sea', d:['In trees','In snow','In the sky'] },
+    { q:'An octopus is very...',                a:'Smart',     d:['Slow','Furry','Spiky'] }
+  ],
+  'red-crab.jpg': [
+    { q:'A crab walks...',                      a:'Sideways',  d:['Backwards','On its head','Upside down'] },
+    { q:'A crab has two big...',                a:'Claws',     d:['Wings','Antlers','Feathers'] },
+    { q:'A crab lives near the...',             a:'Sea',       d:['Desert','Mountains','Sky'] }
+  ],
+  'yellow-duck.jpg': [
+    { q:'What sound does a duck make?',         a:'Quack',     d:['Moo','Roar','Tweet'] },
+    { q:'A duck loves to...',                   a:'Swim',      d:['Climb trees','Burrow deep','Hide in fire'] },
+    { q:"A duck's feet are...",                 a:'Webbed',    d:['Furry','Hairy','Sharp'] }
+  ],
+  /* ── FRUITS ── */
+  'blue-blueberry.jpg': [
+    { q:'Blueberries grow on a...',             a:'Bush',      d:['Tall tree','In water','Under ground'] },
+    { q:'Blueberries are...',                   a:'Tiny berries', d:['Big melons','Long sticks','Yellow blocks'] },
+    { q:'A blueberry is a kind of...',          a:'Fruit',     d:['Vegetable','Animal','Flower'] }
+  ],
+  'brown-coconut.jpg': [
+    { q:'Coconuts grow on a...',                a:'Palm tree', d:['Bush','Underground','In the river'] },
+    { q:'Inside a coconut you find...',         a:'Water',     d:['Sand','A small animal','Cotton'] },
+    { q:'A coconut shell is very...',           a:'Hard',      d:['Soft','Wet','Fluffy'] }
+  ],
+  'green-lemon.jpg': [
+    { q:'A green lemon is also called a...',    a:'Lime',      d:['Banana','Cherry','Melon'] },
+    { q:'What does a lime taste like?',         a:'Sour',      d:['Sweet','Salty','Spicy'] },
+    { q:'Limes grow on a...',                   a:'Tree',      d:['Vine','Bush only','Underground'] }
+  ],
+  'yellow-lemon.jpg': [
+    { q:'What does a lemon taste like?',        a:'Sour',      d:['Sweet','Salty','Spicy'] },
+    { q:'Lemons grow on a...',                  a:'Tree',      d:['Vine','Bush only','Underground'] },
+    { q:'Lemons are full of...',                a:'Juice',     d:['Sand','Cotton','Air only'] }
+  ],
+  'orange-orange.jpg': [
+    { q:'Oranges grow on a...',                 a:'Tree',      d:['Vine','Bush only','Underground'] },
+    { q:'Oranges are full of vitamin...',       a:'C',         d:['A','Z','M'] },
+    { q:'The inside of an orange is called...', a:'Pulp',      d:['Skin','Rind','Shell'] }
+  ],
+  'pink-peach.jpg': [
+    { q:'A peach has a fuzzy...',               a:'Skin',      d:['Tail','Beak','Shell'] },
+    { q:'A peach grows on a...',                a:'Tree',      d:['Vine','Bush only','Underground'] },
+    { q:'A peach tastes...',                    a:'Sweet',     d:['Sour','Salty','Spicy'] }
+  ],
+  'purple-fig.jpg': [
+    { q:'A fig is a...',                        a:'Fruit',     d:['Vegetable','Cookie','Toy'] },
+    { q:'Figs grow on a...',                    a:'Tree',      d:['Vine','Underground','In water'] },
+    { q:'Figs taste...',                        a:'Sweet',     d:['Spicy hot','Salty','Bitter'] }
+  ],
+  'purple-grapes.jpg': [
+    { q:'Grapes grow on a...',                  a:'Vine',      d:['Tall tree','Bush','Underground'] },
+    { q:'A lot of grapes together is a...',     a:'Bunch',     d:['Pack','Crowd','Herd'] },
+    { q:'Grapes can be made into...',           a:'Juice',     d:['Bread','Steel','Sand'] }
+  ],
+  'red-grapes.jpg': [
+    { q:'Grapes grow on a...',                  a:'Vine',      d:['Tall tree','Bush','Underground'] },
+    { q:'A lot of grapes together is a...',     a:'Bunch',     d:['Pack','Crowd','Herd'] },
+    { q:'Grapes can also be...',                a:'Green',     d:['Blue only','Yellow only','Black only'] }
+  ],
+  'purple-plum.jpg': [
+    { q:'A plum has a hard...',                 a:'Pit inside', d:['Outer shell','Furry skin','Beak'] },
+    { q:'Plums grow on a...',                   a:'Tree',      d:['Vine','Underground','Bush only'] },
+    { q:'A plum tastes...',                     a:'Sweet',     d:['Salty','Spicy hot','Bitter only'] }
+  ],
+  'red-apple.jpg': [
+    { q:'Where does an apple grow?',            a:'On a tree', d:['Under ground','In water','In the sky'] },
+    { q:'Apples are a kind of...',              a:'Fruit',     d:['Vegetable','Animal','Toy'] },
+    { q:'An apple has tiny... inside.',         a:'Seeds',     d:['Stones','Stars','Wings'] },
+    { q:'An apple a day keeps the... away.',    a:'Doctor',    d:['Cat','Sun','Moon'] }
+  ],
+  'yellow-banana.jpg': [
+    { q:'Where do bananas grow?',               a:'On a tree', d:['Under ground','In the sea','In snow'] },
+    { q:'A bunch of bananas is also a...',      a:'Hand',      d:['Foot','Leg','Ear'] },
+    { q:'A banana has a thick...',              a:'Peel',      d:['Shell','Fur','Beak'] },
+    { q:'Monkeys love eating...',               a:'Bananas',   d:['Cars','Pencils','Rocks'] }
+  ],
+  /* ── VEGETABLES ── */
+  'brown-potato.jpg': [
+    { q:'Potatoes grow...',                     a:'Under ground', d:['On tall trees','In water','On vines'] },
+    { q:'Potatoes can be made into...',         a:'Chips',     d:['Cake','Juice','Cheese'] },
+    { q:'A potato is a...',                     a:'Vegetable', d:['Fruit','Animal','Toy'] }
+  ],
+  'green-brocolli.jpg': [
+    { q:'Broccoli looks like a tiny...',        a:'Tree',      d:['Car','Boat','House'] },
+    { q:'Broccoli is a...',                     a:'Vegetable', d:['Fruit','Dessert','Drink'] },
+    { q:'Broccoli is full of...',               a:'Vitamins',  d:['Sugar','Plastic','Sand'] }
+  ],
+  'green-cucumber.jpg': [
+    { q:'A cucumber is long and...',            a:'Green',     d:['Round and red','Tiny and yellow','Square and brown'] },
+    { q:'Cucumbers are mostly made of...',      a:'Water',     d:['Sugar','Sand','Wood'] },
+    { q:'A cucumber is eaten as a...',          a:'Vegetable', d:['Animal','Toy','Stone'] }
+  ],
+  'orange-carrot.jpg': [
+    { q:'Carrots grow...',                      a:'Under ground', d:['On tall trees','In water','On vines'] },
+    { q:'Who loves to eat carrots?',            a:'Rabbits',   d:['Fish','Snakes','Tigers'] },
+    { q:'Carrots are good for your...',         a:'Eyes',      d:['Ears','Hair','Toes'] }
+  ],
+  'orange-pumpkin.jpg': [
+    { q:'Pumpkins grow on a...',                a:'Vine',      d:['Tall tree','Underground','In water'] },
+    { q:'Pumpkins are often carved on...',      a:'Halloween', d:['Christmas','New Year','Birthdays'] },
+    { q:'A pumpkin is a...',                    a:'Vegetable', d:['Animal','Toy','Stone'] }
+  ],
+  'purple-beetroot.jpg': [
+    { q:'Beetroots grow...',                    a:'Under ground', d:['In water','On tall trees','In the sky'] },
+    { q:'Beetroots have a deep... color.',      a:'Purple',    d:['Yellow','White','Blue'] },
+    { q:'A beetroot is a...',                   a:'Vegetable', d:['Fruit','Animal','Bug'] }
+  ],
+  'purple-brinjal.jpg': [
+    { q:'A brinjal is also called...',          a:'Eggplant',  d:['Peach','Banana','Pumpkin'] },
+    { q:'A brinjal grows on a...',              a:'Plant',     d:['Underground','In the sea','In snow'] },
+    { q:'A brinjal is a...',                    a:'Vegetable', d:['Sweet fruit','Animal','Object'] }
+  ],
+  'red-chilli.jpg': [
+    { q:'A chilli is very...',                  a:'Spicy',     d:['Sweet','Sour','Cold'] },
+    { q:'A chilli is a...',                     a:'Vegetable', d:['Sweet fruit','Animal','Tool'] },
+    { q:'Chillies make your mouth...',          a:'Hot',       d:['Cold','Quiet','Sleepy'] }
+  ],
+  'red-tomato.jpg': [
+    { q:'Tomatoes grow on a...',                a:'Vine',      d:['Tall tree','Underground','In water'] },
+    { q:'Tomatoes are used to make...',         a:'Sauce',     d:['Bread','Cake','Ice cream'] },
+    { q:'A ripe tomato is...',                  a:'Juicy',     d:['Dry like sand','Hard like stone','Crunchy'] }
+  ],
+  'yellow-corn.jpg': [
+    { q:'Corn grows on a...',                   a:'Tall plant', d:['Underground','Tree','Vine'] },
+    { q:'Corn kernels grow on a...',            a:'Cob',       d:['Stick','Bowl','Bag'] },
+    { q:'Popcorn is made from...',              a:'Corn',      d:['Wheat','Rice','Beans'] }
+  ],
+  /* ── PLANTS ── */
+  'green-cactus.jpg': [
+    { q:'A cactus has sharp...',                a:'Spines',    d:['Soft leaves','Bananas','Eyes'] },
+    { q:'A cactus lives in the...',             a:'Desert',    d:['Ocean','Snow','Sky'] },
+    { q:'A cactus stores...',                   a:'Water',     d:['Sand','Air','Stones'] }
+  ],
+  'green-leaf.jpg': [
+    { q:'A leaf grows on a...',                 a:'Tree',      d:['Cloud','Rock','River'] },
+    { q:'Leaves help a tree make...',           a:'Food',      d:['Glass','Plastic','Sound'] },
+    { q:'In autumn, leaves turn...',            a:'Orange',    d:['Blue','Black','White'] }
+  ],
+  'pink-lotus.jpg': [
+    { q:'A lotus flower floats on...',          a:'Water',     d:['Snow','Sand','Glass'] },
+    { q:'A lotus is a kind of...',              a:'Flower',    d:['Animal','Vegetable','Toy'] },
+    { q:'Where do lotuses grow?',               a:'In ponds',  d:['In deserts','On mountains','In the sky'] }
+  ],
+  'orange-flower.jpg': [
+    { q:'Flowers grow on...',                   a:'Plants',    d:['Rocks only','Clouds','Water alone'] },
+    { q:'Bees visit flowers for...',            a:'Nectar',    d:['Sand','Glass','Wood'] },
+    { q:'Flowers turn into...',                 a:'Fruit',     d:['Stone','Snow','Plastic'] }
+  ],
+  'purple-flower.jpg': [
+    { q:'Flowers grow on...',                   a:'Plants',    d:['Rocks only','Clouds','Water alone'] },
+    { q:'Bees visit flowers for...',            a:'Nectar',    d:['Sand','Glass','Wood'] },
+    { q:'Flowers turn into...',                 a:'Fruit',     d:['Stone','Snow','Plastic'] }
+  ],
+  'purple-plant.jpg': [
+    { q:'Plants need... to grow.',              a:'Sunlight',  d:['Only ice','Only sand','Only smoke'] },
+    { q:'Plants make food using...',            a:'Sunlight',  d:['Moonlight','Mud','Toys'] },
+    { q:'Plants drink water through their...',  a:'Roots',     d:['Mouths','Eyes','Ears'] }
+  ],
+  'red-rose.jpg': [
+    { q:'A rose has sharp...',                  a:'Thorns',    d:['Teeth','Claws','Wings'] },
+    { q:'A rose is famous for its...',          a:'Smell',     d:['Sound','Speed','Weight'] },
+    { q:'A rose is a kind of...',               a:'Flower',    d:['Bird','Bug','Fruit'] }
+  ],
+  'yellow-sunflower.jpg': [
+    { q:'A sunflower follows the...',           a:'Sun',       d:['Wind','Moon','Bees'] },
+    { q:'Sunflowers can grow very...',          a:'Tall',      d:['Tiny','Wet','Cold'] },
+    { q:'A sunflower is a kind of...',          a:'Flower',    d:['Vegetable','Animal','Toy'] }
+  ],
+  /* ── VEHICLES ── */
+  'red-car.jpg': [
+    { q:'A car has how many wheels?',           a:'4',         d:['2','6','8'] },
+    { q:'A car runs on...',                     a:'Roads',     d:['Water','Rails','Air'] },
+    { q:'A car is steered with a...',           a:'Wheel',     d:['Joystick','Pedal only','Compass'] }
+  ],
+  'yellow-bus.jpg': [
+    { q:'A bus carries many...',                a:'People',    d:['Trees','Houses','Whales'] },
+    { q:'A school bus is usually...',           a:'Yellow',    d:['Purple','Pink','Black'] },
+    { q:'A bus runs on...',                     a:'Roads',     d:['Tracks','Water','Air'] }
+  ],
+  'yellow-taxi.jpg': [
+    { q:'A taxi takes you...',                  a:'Anywhere',  d:['To the moon','Underwater','Into trees'] },
+    { q:'You pay a taxi with...',               a:'Money',     d:['Candy','Toys','Stickers'] },
+    { q:'In big cities, taxis are often...',    a:'Yellow',    d:['Purple','Striped','Invisible'] }
+  ],
+  /* ── FOOD ── */
+  'brown-bread.jpg': [
+    { q:'Bread is made from...',                a:'Flour',     d:['Sand','Plastic','Wood'] },
+    { q:'Bread is baked in an...',              a:'Oven',      d:['Fridge','Freezer','Sink'] },
+    { q:'Two slices of bread make a...',        a:'Sandwich',  d:['Drink','Salad','Cake'] }
+  ],
+  'yellow-cheese.jpg': [
+    { q:'Cheese is made from...',               a:'Milk',      d:['Sand','Honey','Sugar'] },
+    { q:'Mice love eating...',                  a:'Cheese',    d:['Glass','Apples','Bones'] },
+    { q:'Cheese can be yellow or...',           a:'White',     d:['Blue','Purple','Black'] }
+  ],
+  'brown-chocolate.jpg': [
+    { q:'Chocolate is made from...',            a:'Cocoa',     d:['Sand','Salt','Pepper'] },
+    { q:'Chocolate is...',                      a:'Sweet',     d:['Spicy','Sour','Salty'] },
+    { q:'Chocolate melts when it gets...',      a:'Warm',      d:['Frozen','Wet','Dark'] }
+  ],
+  'pink-doughnut.jpg': [
+    { q:'A doughnut has a... in the middle.',   a:'Hole',      d:['Apple','Sticker','Coin'] },
+    { q:'Doughnuts are usually...',             a:'Sweet',     d:['Sour','Salty','Spicy'] },
+    { q:'A doughnut is a kind of...',           a:'Food',      d:['Vegetable','Tool','Toy'] }
+  ],
+  'pink-cottoncandy.jpg': [
+    { q:'Cotton candy is made of spun...',      a:'Sugar',     d:['Cotton','Cloud','Foam'] },
+    { q:'Cotton candy is...',                   a:'Sweet',     d:['Sour','Salty','Spicy'] },
+    { q:'Cotton candy melts in your...',        a:'Mouth',     d:['Hand','Bag','Cup'] }
+  ],
+  'brown-biscut.jpg': [
+    { q:'A biscuit is a...',                    a:'Snack',     d:['Drink','Animal','Tool'] },
+    { q:'Biscuits are baked in an...',          a:'Oven',      d:['Fridge','Sink','Lake'] },
+    { q:'Biscuits can be sweet or...',          a:'Salty',     d:['Spicy hot','Sour','Bitter'] }
+  ],
+  /* ── SPORTS ── */
+  'brown-baseball.jpg': [
+    { q:'You hit a baseball with a...',         a:'Bat',       d:['Racket','Net','Stick'] },
+    { q:'A baseball is...',                     a:'Small and hard', d:['Big and soft','Square','Flat'] },
+    { q:'Baseball is played on a...',           a:'Field',     d:['Pool','Court','Track'] }
+  ],
+  'orange-basketball.jpg': [
+    { q:'You score in basketball through a...', a:'Hoop',      d:['Goal','Tunnel','Box'] },
+    { q:'A basketball bounces because it has...', a:'Air',     d:['Metal','Cloth','Wood'] },
+    { q:'A basketball team has how many players?', a:'5',      d:['11','2','8'] }
+  ],
+  'green-ball.jpg': [
+    { q:'A ball is shaped like a...',           a:'Sphere',    d:['Cube','Triangle','Star'] },
+    { q:'Balls are used in many...',            a:'Sports',    d:['Schools','Kitchens','Beds'] },
+    { q:'You can... a ball.',                   a:'Throw it',  d:['Drink it','Eat it','Sing it'] }
+  ],
+  /* ── TOYS ── */
+  'red-baloon.jpg': [
+    { q:'A balloon is filled with...',          a:'Air',       d:['Water','Rocks','Sand'] },
+    { q:'A balloon rises if filled with...',    a:'Helium',    d:['Water','Mud','Cotton'] },
+    { q:'A balloon will pop if you...',         a:'Poke it',   d:['Smile at it','Sing to it','Wash it'] }
+  ],
+  'brown-teddy.jpg': [
+    { q:'A teddy is a soft...',                 a:'Toy bear',  d:['Real bear','Bird','Robot'] },
+    { q:'Teddies are made of soft...',          a:'Fabric',    d:['Metal','Glass','Wood'] },
+    { q:'Kids love to... their teddy.',         a:'Hug',       d:['Eat','Throw away','Bury'] }
+  ],
+  /* ── NATURE ── */
+  'yellow-sun.jpg': [
+    { q:'The sun gives us...',                  a:'Light',     d:['Rain','Ice','Wind'] },
+    { q:'The sun is a giant...',                a:'Star',      d:['Planet','Moon','Comet'] },
+    { q:'When does the sun shine?',             a:'In the day', d:['Only at night','Only in winter','Only on Mondays'] }
+  ],
+  'blue-water.jpg': [
+    { q:'We drink... every day.',               a:'Water',     d:['Sand','Air','Stones'] },
+    { q:'Water is...',                          a:'Liquid',    d:['Solid','Spiky','Hot fire'] },
+    { q:'When water gets very cold it turns to...', a:'Ice',   d:['Steam','Glass','Mud'] }
+  ],
+  /* ── OBJECTS / CLOTHING ── */
+  'blue-Jeans.jpg': [
+    { q:'Jeans are a type of...',               a:'Pants',     d:['Hat','Shoe','Coat'] },
+    { q:'Jeans are made from a fabric called...', a:'Denim',   d:['Silk','Wool','Plastic'] }
+  ],
+  'pink-shoe.jpg': [
+    { q:'You wear shoes on your...',            a:'Feet',      d:['Head','Hands','Belly'] },
+    { q:'A pair of shoes is how many?',         a:'2',         d:['1','4','10'] }
+  ],
+  'yellow-cap.jpg': [
+    { q:'You wear a cap on your...',            a:'Head',      d:['Feet','Hands','Belly'] },
+    { q:'A cap helps protect from the...',      a:'Sun',       d:['Wind','Cold floor','Loud music'] }
+  ],
+  'blue-crayon.jpg': [
+    { q:'You use a crayon to...',               a:'Draw',      d:['Eat','Cook','Read'] },
+    { q:'Crayons are made of...',               a:'Wax',       d:['Metal','Glass','Stone'] }
+  ],
+  'purple-crayon.jpg': [
+    { q:'You use a crayon to...',               a:'Draw',      d:['Eat','Cook','Read'] },
+    { q:'Crayons are made of...',               a:'Wax',       d:['Metal','Glass','Stone'] }
+  ],
+  'pink-eraser.jpg': [
+    { q:'You use an eraser to remove...',       a:'Pencil marks', d:['Crayon stains','Stickers','Dust'] },
+    { q:'An eraser is made of...',              a:'Rubber',    d:['Plastic','Wax','Stone'] }
+  ],
+  'orange-cone.jpg': [
+    { q:'A traffic cone is used to mark...',    a:'Roads',     d:['Drinks','Foods','Books'] },
+    { q:'A cone is shaped like a pointy...',    a:'Hat',       d:['Square box','Flat plate','Round ball'] }
+  ],
+  'pink-ribbon.jpg': [
+    { q:'A ribbon is used to...',               a:'Tie',       d:['Eat','Drink','Sleep on'] },
+    { q:'A ribbon is long and...',              a:'Thin',      d:['Round','Square','Spiky'] }
+  ],
+  'pink-brain.jpg': [
+    { q:'Your brain is inside your...',         a:'Head',      d:['Foot','Belly','Hand'] },
+    { q:'Your brain helps you...',              a:'Think',     d:['Run only','Eat only','Sleep only'] }
+  ],
+  'red-heart.jpg': [
+    { q:'Your heart is inside your...',         a:'Chest',     d:['Foot','Head','Hand'] },
+    { q:'A heart pumps...',                     a:'Blood',     d:['Water','Air','Juice'] }
+  ],
+  'red-button.jpg': [
+    { q:'A button on clothes helps...',         a:'Close them', d:['Eat them','Sleep','Cook'] },
+    { q:'Buttons usually have small...',        a:'Holes',     d:['Teeth','Wings','Eyes'] }
+  ],
+  'brown-woodlog.jpg': [
+    { q:'A wood log comes from a...',           a:'Tree',      d:['Rock','Cloud','River'] },
+    { q:'Wood can be used to make...',          a:'Furniture', d:['Water','Sound','Air'] }
+  ],
+  'brown-box.jpg': [
+    { q:'A box is used to...',                  a:'Hold things', d:['Drink','Sing','Run'] },
+    { q:'Most boxes are made of...',            a:'Cardboard', d:['Air','Water','Smoke'] }
+  ],
+  'blue-diamond.jpg': [
+    { q:'A diamond is a kind of...',            a:'Gem',       d:['Vegetable','Animal','Tool'] },
+    { q:'Diamonds are very...',                 a:'Hard',      d:['Soft','Squishy','Light as a feather'] }
+  ],
+  'green-diamond.jpg': [
+    { q:'A diamond is a kind of...',            a:'Gem',       d:['Vegetable','Animal','Tool'] },
+    { q:'Diamonds are very...',                 a:'Hard',      d:['Soft','Squishy','Light as a feather'] }
+  ],
+  'purple-crystal.jpg': [
+    { q:'A crystal is a kind of...',            a:'Stone',     d:['Liquid','Gas','Animal'] },
+    { q:'Crystals have flat shiny...',          a:'Sides',     d:['Tails','Wings','Eyes'] }
+  ]
+};
+
+const ALL_COLORS = ['blue','green','red','yellow','orange','pink','purple','brown'];
+const PRETTY_COLOR = { blue:'Blue', green:'Green', red:'Red', yellow:'Yellow', orange:'Orange', pink:'Pink', purple:'Purple', brown:'Brown' };
+const PRETTY_CATEGORY = {
+  animal:'Animal', fruit:'Fruit', vegetable:'Vegetable', plant:'Plant', vehicle:'Vehicle',
+  food:'Food', toy:'Toy', sport:'Sport', object:'Object', nature:'Nature', clothing:'Clothing'
+};
+
+const LEVELS = [
+  { rounds: 5,  time: 12, distractor: 'easy',   types: ['whatIs','whatColor'],                       factProb: 0    },
+  { rounds: 5,  time: 11, distractor: 'easy',   types: ['whatIs','whatColor'],                       factProb: 0    },
+  { rounds: 6,  time: 11, distractor: 'medium', types: ['whatIs','whatColor','whatIs'],              factProb: 0.25 },
+  { rounds: 6,  time: 11, distractor: 'medium', types: ['whatIs','whatCategory','whatIs'],           factProb: 0.40 },
+  { rounds: 7,  time: 11, distractor: 'medium', types: ['whatIs','whatCategory','whatIs','whatColor'], factProb: 0.55 },
+  { rounds: 7,  time: 10, distractor: 'hard',   types: ['whatIs','whatCategory'],                    factProb: 0.70 },
+  { rounds: 8,  time: 10, distractor: 'hard',   types: ['whatIs','whatCategory'],                    factProb: 0.80 },
+  { rounds: 8,  time: 9,  distractor: 'hard',   types: ['whatIs','whatCategory','whatIs'],           factProb: 0.85 },
+  { rounds: 9,  time: 9,  distractor: 'hard',   types: ['whatIs','whatCategory','whatIs','whatColor'], factProb: 0.90 },
+  { rounds: 10, time: 8,  distractor: 'hard',   types: ['whatIs','whatCategory','whatColor'],        factProb: 0.95 }
+];
+const LEVEL_COUNT = LEVELS.length;
+
+const MOODS = {
+  normal:   ['Quiz time!','Ready?','What do you see?','Take a look!','Think it through!'],
+  happy:    ['Correct!','Nice work!','You got it!','Smart!','Amazing!','Brain power!'],
+  sad:      ['Oops!','Not quite!','Try again!','Almost!','Close one!'],
+  thinking: ['Hurry up!','Tick tock!','Be quick!','Think fast!','Hustle!']
+};
+
+const Q_TEXTS = {
+  whatIs:       ['What is this?','What’s in the picture?','Can you name this?'],
+  whatColor:    ['What color is it?','Which color?','Pick the color!'],
+  whatCategory: ['What kind is this?','Which group?','What type of thing?']
+};
+
+const MAX_LIVES = 3;
+const CONTINUE_COST = 100;
+const POWERUP_COSTS = { fifty: 25, time: 15, life: 40 };
+
+const K = {
+  high:    'gulsabi_game5_high_score',
+  stars:   'gulsabi_game5_stars',
+  best:    'gulsabi_game5_best_scores',
+  coins:   'gulsabi_game5_coins',
+  earned:  'gulsabi_game5_total_earned',
+  ach:     'gulsabi_game5_achievements',
+  lastDay: 'gulsabi_game5_last_play_date',
+  streak:  'gulsabi_game5_streak',
+  recent:  'gulsabi_game5_recent_questions'
+};
+const RECENT_SIZE = 80;
+
+const ACHIEVEMENTS = {
+  first_correct: { icon:'&#127881;', name:'First Answer!',  desc:'Got your first question right' },
+  streak_5:      { icon:'&#128293;', name:'Quiz Streak',    desc:'Hit a 5-in-a-row streak' },
+  streak_10:     { icon:'&#128293;', name:'Brain Champion', desc:'Hit a 10-in-a-row streak' },
+  perfect_level: { icon:'&#128081;', name:'Flawless!',      desc:'Cleared a level with zero wrong answers' },
+  speedy:        { icon:'&#9889;',   name:'Lightning Mind', desc:'Answered in under 2 seconds' },
+  level_5:       { icon:'&#127941;', name:'Halfway Hero',   desc:'Beat level 5' },
+  quizmaster:    { icon:'&#127941;', name:'Quiz Master',    desc:'Beat all 10 levels' },
+  power_user:    { icon:'&#128302;', name:'Power User',     desc:'Used a power-up' },
+  streak_3_day:  { icon:'&#128293;', name:'3-Day Streak',   desc:'Played 3 days in a row' }
+};
+
+/* ── PERSISTENCE ── */
+function lsGet(k,fb){ try{ const v=localStorage.getItem(k); return v===null?fb:v; }catch(e){ return fb; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function lsGetJSON(k,fb){ try{ return JSON.parse(localStorage.getItem(k))||fb; }catch(e){ return fb; } }
+function lsSetJSON(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function getHigh(){ const n=parseInt(lsGet(K.high,'0'),10); return Number.isFinite(n)&&n>0?n:0; }
+function setHigh(v){ lsSet(K.high,String(v)); }
+function getStars(){ const arr=lsGetJSON(K.stars,[]); while(arr.length<LEVEL_COUNT) arr.push(0); return arr; }
+function setStarFor(lv,s){ const arr=getStars(); const i=lv-1; if(s>(arr[i]||0)) arr[i]=s; lsSetJSON(K.stars,arr); }
+function getBests(){ const arr=lsGetJSON(K.best,[]); while(arr.length<LEVEL_COUNT) arr.push(0); return arr; }
+function setBestFor(lv,sc){ const arr=getBests(); const i=lv-1; if(sc>(arr[i]||0)) arr[i]=sc; lsSetJSON(K.best,arr); }
+function getCoins(){ const n=parseInt(lsGet(K.coins,'0'),10); return Number.isFinite(n)&&n>=0?n:0; }
+function setCoins(v){ lsSet(K.coins,String(Math.max(0,v))); }
+function addCoins(n){ const next=getCoins()+n; setCoins(next); if(n>0){ const earned=parseInt(lsGet(K.earned,'0'),10)||0; lsSet(K.earned,String(earned+n)); } updateCoinUI(); }
+function getAch(){ return lsGetJSON(K.ach,[]); }
+function unlockAch(id){ const list=getAch(); if(list.indexOf(id)!==-1) return false; list.push(id); lsSetJSON(K.ach,list); showToast(ACHIEVEMENTS[id]); return true; }
+function getRecent(){ return lsGetJSON(K.recent, []); }
+function getRecentSet(){ return new Set(getRecent()); }
+function markRecent(id){
+  const arr = getRecent();
+  arr.push(id);
+  while(arr.length > RECENT_SIZE) arr.shift();
+  lsSetJSON(K.recent, arr);
+}
+function qid(file, text){ return file + '|' + (text || '').slice(0, 60); }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dayDiff(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
+function tickStreak(){
+  const today=todayStr(); const last=lsGet(K.lastDay,'');
+  let streak=parseInt(lsGet(K.streak,'0'),10)||0; let firstToday=false;
+  if(!last){ streak=1; firstToday=true; }
+  else if(last===today){}
+  else { const diff=dayDiff(last,today); if(diff===1){ streak+=1; firstToday=true; } else if(diff>1){ streak=1; firstToday=true; } }
+  lsSet(K.streak,String(streak)); lsSet(K.lastDay,today);
+  return { streak, firstToday };
+}
+
+/* ── STATE ── */
+let AC=null, muted=false, bgOn=false, nextNoteTime=0, scheduleID=null, step=0, smoothBpm=100;
+let gs = {};
+let currentQ = null;
+let busy = false;
+let timerID = null;
+let moodReverter = null;
+let paused = false;
+let roundStartTime = 0;
+
+/* ── DOM ── */
+const livesEl = document.getElementById('livesEl');
+const lvlEl = document.getElementById('lvlEl');
+const scoreEl = document.getElementById('scoreEl');
+const coinEl = document.getElementById('coinEl');
+const tbar = document.getElementById('tbar');
+const gimg = document.getElementById('gimg');
+const gmoodText = document.getElementById('gmoodText');
+const comboPop = document.getElementById('comboPop');
+const flashBox = document.getElementById('flashBox');
+const confettiHost = document.getElementById('confettiHost');
+const muteBtn = document.getElementById('muteBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const pw5050 = document.getElementById('pw5050');
+const pwTime = document.getElementById('pwTime');
+const pwLife = document.getElementById('pwLife');
+const roundLbl = document.getElementById('roundLbl');
+const qImgEl = document.getElementById('qImgEl');
+const qImg = document.getElementById('qImg');
+const qImgLabel = document.getElementById('qImgLabel');
+const qText = document.getElementById('qText');
+const qOpts = document.getElementById('qOpts');
+
+/* ── HELPERS ── */
+const getAC = () => { if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); return AC; };
+const shuffle = (a) => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const pick = (a) => a[Math.floor(Math.random()*a.length)];
+
+/* ── MOOD ── */
+function setG(mood, text, revertMs){
+  gimg.src = `../game2/gulsabi-${mood}.png`;
+  gmoodText.textContent = text || pick(MOODS[mood]);
+  if(revertMs){
+    clearTimeout(moodReverter);
+    moodReverter = setTimeout(() => { if(gs.running && !paused) setG('normal'); }, revertMs);
+  }
+}
+
+/* ── AUDIO — game-show bouncy theme in G major ── */
+function playNote(freq,time,dur,vol,type='triangle'){
+  if(muted) return;
+  const ac = getAC();
+  const osc = ac.createOscillator(), g = ac.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, time);
+  g.gain.setValueAtTime(0, time);
+  g.gain.linearRampToValueAtTime(vol, time + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  osc.connect(g); g.connect(ac.destination);
+  osc.start(time); osc.stop(time + dur);
+}
+function playChord(freqs, dur, vol, type='triangle'){
+  if(muted) return;
+  const t = getAC().currentTime;
+  freqs.forEach((f,i) => playNote(f, t + i*0.005, dur, vol, type));
+}
+
+function scheduler(){
+  if(!AC) return;
+  while(nextNoteTime < AC.currentTime + 0.12){
+    const lvl = gs.level || 1;
+    const targetBpm = Math.min(170, 100 + ((lvl - 1) * 7));
+    smoothBpm += (targetBpm - smoothBpm) * 0.06;
+    const s = 60.0 / smoothBpm;
+    const barStep = step % 16;
+    // Walking bass — G major pentatonic, game-show bounce
+    const bassPattern = [98, 0, 146.83, 0, 123.47, 0, 146.83, 196, 98, 0, 146.83, 0, 196, 0, 174.61, 146.83];
+    const bass = bassPattern[barStep];
+    if(bass > 0) playNote(bass, nextNoteTime, s * 0.5, 0.1, 'triangle');
+    // Bouncy plucky lead — G major pentatonic
+    const leadPattern = [392, 0, 587.33, 493.88, 392, 587.33, 659.25, 587.33, 493.88, 587.33, 783.99, 587.33, 392, 493.88, 587.33, 493.88];
+    if(leadPattern[barStep] > 0) playNote(leadPattern[barStep], nextNoteTime + (s * 0.03), s * 0.2, 0.04, 'square');
+    // Anticipation tick — every 8th note (high "quiz ticking" feel)
+    if(barStep % 2 === 0) playNote(3200, nextNoteTime, s * 0.015, 0.02, 'sine');
+    // Counter melody at L2+
+    if(lvl >= 2 && barStep % 4 === 3){
+      const counter = [880, 987.77, 1046.5, 987.77];
+      playNote(counter[(barStep/2) % counter.length], nextNoteTime + (s*0.02), s*0.14, 0.035, 'triangle');
+    }
+    // Major chord stabs at L3+ (G major)
+    if(lvl >= 3 && barStep % 8 === 0){
+      playNote(196, nextNoteTime, s * 0.4, 0.045, 'sine');
+      playNote(246.94, nextNoteTime + 0.005, s * 0.38, 0.035, 'sine');
+      playNote(293.66, nextNoteTime + 0.01, s * 0.36, 0.025, 'sine');
+    }
+    // Kick on 1 and 3
+    if(barStep === 0 || barStep === 8) playNote(75, nextNoteTime, s * 0.1, 0.11, 'square');
+    // Clap-snare on 2 and 4
+    if(barStep === 4 || barStep === 12) playNote(220, nextNoteTime, s * 0.06, 0.07, 'square');
+    nextNoteTime += 0.25 * s;
+    step++;
+  }
+  scheduleID = setTimeout(scheduler, 25);
+}
+function startMusic(){ if(bgOn || muted) return; bgOn = true; smoothBpm = 100; step = 0; nextNoteTime = getAC().currentTime + 0.05; scheduler(); }
+function stopMusic(){ clearTimeout(scheduleID); scheduleID = null; bgOn = false; }
+function toggleMute(){
+  muted = !muted;
+  muteBtn.innerHTML = muted ? '&#128263;' : '&#128266;';
+  if(muted) stopMusic();
+  else if(gs.running && !paused && !document.hidden) startMusic();
+}
+
+function sfxCorrect(){ playChord([587.33,783.99,987.77], 0.25, 0.06, 'triangle'); setTimeout(() => playChord([783.99,987.77,1174.66], 0.3, 0.06, 'triangle'), 100); }
+function sfxWrong(){ const t=getAC().currentTime; playNote(330,t,0.18,0.06,'sawtooth'); playNote(247,t+0.12,0.22,0.06,'sawtooth'); }
+function sfxLevelUp(){ const t=getAC().currentTime; [523.25,659.25,783.99,1046.5,1318.51].forEach((f,i)=>{playNote(f,t+i*0.08,0.25,0.08,'triangle'); playNote(f*2,t+i*0.08+0.02,0.22,0.04,'sine');}); }
+function sfxGameOver(){ const t=getAC().currentTime; [440,392,349.23,293.66,261.63].forEach((f,i)=>playNote(f,t+i*0.15,0.35,0.08,'triangle')); }
+function sfxPower(){ const t=getAC().currentTime; playNote(523.25,t,0.12,0.07,'sine'); playNote(880,t+0.06,0.18,0.06,'triangle'); }
+
+/* ── POPUPS ── */
+function showCombo(text){ comboPop.textContent = text; comboPop.classList.remove('show'); void comboPop.offsetWidth; comboPop.classList.add('show'); }
+function showFlash(text){ flashBox.textContent = text; flashBox.classList.remove('show'); void flashBox.offsetWidth; flashBox.classList.add('show'); }
+function showToast(ach){
+  if(!ach) return;
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `<div class="ticon">${ach.icon}</div><div class="ttxt"><strong>${ach.name}</strong>${ach.desc}</div>`;
+  document.getElementById('toaster').appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+function burstConfetti(){
+  const colors = ['#FFD600','#FF6B6B','#0288D1','#2DC572','#FF8853','#9C27B0','#FFA000'];
+  for(let i=0;i<48;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = (Math.random()*100) + 'vw';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration = (2.4 + Math.random()*1.6) + 's';
+    c.style.animationDelay = (Math.random()*0.4) + 's';
+    c.style.width = (6 + Math.random()*8) + 'px';
+    c.style.height = (10 + Math.random()*8) + 'px';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+    confettiHost.appendChild(c);
+    setTimeout(() => c.remove(), 4500);
+  }
+}
+
+/* ── DISTRACTORS ── */
+function pickUniqueDistractors(correct, pool, count){
+  const seen = new Set([correct]);
+  const result = [];
+  shuffle(pool);
+  for(const v of pool){
+    if(!seen.has(v)){ seen.add(v); result.push(v); if(result.length === count) break; }
+  }
+  return result;
+}
+
+function distractorsForItem(item, difficulty){
+  let pool;
+  if(difficulty === 'easy'){
+    pool = ITEMS.filter(x => x.category !== item.category).map(x => x.name);
+  } else if(difficulty === 'medium'){
+    pool = ITEMS.filter(x => x.category === item.category && x.name !== item.name).map(x => x.name);
+    if(new Set(pool).size < 3) pool = ITEMS.filter(x => x.name !== item.name).map(x => x.name);
+  } else { // hard
+    pool = ITEMS.filter(x => x.category === item.category && x.color === item.color && x.name !== item.name).map(x => x.name);
+    if(new Set(pool).size < 3){
+      pool = ITEMS.filter(x => x.category === item.category && x.name !== item.name).map(x => x.name);
+    }
+    if(new Set(pool).size < 3){
+      pool = ITEMS.filter(x => x.name !== item.name).map(x => x.name);
+    }
+  }
+  return pickUniqueDistractors(item.name, pool, 3);
+}
+
+function distractorsForColor(item){
+  const pool = ALL_COLORS.filter(c => c !== item.color).map(c => PRETTY_COLOR[c]);
+  return shuffle(pool).slice(0, 3);
+}
+
+function distractorsForCategory(item, difficulty){
+  const allCats = [...new Set(ITEMS.map(x => x.category))];
+  const pool = allCats.filter(c => c !== item.category).map(c => PRETTY_CATEGORY[c]);
+  return shuffle(pool).slice(0, 3);
+}
+
+/* ── QUESTION GENERATOR ── */
+function pickFreshItem(preferUnused){
+  // Prefer items not used this session
+  let item;
+  let tries = 0;
+  do {
+    item = pick(ITEMS);
+    tries++;
+  } while(gs.usedItems.has(item.file) && tries < 40);
+  gs.usedItems.add(item.file);
+  return item;
+}
+
+function makeQuestion(cfg){
+  const recent = getRecentSet();
+  const factProb = cfg.factProb || 0;
+
+  // First try: pick an item that HAS fact questions not seen recently
+  let item = null;
+  if(factProb > 0 && Math.random() < factProb){
+    const candidates = ITEMS.filter(it => {
+      if(gs.usedItems.has(it.file)) return false;
+      const facts = QUESTION_BANK[it.file];
+      if(!facts || !facts.length) return false;
+      return facts.some(f => !recent.has(qid(it.file, f.q)));
+    });
+    if(candidates.length) item = pick(candidates);
+  }
+  if(!item) item = pickFreshItem();
+  else gs.usedItems.add(item.file);
+
+  // Try fact question
+  const facts = QUESTION_BANK[item.file] || [];
+  const useFact = facts.length > 0 && Math.random() < factProb;
+  if(useFact){
+    const fresh = facts.filter(f => !recent.has(qid(item.file, f.q)));
+    const fact = pick(fresh.length ? fresh : facts);
+    markRecent(qid(item.file, fact.q));
+    return {
+      item,
+      question: fact.q,
+      correct: fact.a,
+      options: shuffle([fact.a, ...fact.d]),
+      type: 'fact'
+    };
+  }
+
+  // Fall back to a generic question, biased toward types we haven't recently asked
+  const typesShuffled = shuffle([...cfg.types]);
+  let chosenType = typesShuffled.find(t => !recent.has(qid(item.file, 'generic-' + t))) || typesShuffled[0];
+  let question, correct, distractors;
+  switch(chosenType){
+    case 'whatColor':
+      question = pick(Q_TEXTS.whatColor);
+      correct = PRETTY_COLOR[item.color];
+      distractors = distractorsForColor(item);
+      break;
+    case 'whatCategory':
+      question = pick(Q_TEXTS.whatCategory);
+      correct = PRETTY_CATEGORY[item.category];
+      distractors = distractorsForCategory(item, cfg.distractor);
+      break;
+    case 'whatIs':
+    default:
+      question = pick(Q_TEXTS.whatIs);
+      correct = item.name;
+      distractors = distractorsForItem(item, cfg.distractor);
+      break;
+  }
+  markRecent(qid(item.file, 'generic-' + chosenType));
+  return { item, question, correct, options: shuffle([correct, ...distractors]), type: chosenType };
+}
+
+/* ── ROUND FLOW ── */
+function startRound(){
+  const cfg = LEVELS[gs.level - 1];
+  currentQ = makeQuestion(cfg);
+  gs.timer = cfg.time;
+  gs.tmax = cfg.time;
+  gs.lowTickPlayed = false;
+  busy = false;
+
+  qImgEl.src = ASSET_PATH + currentQ.item.file;
+  qImg.classList.remove('pop'); void qImg.offsetWidth; qImg.classList.add('pop');
+  qImgLabel.classList.remove('show','wrong-state');
+  qText.textContent = currentQ.question;
+
+  qOpts.innerHTML = '';
+  currentQ.options.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = opt;
+    b.addEventListener('click', () => onAnswer(b, opt));
+    qOpts.appendChild(b);
+  });
+
+  roundLbl.textContent = `Round ${gs.round} of ${cfg.rounds}`;
+  setG('normal');
+  updateTimerBar();
+  roundStartTime = Date.now();
+  startTimer();
+  updatePowerupUI();
+}
+
+function lockOptions(){
+  qOpts.querySelectorAll('.opt').forEach(b => b.classList.add('disabled'));
+}
+
+function onAnswer(btn, opt){
+  if(busy || paused) return;
+  busy = true;
+  stopTimer();
+  lockOptions();
+  const responseSec = (Date.now() - roundStartTime) / 1000;
+
+  if(opt === currentQ.correct){
+    handleCorrect(btn, responseSec);
+  } else {
+    handleWrong(btn);
+  }
+}
+
+function highlightCorrectButton(){
+  qOpts.querySelectorAll('.opt').forEach(b => {
+    if(b.textContent === currentQ.correct) b.classList.add('correct');
+  });
+}
+function fadeOtherButtons(except){
+  qOpts.querySelectorAll('.opt').forEach(b => {
+    if(b !== except && !b.classList.contains('correct')) b.classList.add('fade');
+  });
+}
+
+function handleCorrect(btn, responseSec){
+  btn.classList.add('correct');
+  fadeOtherButtons(btn);
+  qImgLabel.textContent = `✔ ${currentQ.correct}`;
+  qImgLabel.classList.add('show');
+  sfxCorrect();
+  gs.combo++;
+  if(gs.combo > gs.bestCombo) gs.bestCombo = gs.combo;
+  const timeBonusPart = Math.floor(gs.timer * 5);
+  const comboBonus = gs.combo > 1 ? (gs.combo - 1) * 25 : 0;
+  const gained = 100 * gs.level + timeBonusPart + comboBonus;
+  gs.score += gained;
+  gs.correctCount++;
+  const coinsGained = 5 + (gs.combo > 1 ? (gs.combo - 1) * 2 : 0);
+  addCoins(coinsGained);
+  setG('happy', null, 800);
+  if(gs.combo >= 2) showCombo(`${gs.combo}× STREAK!`);
+  if(!gs.firstCorrectUnlocked){ gs.firstCorrectUnlocked = true; unlockAch('first_correct'); }
+  if(gs.combo >= 5) unlockAch('streak_5');
+  if(gs.combo >= 10) unlockAch('streak_10');
+  if(responseSec < 2) unlockAch('speedy');
+  updateHUD();
+  setTimeout(advanceRound, 750);
+}
+
+function handleWrong(btn){
+  btn.classList.add('wrong');
+  highlightCorrectButton();
+  fadeOtherButtons(btn);
+  qImgLabel.textContent = `Answer: ${currentQ.correct}`;
+  qImgLabel.classList.add('show','wrong-state');
+  sfxWrong();
+  gs.combo = 0;
+  gs.lives--;
+  gs.levelWrongs++;
+  setG('sad', null, 1100);
+  updateHUD();
+  if(gs.lives <= 0){ setTimeout(showContinue, 1300); return; }
+  setTimeout(advanceRound, 1400);
+}
+
+function handleTimeout(){
+  if(busy) return;
+  busy = true;
+  stopTimer();
+  lockOptions();
+  highlightCorrectButton();
+  qImgLabel.textContent = `Time's up! Answer: ${currentQ.correct}`;
+  qImgLabel.classList.add('show','wrong-state');
+  sfxWrong();
+  gs.combo = 0;
+  gs.lives--;
+  gs.levelWrongs++;
+  setG('sad', "Time's up!", 1100);
+  updateHUD();
+  if(gs.lives <= 0){ setTimeout(showContinue, 1300); return; }
+  setTimeout(advanceRound, 1400);
+}
+
+function advanceRound(){
+  const cfg = LEVELS[gs.level - 1];
+  if(gs.round < cfg.rounds){
+    gs.round++;
+    startRound();
+  } else {
+    completeLevel();
+  }
+}
+
+/* ── LEVEL / GAME FLOW ── */
+function startGame(){
+  getAC().resume();
+  document.querySelectorAll('.ov').forEach(o => o.classList.remove('show'));
+  gs = {
+    score: 0, lives: MAX_LIVES, level: 1, round: 1,
+    combo: 0, bestCombo: 0,
+    correctCount: 0, levelWrongs: 0,
+    usedItems: new Set(),
+    running: true, firstCorrectUnlocked: false, usedContinue: false
+  };
+  paused = false;
+  updateHUD();
+  startMusic();
+  startRound();
+}
+
+function completeLevel(){
+  stopTimer();
+  const cfg = LEVELS[gs.level - 1];
+  const timeBonus = Math.floor(gs.timer * 10 * gs.level);
+  gs.score += timeBonus;
+  let stars = 1;
+  if(gs.levelWrongs <= 1) stars = 2;
+  if(gs.levelWrongs === 0) stars = 3;
+  const coinReward = 25 + (stars * 25);
+  addCoins(coinReward);
+  setStarFor(gs.level, stars);
+  setBestFor(gs.level, gs.score);
+  if(gs.levelWrongs === 0) unlockAch('perfect_level');
+  if(gs.level === 5) unlockAch('level_5');
+  if(gs.level === LEVEL_COUNT) unlockAch('quizmaster');
+  sfxLevelUp();
+  setG('happy');
+  burstConfetti();
+  document.getElementById('lvCorrect').textContent = `${cfg.rounds - gs.levelWrongs}/${cfg.rounds}`;
+  document.getElementById('lvStreak').textContent = gs.bestCombo;
+  document.getElementById('lvBonus').textContent = timeBonus;
+  document.getElementById('lvScore').textContent = gs.score;
+  document.getElementById('lvCoinsEarned').innerHTML = `&#129689; +${coinReward} coins`;
+  document.getElementById('levelTitle').textContent =
+    (gs.level >= LEVEL_COUNT) ? 'You Beat the Quiz!' : `Level ${gs.level} Cleared!`;
+  document.getElementById('nextLevelBtn').textContent =
+    (gs.level >= LEVEL_COUNT) ? 'PLAY AGAIN' : 'NEXT LEVEL';
+  const stEls = document.querySelectorAll('#lvStars .st');
+  stEls.forEach(e => e.classList.remove('on'));
+  for(let i=0;i<stars;i++) setTimeout(() => stEls[i].classList.add('on'), 250 + i*220);
+  document.getElementById('ovLevel').classList.add('show');
+}
+
+function nextLevel(){
+  document.getElementById('ovLevel').classList.remove('show');
+  if(gs.level >= LEVEL_COUNT){ endGame(true); return; }
+  gs.level++;
+  gs.round = 1;
+  gs.combo = 0;
+  gs.levelWrongs = 0;
+  updateHUD();
+  startRound();
+}
+
+function showContinue(){
+  if(gs.usedContinue || getCoins() < CONTINUE_COST){ endGame(false); return; }
+  stopTimer();
+  paused = true;
+  setG('thinking');
+  document.getElementById('ovContinue').classList.add('show');
+}
+
+function doContinue(){
+  if(getCoins() < CONTINUE_COST){ document.getElementById('ovContinue').classList.remove('show'); endGame(false); return; }
+  addCoins(-CONTINUE_COST);
+  gs.lives = 2;
+  gs.usedContinue = true;
+  paused = false;
+  document.getElementById('ovContinue').classList.remove('show');
+  updateHUD();
+  sfxPower();
+  setG('happy', null, 800);
+  advanceRound();
+}
+
+function endGame(won){
+  gs.running = false;
+  stopTimer();
+  stopMusic();
+  paused = false;
+  const prevHigh = getHigh();
+  if(gs.score > prevHigh){ setHigh(gs.score); showFlash('NEW BEST!'); }
+  refreshStartUI();
+  const endFace = document.getElementById('endFace');
+  const endTitle = document.getElementById('endTitle');
+  const endStats = document.getElementById('endRunStats');
+  if(won){
+    endFace.src = '../game2/gulsabi-happy.png';
+    endTitle.textContent = 'You Win!';
+    setG('happy');
+    burstConfetti(); setTimeout(burstConfetti, 700);
+  } else {
+    endFace.src = '../game2/gulsabi-sad.png';
+    endTitle.textContent = 'Game Over';
+    sfxGameOver();
+    setG('sad');
+  }
+  document.getElementById('endScore').textContent = gs.score;
+  document.getElementById('endHighScore').textContent = `High Score: ${getHigh()}`;
+  endStats.textContent = `Correct: ${gs.correctCount} · Best streak: ${gs.bestCombo}x`;
+  document.getElementById('ovEnd').classList.add('show');
+}
+
+/* ── TIMER ── */
+function startTimer(){
+  stopTimer();
+  timerID = setInterval(() => {
+    if(paused || busy) return;
+    gs.timer = Math.max(0, gs.timer - 0.1);
+    updateTimerBar();
+    const ratio = gs.timer / gs.tmax;
+    if(ratio < 0.18 && !gs.lowTickPlayed){
+      gs.lowTickPlayed = true;
+      setG('thinking', null, 1200);
+    }
+    if(gs.timer <= 0){
+      stopTimer();
+      handleTimeout();
+    }
+  }, 100);
+}
+function stopTimer(){ clearInterval(timerID); timerID = null; }
+function updateTimerBar(){
+  const pct = (gs.timer / gs.tmax) * 100;
+  tbar.style.width = pct + '%';
+  tbar.classList.toggle('low', pct < 35 && pct >= 15);
+  tbar.classList.toggle('critical', pct < 15);
+}
+
+/* ── HUD ── */
+function updateHUD(){
+  livesEl.innerHTML = '&#10084;'.repeat(Math.max(0, gs.lives)) + '<span style="opacity:.25">' + '&#10084;'.repeat(Math.max(0, MAX_LIVES - gs.lives)) + '</span>';
+  lvlEl.innerHTML = `<span class="pico">&#127942;</span>Lv.${gs.level}/${LEVEL_COUNT}`;
+  scoreEl.textContent = gs.score;
+  updateCoinUI();
+  updatePowerupUI();
+}
+function updateCoinUI(){ coinEl.textContent = getCoins(); }
+function updatePowerupUI(){
+  const c = getCoins();
+  pw5050.disabled = c < POWERUP_COSTS.fifty || !gs.running || paused || busy;
+  pwTime.disabled = c < POWERUP_COSTS.time || !gs.running || paused || busy;
+  pwLife.disabled = c < POWERUP_COSTS.life || !gs.running || paused || gs.lives >= MAX_LIVES;
+}
+
+/* ── POWER-UPS ── */
+function useFiftyFifty(){
+  if(!gs.running || paused || busy) return;
+  if(getCoins() < POWERUP_COSTS.fifty) return;
+  // Remove 2 wrong options
+  const buttons = [...qOpts.querySelectorAll('.opt:not(.disabled):not(.fade)')];
+  const wrongOnes = buttons.filter(b => b.textContent !== currentQ.correct);
+  if(wrongOnes.length < 2) return;
+  addCoins(-POWERUP_COSTS.fifty);
+  unlockAch('power_user');
+  sfxPower();
+  shuffle(wrongOnes).slice(0, 2).forEach(b => { b.classList.add('fade','disabled'); });
+  updatePowerupUI();
+}
+
+function useTimePlus(){
+  if(!gs.running || paused || busy) return;
+  if(getCoins() < POWERUP_COSTS.time) return;
+  addCoins(-POWERUP_COSTS.time);
+  unlockAch('power_user');
+  gs.timer = gs.timer + 5;
+  if(gs.timer > gs.tmax) gs.tmax = gs.timer;
+  sfxPower();
+  updateTimerBar();
+  updatePowerupUI();
+}
+
+function useLife(){
+  if(!gs.running || paused) return;
+  if(gs.lives >= MAX_LIVES) return;
+  if(getCoins() < POWERUP_COSTS.life) return;
+  addCoins(-POWERUP_COSTS.life);
+  unlockAch('power_user');
+  gs.lives++;
+  sfxPower();
+  setG('happy', null, 600);
+  updateHUD();
+}
+
+/* ── PAUSE ── */
+function togglePause(){ if(!gs.running) return; paused ? resume() : pauseGame(); }
+function pauseGame(){ paused = true; stopMusic(); document.getElementById('ovPause').classList.add('show'); }
+function resume(){ paused = false; document.getElementById('ovPause').classList.remove('show'); if(!muted && !document.hidden) startMusic(); }
+
+/* ── START SCREEN ── */
+function refreshStartUI(){
+  document.getElementById('startHighScore').textContent = `High Score: ${getHigh()}`;
+  document.getElementById('startCoins').innerHTML = `&#129689; ${getCoins()}`;
+  const stars = getStars();
+  const sum = stars.reduce((a,b) => a + (b||0), 0);
+  document.getElementById('totalStars').textContent = `${sum}/${LEVEL_COUNT*3}`;
+  const dotsEl = document.getElementById('journeyDots');
+  dotsEl.innerHTML = '';
+  for(let i=0;i<LEVEL_COUNT;i++){
+    const d = document.createElement('div');
+    const s = stars[i] || 0;
+    d.className = 'jdot' + (s ? ' s' + s : '');
+    d.textContent = (i+1);
+    d.title = `Level ${i+1} — ${s} stars`;
+    dotsEl.appendChild(d);
+  }
+  const sb = document.getElementById('streakBanner');
+  const streak = parseInt(lsGet(K.streak,'0'),10) || 0;
+  sb.innerHTML = streak >= 1 ? `<div class="streakbox">&#128293; ${streak}-day streak!</div>` : '';
+}
+function showStart(){
+  document.querySelectorAll('.ov').forEach(o => o.classList.remove('show'));
+  refreshStartUI();
+  document.getElementById('ovStart').classList.add('show');
+}
+
+/* ── INIT ── */
+function init(){
+  const s = tickStreak();
+  if(s.firstToday){
+    const bonus = 50 + (s.streak >= 3 ? 50 : 0);
+    addCoins(bonus);
+    setTimeout(() => showToast({ icon: '&#127888;', name: `+${bonus} coins!`, desc: `Day ${s.streak} streak bonus` }), 500);
+  }
+  if(s.streak >= 3) setTimeout(() => unlockAch('streak_3_day'), 1200);
+  refreshStartUI();
+
+  document.getElementById('startBtn').addEventListener('click', startGame);
+  document.getElementById('restartBtn').addEventListener('click', () => { document.getElementById('ovEnd').classList.remove('show'); refreshStartUI(); startGame(); });
+  document.getElementById('endMenuBtn').addEventListener('click', showStart);
+  document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
+  document.getElementById('continueBtn').addEventListener('click', doContinue);
+  document.getElementById('quitBtn').addEventListener('click', () => { document.getElementById('ovContinue').classList.remove('show'); endGame(false); });
+  document.getElementById('howBtn').addEventListener('click', () => document.getElementById('ovHow').classList.add('show'));
+  document.getElementById('howCloseBtn').addEventListener('click', () => document.getElementById('ovHow').classList.remove('show'));
+  document.getElementById('helpBtn').addEventListener('click', () => document.getElementById('ovHow').classList.add('show'));
+  muteBtn.addEventListener('click', toggleMute);
+  pauseBtn.addEventListener('click', togglePause);
+  document.getElementById('resumeBtn').addEventListener('click', resume);
+  document.getElementById('quitFromPause').addEventListener('click', () => { document.getElementById('ovPause').classList.remove('show'); endGame(false); });
+  pw5050.addEventListener('click', useFiftyFifty);
+  pwTime.addEventListener('click', useTimePlus);
+  pwLife.addEventListener('click', useLife);
+
+  document.addEventListener('keydown', e => {
+    if(e.key === 'p' || e.key === 'P' || e.key === 'Escape') togglePause();
+    if(e.key === 'm' || e.key === 'M') toggleMute();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden){ stopMusic(); }
+    else if(gs.running && !paused && !muted){ if(AC) nextNoteTime = AC.currentTime + 0.05; startMusic(); }
+  });
+  const teardown = () => { stopMusic(); if(AC){ try{ AC.close(); }catch(e){} AC = null; } };
+  window.addEventListener('pagehide', teardown);
+  window.addEventListener('beforeunload', teardown);
+
+  updatePowerupUI();
+}
+
+init();
+</script>
+</body>
+</html>

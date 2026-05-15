@@ -1,0 +1,44 @@
+{
+  "name": "Gulsabi Games",
+  "short_name": "Gulsabi",
+  "description": "Curiosity-powered learning games for kids. Play offline anytime.",
+  "start_url": "/games.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0288D1",
+  "theme_color": "#FFD600",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "games/game2/gulsabi-normal.png",
+      "sizes": "192x192 512x512 1000x1000",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "games/game2/gulsabi-normal.png",
+      "sizes": "192x192 512x512 1000x1000",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["games", "education", "kids"],
+  "shortcuts": [
+    {
+      "name": "Sky Adventure",
+      "url": "/games/game1/index.html",
+      "description": "Flappy-bird arcade game"
+    },
+    {
+      "name": "Memory Match",
+      "url": "/games/game4/index.html",
+      "description": "Card-flipping memory game"
+    },
+    {
+      "name": "Quiz Time",
+      "url": "/games/game5/index.html",
+      "description": "Picture-based quiz game"
+    }
+  ]
+}
