@@ -11,7 +11,7 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;font-family:'Fre
 body{background:#4FC3F7;display:flex;flex-direction:column;align-items:stretch;justify-content:space-between;}
 
 /* ── BACKGROUND ── */
-.sky{position:fixed;inset:0;z-index:0;background:linear-gradient(175deg,#0288D1 0%,#29B6F6 30%,#4FC3F7 55%,#81D4FA 78%,#B3E5FC 100%);}
+.sky{position:fixed;inset:0;z-index:0;background:linear-gradient(175deg,#0288D1 0%,#29B6F6 30%,#4FC3F7 55%,#81D4FA 78%,#B3E5FC 100%);transition:background .6s ease;}
 .sun{position:fixed;top:2.5vh;right:6vw;z-index:1;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle,#FFF176 50%,#FFD600 75%,#FFA000 100%);box-shadow:0 0 50px 20px rgba(255,200,0,.4);animation:sunPulse 3.5s ease-in-out infinite;pointer-events:none;}
 @keyframes sunPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
 .ground{position:fixed;bottom:0;left:0;right:0;z-index:2;height:10vh;background:linear-gradient(180deg,#66BB6A 0%,#388E3C 100%);border-radius:50% 50% 0 0/2vh 2vh 0 0;pointer-events:none;}
@@ -97,6 +97,15 @@ body.mode-duo .solo-only{display:none;}
 body.mode-duo .duo-only{display:flex;}
 body.mode-duo .ptray{display:none;}
 body.mode-duo .twrap{visibility:hidden;}
+
+/* ── PER-PLAYER BACKGROUND (duo mode) — sunset for P1, sky-blue for P2 ── */
+.ground{transition:background .6s ease;}
+body.mode-duo .sky{background:linear-gradient(175deg,#E65100 0%,#FF6F00 22%,#FF9800 45%,#FFB74D 70%,#FFE0B2 100%);}
+body.mode-duo .ground{background:linear-gradient(180deg,#9CCC65 0%,#558B2F 100%);}
+body.mode-duo.turn-2 .sky{background:linear-gradient(175deg,#01579B 0%,#0277BD 22%,#039BE5 45%,#4FC3F7 70%,#B3E5FC 100%);}
+body.mode-duo.turn-2 .ground{background:linear-gradient(180deg,#66BB6A 0%,#388E3C 100%);}
+/* card boost for visibility against warm sky */
+body.mode-duo .card-face{box-shadow:0 4px 14px rgba(0,0,0,.32);}
 
 /* ── OVERLAYS ── */
 .ov{position:fixed;inset:0;z-index:7000;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:.3s;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);padding:14px;}
@@ -317,7 +326,7 @@ body.peeking .card-back{filter:brightness(1.2);}
     <div class="modesplit">
       <button class="bigbtn green" data-diff="easy">&#127909; EASY &middot; 6 pairs</button>
       <button class="bigbtn yellow" data-diff="medium">&#127881; MEDIUM &middot; 10 pairs</button>
-      <button class="bigbtn" data-diff="hard">&#128293; HARD &middot; 15 pairs</button>
+      <button class="bigbtn" data-diff="hard">&#128293; HARD &middot; 18 pairs</button>
     </div>
     <button class="smbtn" id="duoBackBtn">Back</button>
   </div>
@@ -438,23 +447,23 @@ const ALL_IMAGES = [
 ];
 
 const LEVELS = [
-  { pairs: 3,  cols: 3, time: 35 },
-  { pairs: 4,  cols: 4, time: 45 },
-  { pairs: 5,  cols: 5, time: 55 },
+  { pairs: 3,  cols: 3, time: 30 },
+  { pairs: 4,  cols: 4, time: 40 },
+  { pairs: 5,  cols: 5, time: 50 },
   { pairs: 6,  cols: 4, time: 65 },
-  { pairs: 8,  cols: 4, time: 80 },
-  { pairs: 9,  cols: 3, time: 95 },
+  { pairs: 8,  cols: 4, time: 85 },
   { pairs: 10, cols: 5, time: 110 },
-  { pairs: 12, cols: 4, time: 130 },
-  { pairs: 15, cols: 5, time: 150 },
-  { pairs: 18, cols: 6, time: 175 }
+  { pairs: 12, cols: 4, time: 135 },
+  { pairs: 14, cols: 4, time: 160 },
+  { pairs: 16, cols: 4, time: 185 },
+  { pairs: 18, cols: 6, time: 215 }
 ];
 const LEVEL_COUNT = LEVELS.length;
 
 const DUO_DIFFICULTIES = {
   easy:   { pairs: 6,  cols: 4, musicLevel: 1 },
-  medium: { pairs: 10, cols: 5, musicLevel: 3 },
-  hard:   { pairs: 15, cols: 5, musicLevel: 5 }
+  medium: { pairs: 10, cols: 5, musicLevel: 4 },
+  hard:   { pairs: 18, cols: 6, musicLevel: 7 }
 };
 
 const MOODS = {
