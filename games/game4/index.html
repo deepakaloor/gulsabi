@@ -217,8 +217,6 @@ body.mode-duo .card-face{box-shadow:0 4px 14px rgba(0,0,0,.32);}
   100%{transform:translateY(110vh) rotate(720deg);opacity:.85;}
 }
 
-body.peeking .card-back{filter:brightness(1.2);}
-
 /* ── DESKTOP TWEAKS ── */
 @media (min-width:760px){
   .pill{font-size:.88rem;padding:.4em .8em;}
@@ -269,7 +267,6 @@ body.peeking .card-back{filter:brightness(1.2);}
 </div>
 
 <div class="ptray">
-  <button class="pbtn" id="pwPeek" type="button"><span class="picon">&#128064;</span>Peek<span class="pcost">&#129689;<span>30</span></span></button>
   <button class="pbtn" id="pwHint" type="button"><span class="picon">&#128161;</span>Hint<span class="pcost">&#129689;<span>20</span></span></button>
   <button class="pbtn" id="pwLife" type="button"><span class="picon">&#10084;&#65039;</span>+1<span class="pcost">&#129689;<span>40</span></span></button>
 </div>
@@ -414,7 +411,7 @@ body.peeking .card-back{filter:brightness(1.2);}
         <li>Tap 2 cards. If they match, score!</li>
         <li>Wrong match = lose a <strong>&#10084;</strong></li>
         <li>Faster clears = more <strong>stars</strong> &amp; <strong>coins &#129689;</strong></li>
-        <li>Spend coins on <strong>Peek</strong>, <strong>Hint</strong>, <strong>+Life</strong></li>
+        <li>Spend coins on <strong>Hint</strong> or <strong>+Life</strong></li>
       </ul>
       <strong>2 Players:</strong>
       <ul>
@@ -487,7 +484,7 @@ const DUO_MISS_MSG = {
 
 const MAX_LIVES = 4;
 const CONTINUE_COST = 100;
-const POWERUP_COSTS = { peek: 30, hint: 20, life: 40 };
+const POWERUP_COSTS = { hint: 20, life: 40 };
 
 const K = {
   high:    'gulsabi_game4_memory_high_score',
@@ -575,7 +572,6 @@ const flashBox = document.getElementById('flashBox');
 const confettiHost = document.getElementById('confettiHost');
 const muteBtn = document.getElementById('muteBtn');
 const pauseBtn = document.getElementById('pauseBtn');
-const pwPeek = document.getElementById('pwPeek');
 const pwHint = document.getElementById('pwHint');
 const pwLife = document.getElementById('pwLife');
 const p1Pill = document.getElementById('p1Pill');
@@ -1066,29 +1062,11 @@ function updateDuoHUD(){
 function updateCoinUI(){ coinEl.textContent = getCoins(); }
 function updatePowerupUI(){
   const c = getCoins();
-  pwPeek.disabled = c < POWERUP_COSTS.peek || !gs.running || paused || busy;
   pwHint.disabled = c < POWERUP_COSTS.hint || !gs.running || paused || busy;
   pwLife.disabled = c < POWERUP_COSTS.life || !gs.running || paused || gs.lives >= MAX_LIVES;
 }
 
 /* ── POWER-UPS (solo only) ── */
-function usePeek(){
-  if(gs.mode !== 'solo' || !gs.running || paused || busy) return;
-  if(getCoins() < POWERUP_COSTS.peek) return;
-  addCoins(-POWERUP_COSTS.peek);
-  unlockAch('power_user');
-  sfxPower();
-  busy = true;
-  document.body.classList.add('peeking');
-  const tempFlipped = [];
-  cards.forEach(c => { if(!c.matched && !c.flipped){ c.el.classList.add('flipped'); tempFlipped.push(c); } });
-  setTimeout(() => {
-    tempFlipped.forEach(c => c.el.classList.remove('flipped'));
-    document.body.classList.remove('peeking');
-    busy = false;
-    updatePowerupUI();
-  }, 2200);
-}
 function useHint(){
   if(gs.mode !== 'solo' || !gs.running || paused || busy) return;
   if(getCoins() < POWERUP_COSTS.hint) return;
@@ -1214,7 +1192,6 @@ function init(){
   });
 
   // power-ups (solo only — guarded inside handlers)
-  pwPeek.addEventListener('click', usePeek);
   pwHint.addEventListener('click', useHint);
   pwLife.addEventListener('click', useLife);
 
