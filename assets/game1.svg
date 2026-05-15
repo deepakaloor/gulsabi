@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 220" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0288D1"/>
+      <stop offset="50%" stop-color="#29B6F6"/>
+      <stop offset="100%" stop-color="#81D4FA"/>
+    </linearGradient>
+    <radialGradient id="sun1" cx="0.4" cy="0.4" r="0.6">
+      <stop offset="0%" stop-color="#FFF59D"/>
+      <stop offset="60%" stop-color="#FFD600"/>
+      <stop offset="100%" stop-color="#FF8F00"/>
+    </radialGradient>
+  </defs>
+  <rect width="380" height="220" fill="url(#sky1)"/>
+  <!-- distant stars -->
+  <g fill="white" opacity="0.85">
+    <circle cx="50" cy="30" r="1.5"/>
+    <circle cx="120" cy="20" r="1"/>
+    <circle cx="280" cy="40" r="1.5"/>
+    <circle cx="200" cy="15" r="1"/>
+    <circle cx="350" cy="100" r="1"/>
+  </g>
+  <!-- sun -->
+  <circle cx="330" cy="50" r="30" fill="url(#sun1)"/>
+  <g stroke="#FFD600" stroke-width="2.5" stroke-linecap="round" opacity="0.7">
+    <line x1="330" y1="8" x2="330" y2="14"/>
+    <line x1="378" y1="50" x2="372" y2="50"/>
+    <line x1="296" y1="18" x2="300" y2="22"/>
+    <line x1="296" y1="82" x2="300" y2="78"/>
+  </g>
+  <!-- cloud 1 (front) -->
+  <g fill="white" opacity="0.95">
+    <ellipse cx="58" cy="82" rx="34" ry="11"/>
+    <circle cx="40" cy="76" r="14"/>
+    <circle cx="58" cy="70" r="18"/>
+    <circle cx="78" cy="76" r="13"/>
+  </g>
+  <!-- cloud 2 (back) -->
+  <g fill="white" opacity="0.78">
+    <ellipse cx="245" cy="115" rx="28" ry="9"/>
+    <circle cx="230" cy="110" r="11"/>
+    <circle cx="248" cy="105" r="14"/>
+    <circle cx="266" cy="110" r="11"/>
+  </g>
+  <!-- asteroid -->
+  <g transform="translate(50, 165)">
+    <circle cx="0" cy="0" r="18" fill="#8D6E63" stroke="#3E2723" stroke-width="3"/>
+    <circle cx="-5" cy="-4" r="4" fill="#5D4037"/>
+    <circle cx="4" cy="3" r="3" fill="#5D4037"/>
+    <circle cx="-2" cy="6" r="2" fill="#5D4037"/>
+  </g>
+  <!-- flying Gulsabi -->
+  <g transform="translate(195, 128)">
+    <!-- cape -->
+    <path d="M -34 -10 Q -54 5 -46 32 Q -34 24 -22 18 Z" fill="#FF4F4F" stroke="#C44545" stroke-width="2.5"/>
+    <!-- body -->
+    <circle cx="0" cy="0" r="30" fill="#FFD600" stroke="#2c3e50" stroke-width="3.5"/>
+    <!-- cheeks -->
+    <circle cx="-13" cy="7" r="4.5" fill="#FF8A80" opacity="0.65"/>
+    <circle cx="13" cy="7" r="4.5" fill="#FF8A80" opacity="0.65"/>
+    <!-- eyes -->
+    <circle cx="-10" cy="-5" r="4.5" fill="#2c3e50"/>
+    <circle cx="10" cy="-5" r="4.5" fill="#2c3e50"/>
+    <circle cx="-9" cy="-6" r="1.5" fill="white"/>
+    <circle cx="11" cy="-6" r="1.5" fill="white"/>
+    <!-- smile -->
+    <path d="M -10 7 Q 0 15 10 7" stroke="#2c3e50" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <!-- speed lines -->
+    <g stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.75">
+      <line x1="-55" y1="-12" x2="-40" y2="-9"/>
+      <line x1="-60" y1="0" x2="-44" y2="2"/>
+      <line x1="-55" y1="13" x2="-40" y2="10"/>
+    </g>
+  </g>
+  <!-- sparkles -->
+  <g fill="#FFD600">
+    <polygon points="258,60 260,66 266,66 261,70 263,76 258,72 253,76 255,70 250,66 256,66"/>
+    <polygon points="140,55 141,58 144,58 142,60 143,63 140,61 137,63 138,60 136,58 139,58"/>
+  </g>
+</svg>

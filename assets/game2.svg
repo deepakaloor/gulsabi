@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 220" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0288D1"/>
+      <stop offset="60%" stop-color="#4FC3F7"/>
+      <stop offset="100%" stop-color="#B3E5FC"/>
+    </linearGradient>
+    <linearGradient id="ground2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7CB342"/>
+      <stop offset="100%" stop-color="#388E3C"/>
+    </linearGradient>
+    <radialGradient id="sun2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFF59D"/>
+      <stop offset="70%" stop-color="#FFD600"/>
+      <stop offset="100%" stop-color="#FF8F00"/>
+    </radialGradient>
+  </defs>
+  <rect width="380" height="220" fill="url(#sky2)"/>
+  <!-- cloud -->
+  <g fill="white" opacity="0.85">
+    <ellipse cx="120" cy="40" rx="28" ry="9"/>
+    <circle cx="108" cy="35" r="11"/>
+    <circle cx="124" cy="30" r="14"/>
+    <circle cx="138" cy="35" r="11"/>
+  </g>
+  <!-- sun -->
+  <circle cx="50" cy="45" r="26" fill="url(#sun2)"/>
+  <g stroke="#FFD600" stroke-width="2.2" stroke-linecap="round" opacity="0.65">
+    <line x1="50" y1="10" x2="50" y2="15"/>
+    <line x1="92" y1="45" x2="87" y2="45"/>
+    <line x1="22" y1="20" x2="26" y2="24"/>
+  </g>
+  <!-- ground curve -->
+  <path d="M 0 165 Q 190 150 380 165 L 380 220 L 0 220 Z" fill="url(#ground2)"/>
+  <!-- glow ring around target -->
+  <circle cx="200" cy="92" r="36" fill="none" stroke="#FFD600" stroke-width="2" stroke-dasharray="4 3" opacity="0.6"/>
+  <!-- floating target (red apple) -->
+  <g transform="translate(200, 92)">
+    <circle cx="0" cy="0" r="22" fill="#FF5252" stroke="#B71C1C" stroke-width="2.5"/>
+    <ellipse cx="-7" cy="-6" rx="5" ry="4" fill="#FFCDD2" opacity="0.75"/>
+    <rect x="-2" y="-22" width="4" height="6" fill="#6D4C41" rx="1"/>
+    <path d="M 2 -22 Q 10 -28 14 -22" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+  <!-- cannons row (red, blue, green, yellow) -->
+  <g stroke="#2c3e50" stroke-width="2.5">
+    <!-- red -->
+    <g transform="translate(60, 175)">
+      <rect x="-20" y="-9" width="40" height="22" rx="7" fill="#FF5252"/>
+      <rect x="-3" y="-18" width="6" height="12" fill="#FF5252" stroke="#2c3e50" stroke-width="2.5"/>
+      <circle cx="0" cy="-19" r="4.5" fill="#FF5252"/>
+    </g>
+    <!-- blue -->
+    <g transform="translate(140, 175)">
+      <rect x="-20" y="-9" width="40" height="22" rx="7" fill="#42A5F5"/>
+      <rect x="-3" y="-18" width="6" height="12" fill="#42A5F5" stroke="#2c3e50" stroke-width="2.5"/>
+      <circle cx="0" cy="-19" r="4.5" fill="#42A5F5"/>
+    </g>
+    <!-- green -->
+    <g transform="translate(240, 175)">
+      <rect x="-20" y="-9" width="40" height="22" rx="7" fill="#66BB6A"/>
+      <rect x="-3" y="-18" width="6" height="12" fill="#66BB6A" stroke="#2c3e50" stroke-width="2.5"/>
+      <circle cx="0" cy="-19" r="4.5" fill="#66BB6A"/>
+    </g>
+    <!-- yellow -->
+    <g transform="translate(320, 175)">
+      <rect x="-20" y="-9" width="40" height="22" rx="7" fill="#FFD600"/>
+      <rect x="-3" y="-18" width="6" height="12" fill="#FFD600" stroke="#2c3e50" stroke-width="2.5"/>
+      <circle cx="0" cy="-19" r="4.5" fill="#FFD600"/>
+    </g>
+  </g>
+  <!-- flying red cannonball heading toward target -->
+  <circle cx="120" cy="130" r="9" fill="#FF5252" stroke="#B71C1C" stroke-width="2"/>
+  <!-- motion trail -->
+  <g stroke="#FF5252" stroke-width="3.5" stroke-linecap="round" opacity="0.6">
+    <line x1="92" y1="148" x2="102" y2="142"/>
+    <line x1="78" y1="156" x2="86" y2="151"/>
+  </g>
+</svg>

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 220" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0288D1"/>
+      <stop offset="60%" stop-color="#4FC3F7"/>
+      <stop offset="100%" stop-color="#B3E5FC"/>
+    </linearGradient>
+    <radialGradient id="sun3" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFF59D"/>
+      <stop offset="70%" stop-color="#FFD600"/>
+      <stop offset="100%" stop-color="#FF8F00"/>
+    </radialGradient>
+  </defs>
+  <rect width="380" height="220" fill="url(#sky3)"/>
+  <!-- sun -->
+  <circle cx="345" cy="38" r="22" fill="url(#sun3)" opacity="0.7"/>
+  <!-- cloud -->
+  <g fill="white" opacity="0.75">
+    <ellipse cx="45" cy="45" rx="22" ry="8"/>
+    <circle cx="34" cy="40" r="10"/>
+    <circle cx="50" cy="36" r="12"/>
+    <circle cx="62" cy="40" r="10"/>
+  </g>
+  <!-- 3x2 grid of circles, all blue except center-bottom is yellow -->
+  <!-- row 1 -->
+  <circle cx="120" cy="80" r="28" fill="#42A5F5" stroke="white" stroke-width="4"/>
+  <circle cx="190" cy="80" r="28" fill="#42A5F5" stroke="white" stroke-width="4"/>
+  <circle cx="260" cy="80" r="28" fill="#42A5F5" stroke="white" stroke-width="4"/>
+  <!-- shine on each circle -->
+  <g fill="white" opacity="0.35">
+    <ellipse cx="113" cy="72" rx="8" ry="5" transform="rotate(-25 113 72)"/>
+    <ellipse cx="183" cy="72" rx="8" ry="5" transform="rotate(-25 183 72)"/>
+    <ellipse cx="253" cy="72" rx="8" ry="5" transform="rotate(-25 253 72)"/>
+  </g>
+  <!-- row 2 -->
+  <circle cx="120" cy="150" r="28" fill="#42A5F5" stroke="white" stroke-width="4"/>
+  <!-- THE ODD ONE — yellow -->
+  <circle cx="190" cy="150" r="28" fill="#FFD600" stroke="white" stroke-width="4"/>
+  <circle cx="260" cy="150" r="28" fill="#42A5F5" stroke="white" stroke-width="4"/>
+  <g fill="white" opacity="0.35">
+    <ellipse cx="113" cy="142" rx="8" ry="5" transform="rotate(-25 113 142)"/>
+    <ellipse cx="183" cy="142" rx="8" ry="5" transform="rotate(-25 183 142)"/>
+    <ellipse cx="253" cy="142" rx="8" ry="5" transform="rotate(-25 253 142)"/>
+  </g>
+  <!-- highlight ring around the odd one -->
+  <circle cx="190" cy="150" r="38" fill="none" stroke="#FF5252" stroke-width="3.5" stroke-dasharray="5 3"/>
+  <!-- magnifying glass over odd one -->
+  <g transform="translate(218, 180)">
+    <circle cx="0" cy="0" r="22" fill="rgba(255,255,255,0.18)" stroke="#2c3e50" stroke-width="5"/>
+    <circle cx="0" cy="0" r="14" fill="none" stroke="white" stroke-width="2" opacity="0.55"/>
+    <line x1="16" y1="16" x2="34" y2="34" stroke="#2c3e50" stroke-width="8" stroke-linecap="round"/>
+    <line x1="17" y1="17" x2="32" y2="32" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <!-- sparkles -->
+  <g fill="#FFD600">
+    <polygon points="60,180 62,186 68,186 63,190 65,196 60,192 55,196 57,190 52,186 58,186"/>
+    <polygon points="320,180 321,183 324,183 322,185 323,188 320,186 317,188 318,185 316,183 319,183"/>
+  </g>
+</svg>
