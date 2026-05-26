@@ -193,67 +193,241 @@
         .section-header { text-align: center; margin-bottom: 60px; }
         .section-title { font-size: 3.5rem; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
 
-        .games-container {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
+        /* --- Adventures CTA (replaces full games grid on homepage) --- */
+        .adventures-cta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(24px, 5vw, 56px);
+            align-items: center;
+            max-width: 980px;
+            margin: 0 auto;
+        }
+        .adventures-stack {
+            position: relative;
+            aspect-ratio: 4/3;
+            width: 100%;
+            max-width: 460px;
+            justify-self: center;
+        }
+        .adventures-stack .stack-card {
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.3);
+            border: 5px solid white;
+            transition: transform 0.5s var(--ease-out-quint);
+        }
+        .adventures-stack .stack-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .adventures-stack .stack-card.s1 { transform: rotate(-10deg) translate(-8%, -2%); z-index: 1; }
+        .adventures-stack .stack-card.s2 { transform: rotate(-3deg) translate(-2%, 0); z-index: 2; }
+        .adventures-stack .stack-card.s3 { transform: rotate(2deg) translate(2%, 1%); z-index: 3; }
+        .adventures-stack .stack-card.s4 { transform: rotate(8deg) translate(7%, 2%); z-index: 4; }
+        .adventures-stack:hover .stack-card.s1 { transform: rotate(-14deg) translate(-14%, -4%); }
+        .adventures-stack:hover .stack-card.s2 { transform: rotate(-5deg) translate(-6%, -1%); }
+        .adventures-stack:hover .stack-card.s3 { transform: rotate(5deg) translate(6%, 1%); }
+        .adventures-stack:hover .stack-card.s4 { transform: rotate(14deg) translate(14%, 4%); }
+        .adventures-cta .cta-side h2 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            color: white;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+            line-height: 1.1;
+        }
+        .adventures-cta .cta-side p {
+            font-size: clamp(1rem, 2.2vw, 1.2rem);
+            color: white;
+            opacity: 0.92;
+            margin-bottom: 22px;
+            font-weight: 600;
+        }
+        .adventures-cta .cta-side .game-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.16);
+            border: 2px solid rgba(255,255,255,0.35);
+            backdrop-filter: blur(4px);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+        .btn-explore {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--gulsabi-yellow);
+            color: var(--text-dark);
+            padding: clamp(14px, 3vw, 18px) clamp(28px, 5vw, 42px);
+            border-radius: 100px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.4vw, 1.25rem);
+            border: 4px solid var(--text-dark);
+            box-shadow: 6px 6px 0 var(--text-dark);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-explore:hover { transform: translateY(-3px) scale(1.03); box-shadow: 9px 9px 0 var(--cape-red); }
+        .btn-explore:active { transform: translateY(2px); box-shadow: 3px 3px 0 var(--cape-red); }
+        .btn-explore .arrow { font-size: 1.3em; transition: transform 0.25s ease; }
+        .btn-explore:hover .arrow { transform: translateX(4px); }
+        @media (max-width: 760px) {
+            .adventures-cta { grid-template-columns: 1fr; text-align: center; }
+            .adventures-cta .cta-side { order: 2; }
+            .adventures-stack { order: 1; max-width: 340px; aspect-ratio: 5/4; }
         }
 
-        /* --- INTERACTIVE CARD STYLES --- */
-        .game-card {
-            display: block; /* Important for <a> tags */
-            background: var(--pure-white);
-            border-radius: 30px;
-            width: 380px;
+        /* --- YouTube Shorts Section --- */
+        .youtube-section {
+            padding: clamp(50px, 8vw, 90px) clamp(16px, 4vw, 24px);
+            background: linear-gradient(180deg, #fff8f0 0%, #ffefdb 100%);
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            transition: transform 0.4s var(--ease-out-quint), box-shadow 0.4s var(--ease-out-quint);
-            cursor: pointer;
+        }
+        .youtube-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255,79,79,0.06) 2px, transparent 2px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+        .youtube-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .youtube-head {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        .youtube-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 3px solid var(--cape-red);
+            color: var(--cape-red);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 0 var(--cape-red);
+        }
+        .youtube-eyebrow .yt-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--cape-red); animation: ytPulse 1.4s ease-in-out infinite;
+        }
+        @keyframes ytPulse { 0%,100% { opacity: 1; transform: scale(1);} 50% { opacity: 0.5; transform: scale(1.4);} }
+        .youtube-head h2 {
+            font-size: clamp(2.2rem, 5.5vw, 3.5rem);
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            line-height: 1.05;
+        }
+        .youtube-head p {
+            font-size: clamp(1rem, 2.2vw, 1.2rem);
+            color: var(--text-dark);
+            opacity: 0.75;
+            font-weight: 500;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+        /* Playlist embed in a stylized TV frame */
+        .yt-player-wrap {
+            max-width: 760px;
+            margin: 0 auto 36px;
             position: relative;
         }
-
-        .game-card:hover { 
-            transform: translateY(-15px) scale(1.02);
-            box-shadow: 0 40px 70px rgba(0,0,0,0.3);
-            z-index: 10;
-        }
-
-        .game-card:active {
-            transform: scale(0.95);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
-        }
-
-        .game-img-container {
-            height: 220px;
-            width: 100%;
-            background: #eee;
+        .yt-player {
+            position: relative;
+            aspect-ratio: 16/9;
+            border-radius: 22px;
             overflow: hidden;
+            background: #000;
+            border: 6px solid white;
+            box-shadow: 0 22px 50px rgba(0,0,0,0.25), 12px 12px 0 rgba(255, 79, 79, 0.18);
         }
-
-        .game-img-container img {
+        .yt-player iframe {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
+            border: 0;
         }
-
-        .game-card:hover .game-img-container img {
-            transform: scale(1.1);
+        /* Tiny "swatch" thumbnails under the player */
+        .yt-swatches {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: -22px 0 26px;
+            position: relative;
+            z-index: 2;
         }
-
-        .game-info { padding: 25px; color: var(--text-dark); text-align: center; }
-        
-        .play-btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 8px 20px;
-            background-color: var(--cape-red);
+        .yt-swatch {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--cape-red);
+            border: 3px solid white;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 0.95rem;
+            font-family: 'Fredoka', sans-serif;
+        }
+        .yt-swatch.s2 { background: var(--hero-blue); transform: translateY(8px); }
+        .yt-swatch.s3 { background: var(--gulsabi-yellow); color: var(--text-dark); }
+        .yt-swatch.s4 { background: #2DC572; transform: translateY(8px); }
+        .yt-swatch.s5 { background: #9C27B0; }
+        .yt-cta-wrap { text-align: center; }
+        .btn-youtube {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--cape-red);
+            color: white;
+            padding: clamp(14px, 3vw, 18px) clamp(28px, 5vw, 42px);
+            border-radius: 100px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.4vw, 1.25rem);
+            border: 4px solid var(--text-dark);
+            box-shadow: 6px 6px 0 var(--text-dark);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-youtube:hover { transform: translateY(-3px) scale(1.03); box-shadow: 9px 9px 0 var(--hero-blue); }
+        .btn-youtube:active { transform: translateY(2px); box-shadow: 3px 3px 0 var(--hero-blue); }
+        .btn-youtube .yt-icon {
+            width: 28px; height: 20px;
+            background: white;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .btn-youtube .yt-icon::after {
+            content: '';
+            width: 0; height: 0;
+            border-left: 8px solid var(--cape-red);
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            margin-left: 1px;
+        }
+        @media (max-width: 760px) {
+            .yt-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         /* --- Section 3: Costumes (YELLOW) --- */
@@ -704,62 +878,57 @@
     </section>
 
     <section class="adventures-section" id="games">
-        <div class="section-header reveal-up">
-            <h2 class="section-title">Gulsabi Adventures</h2>
-            <p>Play. Learn. Grow.</p>
-        </div>
-        
-        <div class="games-container">
-            <a href="games/game1/index.html" class="game-card reveal-up delay-1">
-                <div class="game-img-container">
+        <div class="adventures-cta">
+            <div class="adventures-stack reveal-left">
+                <a href="games.html" class="stack-card s1" aria-label="Sky Adventure">
                     <img src="assets/game1.jpg" alt="Sky Adventure" loading="lazy" decoding="async">
-                </div>
-                <div class="game-info">
-                    <h3>Sky Adventure</h3>
-                    <p>Conquer the sky!</p>
-                    <span class="play-btn">PLAY NOW</span>
-                </div>
-            </a>
-            <a href="games/game2/index.html" class="game-card reveal-up delay-2">
-                <div class="game-img-container">
+                </a>
+                <a href="games.html" class="stack-card s2" aria-label="Cannon Color Range">
                     <img src="assets/game2.jpg" alt="Cannon Color Range" loading="lazy" decoding="async">
-                </div>
-                <div class="game-info">
-                    <h3>Cannon Color Range</h3>
-                    <p>Hit the right Color!</p>
-                    <span class="play-btn">PLAY NOW</span>
-                </div>
-            </a>
-            <a href="games/game3/index.html" class="game-card reveal-up delay-2">
-                <div class="game-img-container">
-                    <img src="assets/game3.jpg" alt="Odd One Out" loading="lazy" decoding="async">
-                </div>
-                <div class="game-info">
-                    <h3>Odd One Out</h3>
-                    <p>Spot the one that's different!</p>
-                    <span class="play-btn">PLAY NOW</span>
-                </div>
-            </a>
-            <a href="games/game4/index.html" class="game-card reveal-up delay-2">
-                <div class="game-img-container">
+                </a>
+                <a href="games.html" class="stack-card s3" aria-label="Memory Match">
                     <img src="assets/game4.jpg" alt="Memory Match" loading="lazy" decoding="async">
-                </div>
-                <div class="game-info">
-                    <h3>Memory Match</h3>
-                    <p>Solo journey or play 2-player!</p>
-                    <span class="play-btn">PLAY NOW</span>
-                </div>
-            </a>
-            <a href="games/game5/index.html" class="game-card reveal-up delay-2">
-                <div class="game-img-container">
+                </a>
+                <a href="games.html" class="stack-card s4" aria-label="Quiz Time">
                     <img src="assets/game5.jpg" alt="Quiz Time" loading="lazy" decoding="async">
+                </a>
+            </div>
+            <div class="cta-side reveal-right">
+                <span class="game-count">&#127918; 5 Games &middot; All Free</span>
+                <h2>Gulsabi Adventures</h2>
+                <p>Play. Learn. Grow. Five arcade games packed with color, memory, reaction and curiosity &mdash; all designed for tiny brains and big smiles.</p>
+                <a href="games.html" class="btn-explore">
+                    Explore All Games <span class="arrow">&rarr;</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="youtube-section" id="youtube">
+        <div class="youtube-inner">
+            <div class="youtube-head reveal-up">
+                <span class="youtube-eyebrow"><span class="yt-dot"></span>YouTube Shorts</span>
+                <h2>But Why? &#129300;</h2>
+                <p>Gulsabi answers life's tiniest big questions in 60 seconds. 75+ shorts and counting &mdash; new ones every week!</p>
+            </div>
+            <div class="yt-player-wrap reveal-up">
+                <div class="yt-player">
+                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLPAKCFEM4TRs-LLN_veavTDydqVRIsKJA&modestbranding=1&rel=0" title="But Why? &mdash; Gulsabi Shorts Playlist" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
                 </div>
-                <div class="game-info">
-                    <h3>Quiz Time</h3>
-                    <p>Test what you know!</p>
-                    <span class="play-btn">PLAY NOW</span>
-                </div>
-            </a>
+            </div>
+            <div class="yt-swatches reveal-up delay-1">
+                <span class="yt-swatch s1">75+</span>
+                <span class="yt-swatch s2">&#9889;</span>
+                <span class="yt-swatch s3">&#129300;</span>
+                <span class="yt-swatch s4">&#127794;</span>
+                <span class="yt-swatch s5">&#127759;</span>
+            </div>
+            <div class="yt-cta-wrap reveal-up">
+                <a href="https://youtube.com/playlist?list=PLPAKCFEM4TRs-LLN_veavTDydqVRIsKJA" target="_blank" rel="noopener" class="btn-youtube">
+                    <span class="yt-icon"></span>
+                    Watch on YouTube
+                </a>
+            </div>
         </div>
     </section>
 
