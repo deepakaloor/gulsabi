@@ -1,72 +1,110 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 220" preserveAspectRatio="xMidYMid slice">
   <defs>
-    <linearGradient id="sky5" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0288D1"/>
-      <stop offset="60%" stop-color="#4FC3F7"/>
-      <stop offset="100%" stop-color="#B3E5FC"/>
+    <linearGradient id="bg5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFB300"/>
+      <stop offset="60%" stop-color="#FF6F00"/>
+      <stop offset="100%" stop-color="#E64A19"/>
     </linearGradient>
-    <radialGradient id="sun5" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0%" stop-color="#FFF59D"/>
-      <stop offset="70%" stop-color="#FFD600"/>
-      <stop offset="100%" stop-color="#FF8F00"/>
+    <radialGradient id="bulbGlow5" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFFDE7" stop-opacity="1"/>
+      <stop offset="55%" stop-color="#FFEB3B" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#FFEB3B" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="img5" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#E1F5FE"/>
-      <stop offset="100%" stop-color="#B3E5FC"/>
-    </linearGradient>
   </defs>
-  <rect width="380" height="220" fill="url(#sky5)"/>
-  <!-- sun -->
-  <circle cx="345" cy="38" r="22" fill="url(#sun5)" opacity="0.75"/>
-  <!-- cloud -->
-  <g fill="white" opacity="0.78">
-    <ellipse cx="50" cy="40" rx="24" ry="8"/>
-    <circle cx="38" cy="35" r="11"/>
-    <circle cx="54" cy="30" r="13"/>
-    <circle cx="68" cy="35" r="10"/>
+
+  <!-- warm orange/red sunset background -->
+  <rect width="380" height="220" fill="url(#bg5)"/>
+
+  <!-- diagonal rays from top-right -->
+  <g stroke="#FFEB3B" stroke-width="3" opacity="0.18" stroke-linecap="round">
+    <line x1="340" y1="20" x2="80" y2="200"/>
+    <line x1="380" y1="60" x2="120" y2="220"/>
+    <line x1="370" y1="100" x2="180" y2="220"/>
   </g>
-  <!-- big yellow question mark behind the card (decorative) -->
-  <text x="320" y="155" font-family="'Trebuchet MS', sans-serif" font-size="100" font-weight="900" fill="#FFD600" opacity="0.35">?</text>
-  <text x="40" y="200" font-family="'Trebuchet MS', sans-serif" font-size="70" font-weight="900" fill="#FFD600" opacity="0.3">?</text>
-  <!-- centered quiz "card" with image inside -->
-  <g transform="translate(125, 105)">
-    <!-- image frame -->
-    <rect x="-46" y="-46" width="92" height="92" rx="14" fill="white" stroke="#FFD600" stroke-width="5"/>
-    <rect x="-40" y="-40" width="80" height="80" rx="9" fill="url(#img5)"/>
-    <!-- apple in the frame -->
-    <circle cx="0" cy="6" r="24" fill="#FF5252" stroke="#B71C1C" stroke-width="2.5"/>
-    <ellipse cx="-8" cy="-2" rx="6" ry="4" fill="#FFCDD2" opacity="0.7"/>
-    <rect x="-2" y="-20" width="4" height="7" fill="#6D4C41" rx="1"/>
-    <path d="M 2 -20 Q 10 -27 14 -20" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- ghost question marks in the background -->
+  <text x="40" y="100" font-family="'Fredoka One', Fredoka, sans-serif" font-size="80" fill="white" opacity="0.12" font-weight="900">?</text>
+  <text x="310" y="200" font-family="'Fredoka One', Fredoka, sans-serif" font-size="60" fill="white" opacity="0.12" font-weight="900">?</text>
+
+  <!-- giant central question mark with bold outline -->
+  <g transform="translate(180, 115)">
+    <text x="0" y="22" font-family="'Fredoka One', Fredoka, sans-serif" font-size="140" font-weight="900" text-anchor="middle" fill="white" stroke="#2c3e50" stroke-width="5" stroke-linejoin="round" paint-order="stroke fill">?</text>
   </g>
-  <!-- 2x2 answer-option chips on the right -->
-  <g font-family="'Trebuchet MS', sans-serif" font-size="13" font-weight="900">
-    <!-- correct: Apple (highlighted green) -->
-    <g transform="translate(265, 70)">
-      <rect x="-44" y="-15" width="88" height="30" rx="14" fill="#2DC572" stroke="white" stroke-width="3"/>
-      <text x="0" y="5" text-anchor="middle" fill="white">Apple</text>
-      <circle cx="34" cy="-10" r="7" fill="white"/>
-      <path d="M 31 -10 L 33 -8 L 38 -13" stroke="#2DC572" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    </g>
-    <!-- Banana -->
-    <g transform="translate(265, 110)">
-      <rect x="-44" y="-15" width="88" height="30" rx="14" fill="white" stroke="#0288D1" stroke-width="3"/>
-      <text x="0" y="5" text-anchor="middle" fill="#2c3e50">Banana</text>
-    </g>
-    <!-- Tomato -->
-    <g transform="translate(265, 150)">
-      <rect x="-44" y="-15" width="88" height="30" rx="14" fill="white" stroke="#0288D1" stroke-width="3"/>
-      <text x="0" y="5" text-anchor="middle" fill="#2c3e50">Tomato</text>
-    </g>
-    <!-- Cherry -->
-    <g transform="translate(265, 190)">
-      <rect x="-44" y="-15" width="88" height="30" rx="14" fill="white" stroke="#0288D1" stroke-width="3"/>
-      <text x="0" y="5" text-anchor="middle" fill="#2c3e50">Peach</text>
+
+  <!-- answer chips on left + right -->
+  <!-- chip A: correct (green) -->
+  <g transform="translate(60, 65)">
+    <rect x="-26" y="-14" width="52" height="28" rx="14" fill="#2DC572" stroke="#2c3e50" stroke-width="3"/>
+    <text x="0" y="5" font-family="'Fredoka One', Fredoka, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">A</text>
+    <!-- check mark -->
+    <circle cx="22" cy="-12" r="8" fill="white" stroke="#2c3e50" stroke-width="2"/>
+    <path d="M 18 -12 L 21 -9 L 26 -15" stroke="#2DC572" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- chip B -->
+  <g transform="translate(80, 175)">
+    <rect x="-26" y="-14" width="52" height="28" rx="14" fill="white" stroke="#2c3e50" stroke-width="3"/>
+    <text x="0" y="5" font-family="'Fredoka One', Fredoka, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#2c3e50">B</text>
+  </g>
+
+  <!-- chip C -->
+  <g transform="translate(305, 80)">
+    <rect x="-26" y="-14" width="52" height="28" rx="14" fill="white" stroke="#2c3e50" stroke-width="3"/>
+    <text x="0" y="5" font-family="'Fredoka One', Fredoka, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#2c3e50">C</text>
+  </g>
+
+  <!-- chip D -->
+  <g transform="translate(290, 175)">
+    <rect x="-26" y="-14" width="52" height="28" rx="14" fill="white" stroke="#2c3e50" stroke-width="3"/>
+    <text x="0" y="5" font-family="'Fredoka One', Fredoka, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#2c3e50">D</text>
+  </g>
+
+  <!-- light bulb glow above Gulsabi -->
+  <circle cx="280" cy="45" r="32" fill="url(#bulbGlow5)"/>
+  <!-- light bulb -->
+  <g transform="translate(280, 45)">
+    <!-- bulb glass -->
+    <path d="M -12 -8 Q -12 -22 0 -22 Q 12 -22 12 -8 Q 12 0 8 6 L 8 11 L -8 11 L -8 6 Q -12 0 -12 -8 Z" fill="#FFEB3B" stroke="#2c3e50" stroke-width="2.5"/>
+    <!-- bulb base -->
+    <rect x="-7" y="11" width="14" height="4" fill="#9E9E9E" stroke="#2c3e50" stroke-width="2"/>
+    <rect x="-5" y="15" width="10" height="3" fill="#616161" stroke="#2c3e50" stroke-width="1.5"/>
+    <!-- shine -->
+    <path d="M -4 -16 Q -8 -10 -6 -3" stroke="white" stroke-width="2" fill="none" opacity="0.85"/>
+    <!-- emission rays -->
+    <g stroke="#FFEB3B" stroke-width="2.5" stroke-linecap="round">
+      <line x1="0" y1="-30" x2="0" y2="-24"/>
+      <line x1="14" y1="-22" x2="20" y2="-26"/>
+      <line x1="-14" y1="-22" x2="-20" y2="-26"/>
+      <line x1="-18" y1="-10" x2="-24" y2="-10"/>
+      <line x1="18" y1="-10" x2="24" y2="-10"/>
     </g>
   </g>
+
+  <!-- Gulsabi in thinking pose, looking up at idea -->
+  <g transform="translate(180, 115)" opacity="0">
+    <!-- placeholder so the giant ? stays the focal -->
+  </g>
+
+  <!-- Gulsabi standing/thinking in bottom-right -->
+  <g transform="translate(295, 142)">
+    <!-- head tilted up looking at bulb -->
+    <g transform="rotate(-5)">
+      <circle cx="0" cy="0" r="32" fill="#FFD600" stroke="#2c3e50" stroke-width="4"/>
+      <ellipse cx="-13" cy="7" rx="5" ry="4" fill="#FF8A80" opacity="0.7"/>
+      <ellipse cx="13" cy="7" rx="5" ry="4" fill="#FF8A80" opacity="0.7"/>
+      <!-- eyes looking up -->
+      <circle cx="-10" cy="-7" r="5" fill="#2c3e50"/>
+      <circle cx="10" cy="-7" r="5" fill="#2c3e50"/>
+      <circle cx="-8" cy="-9" r="1.8" fill="white"/>
+      <circle cx="12" cy="-9" r="1.8" fill="white"/>
+      <!-- thoughtful mouth (small O) -->
+      <ellipse cx="0" cy="9" rx="3.5" ry="3" fill="#3E2723"/>
+    </g>
+  </g>
+
   <!-- sparkles -->
-  <g fill="#FFD600">
-    <polygon points="190,35 192,41 198,41 193,45 195,51 190,47 185,51 187,45 182,41 188,41"/>
-    <polygon points="120,200 121,203 124,203 122,205 123,208 120,206 117,208 118,205 116,203 119,203"/>
+  <g fill="white" opacity="0.95">
+    <polygon points="160,30 162,36 168,36 163,40 165,46 160,42 155,46 157,40 152,36 158,36"/>
+    <polygon points="230,80 232,86 238,86 233,90 235,96 230,92 225,96 227,90 222,86 228,86"/>
   </g>
 </svg>
