@@ -340,20 +340,30 @@
             max-width: 540px;
             margin: 0 auto;
         }
-        /* Phone-style 9:16 frame (YouTube Shorts aspect) */
-        .yt-player-wrap {
-            max-width: 340px;
+        /* Row of 3 phone-style 9:16 frames (YouTube Shorts aspect) */
+        .yt-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(14px, 2.5vw, 26px);
+            max-width: 920px;
             margin: 0 auto 44px;
-            position: relative;
+            justify-items: center;
         }
         .yt-player {
+            width: 100%;
+            max-width: 300px;
             position: relative;
             aspect-ratio: 9/16;
-            border-radius: 28px;
+            border-radius: 24px;
             overflow: hidden;
             background: #000;
-            border: 6px solid white;
-            box-shadow: 0 22px 50px rgba(0,0,0,0.25), 12px 12px 0 rgba(255, 79, 79, 0.18);
+            border: 5px solid white;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+            transition: transform 0.35s var(--ease-out-quint), box-shadow 0.35s var(--ease-out-quint);
+        }
+        .yt-player:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 28px 56px rgba(0,0,0,0.3);
         }
         .yt-player iframe {
             position: absolute;
@@ -361,6 +371,18 @@
             width: 100%;
             height: 100%;
             border: 0;
+        }
+        /* lightweight placeholder shown until the iframe is injected */
+        .yt-player.yt-placeholder::before {
+            content: '\25B6';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 2rem;
+        }
+        @media (max-width: 760px) {
+            .yt-grid { grid-template-columns: 1fr; max-width: 320px; }
         }
         .yt-cta-wrap { text-align: center; }
         .btn-youtube {
@@ -883,10 +905,10 @@
                 <h2>But Why? &#129300;</h2>
                 <p>Gulsabi answers life's tiniest big questions in 60 seconds. 75+ shorts and counting &mdash; new ones every week!</p>
             </div>
-            <div class="yt-player-wrap reveal-up">
-                <div class="yt-player">
-                    <iframe src="https://www.youtube-nocookie.com/embed/hmkpHtTf7Ww?modestbranding=1&rel=0&controls=0&iv_load_policy=3&loop=1&playlist=hmkpHtTf7Ww&playsinline=1" title="But Why? &mdash; Gulsabi Shorts" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-                </div>
+            <div class="yt-grid reveal-up" id="ytShortsGrid">
+                <div class="yt-player yt-placeholder" data-slot="0"></div>
+                <div class="yt-player yt-placeholder" data-slot="1"></div>
+                <div class="yt-player yt-placeholder" data-slot="2"></div>
             </div>
             <div class="yt-cta-wrap reveal-up">
                 <a href="https://youtube.com/playlist?list=PLPAKCFEM4TRs-LLN_veavTDydqVRIsKJA" target="_blank" rel="noopener" class="btn-youtube">
@@ -969,6 +991,56 @@
         document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right').forEach((el) => {
             observer.observe(el);
         });
+
+        /* === YOUTUBE SHORTS — pick 3 unique random videos per page load === */
+        const GULSABI_SHORTS_IDS = [
+            'r0JSnW7c9HU','GBBlDSnU6kU','BJY1cNgL8gw','g6nq5VgRCQQ','ZokkR58KTzc',
+            'BiqMmCSMv64','g3RzCOq2U5M','M6qEElIzZc8','s8-7rJGOkUw','jrugxbgxCeg',
+            'MLb4ak__C3c','7lNx94AuARc','1YUqLFd-xJQ','R-N36CEPYd4','dhOhUIPcFus',
+            'H8l0OABGZqA','ClrgU193dXM','hTymICKl26U','hGTU883Iucc','hu03v8BUs78',
+            'IxZksXYRQIk','xR6p1S57Wic','0t7W9d7eFlg','WIk_5dRpte4','QV9dQTEq488',
+            'T37kQ_FVf8c','IR6ouhV3VvQ','fa9gW760mU4','yfhE5aBryrE','UnNZQcdQtNo',
+            'xrH-36b0bPw','HBN1cfDJtnI','hmkpHtTf7Ww','2HJ2bmkg9fY','JoLHIpK1Ye8',
+            '3YdRYXCf7d0','ljO1BGxrhPk','ZUZXAvLtnDM','BWYCGTNP5aY','DCqhGU50Tjw',
+            'rCuYs94Fl9U','O1-HfUif64w','39vN6RdRbX0','Yh_qNHcA0Wk','JUFkVtTiY_A',
+            'RDJmW78ov0Y','G0Y-z5afzlM','nui_NyTDYHE','TtrPQk7FnEc','CnVWARbbCdg',
+            '-lK57iIDkTw','Y8tmZt2Iw_M','D8mJ6qjGVgE','okmde5Melag','eKDaNs3aZp8',
+            'IGEZ5HPjEcs','l_R_HsgjwuU','NAUii46y-A0','1WQU7FRdDck','BYJXOz3tdq4',
+            'YXTkT3B8P4M','Rw4YTe5N1O0','5jk59KBloUY','sg1NHw7loWk','RlKeRQX_8sI',
+            'oqVx1OJyUl4','K_ILOMutb9g','vL-U2vOmUH0','wnJfT90KztE','os-VHoUw1Iw',
+            'HrCKL8h8Rx8','x9ktisKRFoE','BL6mh4F9DH4','391eNjnfnD8','aovcG7-BRUY'
+        ];
+        function pickThreeUniqueShorts() {
+            // Fisher-Yates shuffle, take first 3
+            const pool = [...GULSABI_SHORTS_IDS];
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+            return pool.slice(0, 3);
+        }
+        function mountShorts() {
+            const slots = document.querySelectorAll('#ytShortsGrid .yt-player');
+            if (!slots.length) return;
+            const picks = pickThreeUniqueShorts();
+            slots.forEach((slot, i) => {
+                const id = picks[i];
+                if (!id) return;
+                const iframe = document.createElement('iframe');
+                // youtube-nocookie + minimal chrome + loop the single short
+                iframe.src = `https://www.youtube-nocookie.com/embed/${id}?modestbranding=1&rel=0&controls=0&iv_load_policy=3&loop=1&playlist=${id}&playsinline=1`;
+                iframe.title = `Gulsabi Short ${i + 1}`;
+                iframe.loading = 'lazy';
+                iframe.allow = 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+                iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+                iframe.allowFullscreen = true;
+                slot.classList.remove('yt-placeholder');
+                slot.appendChild(iframe);
+            });
+        }
+        // Defer mount slightly so the iframes don't compete with first paint
+        if ('requestIdleCallback' in window) requestIdleCallback(mountShorts, { timeout: 1200 });
+        else setTimeout(mountShorts, 600);
 
         /* === CURSOR SPARKLES - desktop only === */
         const sparkChars = [
