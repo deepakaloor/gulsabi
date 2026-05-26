@@ -340,10 +340,10 @@
             max-width: 540px;
             margin: 0 auto;
         }
-        /* Playlist embed in a phone-style 9:16 frame (YouTube Shorts aspect) */
+        /* Phone-style 9:16 frame (YouTube Shorts aspect) */
         .yt-player-wrap {
             max-width: 340px;
-            margin: 0 auto 36px;
+            margin: 0 auto 44px;
             position: relative;
         }
         .yt-player {
@@ -362,34 +362,6 @@
             height: 100%;
             border: 0;
         }
-        /* Tiny "swatch" thumbnails under the player */
-        .yt-swatches {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: -22px 0 26px;
-            position: relative;
-            z-index: 2;
-        }
-        .yt-swatch {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: var(--cape-red);
-            border: 3px solid white;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.18);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 0.95rem;
-            font-family: 'Fredoka', sans-serif;
-        }
-        .yt-swatch.s2 { background: var(--hero-blue); transform: translateY(8px); }
-        .yt-swatch.s3 { background: var(--gulsabi-yellow); color: var(--text-dark); }
-        .yt-swatch.s4 { background: #2DC572; transform: translateY(8px); }
-        .yt-swatch.s5 { background: #9C27B0; }
         .yt-cta-wrap { text-align: center; }
         .btn-youtube {
             display: inline-flex;
@@ -913,15 +885,8 @@
             </div>
             <div class="yt-player-wrap reveal-up">
                 <div class="yt-player">
-                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLPAKCFEM4TRs-LLN_veavTDydqVRIsKJA&modestbranding=1&rel=0" title="But Why? &mdash; Gulsabi Shorts Playlist" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                    <iframe src="https://www.youtube-nocookie.com/embed/hmkpHtTf7Ww?modestbranding=1&rel=0&controls=0&iv_load_policy=3&loop=1&playlist=hmkpHtTf7Ww&playsinline=1" title="But Why? &mdash; Gulsabi Shorts" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
                 </div>
-            </div>
-            <div class="yt-swatches reveal-up delay-1">
-                <span class="yt-swatch s1">75+</span>
-                <span class="yt-swatch s2">&#9889;</span>
-                <span class="yt-swatch s3">&#129300;</span>
-                <span class="yt-swatch s4">&#127794;</span>
-                <span class="yt-swatch s5">&#127759;</span>
             </div>
             <div class="yt-cta-wrap reveal-up">
                 <a href="https://youtube.com/playlist?list=PLPAKCFEM4TRs-LLN_veavTDydqVRIsKJA" target="_blank" rel="noopener" class="btn-youtube">
