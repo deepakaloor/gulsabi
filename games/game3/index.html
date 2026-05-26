@@ -730,12 +730,30 @@ function buildRoundCards(cfg){
 }
 
 /* ── PRELOAD CACHE ──
-   Pre-build the NEXT round's card list (without DOM) and preload its images right after
-   the current round is rendered. By the time the user answers and we advance, the next
-   grid's images are already in the browser cache. */
+   Two-tier strategy:
+   1. BOOTSTRAP: when the script loads, kick off Image() fetches for every image that
+      could appear during gameplay. Browser caches them while the user is on the start
+      screen — first-round latency disappears.
+   2. PER-ROUND: pre-build the NEXT round's card list and preload its images, so the
+      transition from one round to the next is instant. */
 let nextRoundCards = null;
-const preloadRefs = [];
-function preloadImg(src){ const im = new Image(); im.src = src; preloadRefs.push(im); if(preloadRefs.length > 60) preloadRefs.shift(); return im; }
+const IMG_CACHE = new Map();
+function preloadImg(src){
+  if(IMG_CACHE.has(src)) return IMG_CACHE.get(src);
+  const im = new Image();
+  im.decoding = 'async';
+  im.src = src;
+  IMG_CACHE.set(src, im);
+  return im;
+}
+function bootstrapPreload(){
+  // Fetch every game image — browser handles concurrency via HTTP/2 multiplexing
+  for(const color in ITEMS_BY_COLOR){
+    for(const f of ITEMS_BY_COLOR[color]){
+      preloadImg(ASSET_PATH + f);
+    }
+  }
+}
 
 function precomputeNextRound(){
   // Look ahead: if we're at the last round of this level, the "next" is round 1 of next level
@@ -777,7 +795,7 @@ function startRound(){
     const el = document.createElement('div');
     el.className = 'card';
     el.dataset.idx = i;
-    el.innerHTML = `<img src="${ASSET_PATH}${c.src}" alt="">`;
+    el.innerHTML = `<img src="${ASSET_PATH}${c.src}" alt="" decoding="async" fetchpriority="high">`;
     el.addEventListener('click', () => onCardClick(i));
     grid.appendChild(el);
     c.el = el;
@@ -1155,6 +1173,8 @@ function init(){
 }
 
 init();
+// Kick off background fetch of all game images while user is on the start screen
+bootstrapPreload();
 </script>
 </body>
 </html>

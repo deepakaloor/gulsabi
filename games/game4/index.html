@@ -744,10 +744,30 @@ function burstConfetti(){
 }
 
 /* ── PRELOAD CACHE ──
-   Right after the current level's grid is rendered, pre-pick the next level's image set
-   and warm the browser cache so the next "NEXT LEVEL" button feels instant. */
-const preloadRefs = [];
-function preloadImg(src){ const im = new Image(); im.src = src; preloadRefs.push(im); if(preloadRefs.length > 60) preloadRefs.shift(); return im; }
+   Two-tier strategy:
+   1. BOOTSTRAP: kick off background fetches for every game image as soon as the script
+      loads, while user is on the start screen. By the time gameplay starts, images are
+      in HTTP cache and the first level's grid renders instantly.
+   2. PER-LEVEL: pre-pick the next level's image set after the current one is shown,
+      so 'NEXT LEVEL' feels instant. */
+const IMG_CACHE = new Map();
+function preloadImg(src){
+  if(IMG_CACHE.has(src)) return IMG_CACHE.get(src);
+  const im = new Image();
+  im.decoding = 'async';
+  im.src = src;
+  IMG_CACHE.set(src, im);
+  return im;
+}
+function bootstrapPreload(){
+  // Use the deduped pool — no point fetching both red-apple.jpg AND red-apple.png since
+  // only one will ever be used in a level.
+  const seenKey = new Set();
+  for(const f of ALL_IMAGES){
+    const key = f.replace(/\.(jpg|png)$/i, '').toLowerCase();
+    if(!seenKey.has(key)){ seenKey.add(key); preloadImg(ASSET_PATH + f); }
+  }
+}
 function preloadNextLevel(){
   if(gs.mode !== 'solo' || gs.level >= LEVEL_COUNT) return;
   const nextCfg = LEVELS[gs.level];   // 0-indexed: gs.level is current (1-based), so this is the next
@@ -789,7 +809,7 @@ function buildLevel(){
     const el = document.createElement('div');
     el.className = 'card';
     el.dataset.idx = i;
-    el.innerHTML = `<div class="card-inner"><div class="card-face card-back"></div><div class="card-face card-front"><img src="${ASSET_PATH}${src}" alt=""></div></div>`;
+    el.innerHTML = `<div class="card-inner"><div class="card-face card-back"></div><div class="card-face card-front"><img src="${ASSET_PATH}${src}" alt="" decoding="async" loading="eager"></div></div>`;
     el.addEventListener('click', () => onCardClick(i));
     grid.appendChild(el);
     return { src, el, matched: false, flipped: false, ownedBy: 0 };
@@ -1317,6 +1337,8 @@ function init(){
 }
 
 init();
+// Kick off background fetch of all game images while user is on the start screen
+bootstrapPreload();
 </script>
 </body>
 </html>

@@ -315,12 +315,31 @@ function tick(){
 }
 
 /* ── PRELOAD CACHE ──
-   Pre-pick the NEXT card's color set + image right after the current card is shown,
-   and kick off a background fetch so the next round's image is already in browser cache
-   by the time we render it. Cuts perceived load time on every card transition. */
+   Two-tier strategy:
+   1. BOOTSTRAP: as soon as the script loads (while user is reading the start screen),
+      fire off Image() fetches for every possible game image. By the time they click PLAY,
+      most/all images are in browser HTTP cache. First-card latency disappears.
+   2. PER-ROUND: pre-pick the NEXT card right after the current one renders, ensuring
+      the chosen image is decode-ready for instant swap. */
 let nextDealPreload = null;     // {active, card} for the upcoming dealCard
-const preloadRefs = [];          // keep Image refs alive so the browser doesn't GC them
-function preloadImg(src){ const im = new Image(); im.src = src; preloadRefs.push(im); if(preloadRefs.length > 24) preloadRefs.shift(); return im; }
+const IMG_CACHE = new Map();    // src -> HTMLImageElement (kept alive, decoded, ready)
+function preloadImg(src){
+    if(IMG_CACHE.has(src)) return IMG_CACHE.get(src);
+    const im = new Image();
+    im.decoding = 'async';
+    im.src = src;
+    IMG_CACHE.set(src, im);
+    return im;
+}
+function bootstrapPreload(){
+    // Eagerly fetch every image that could appear during gameplay.
+    // Browser handles concurrency (HTTP/2 multiplexing) — we just queue them up.
+    for(const cat of ALL){
+        for(const f of cat.items){
+            preloadImg(A + f);
+        }
+    }
+}
 
 function precomputeNextDeal(){
     // Mirrors dealCard's color/image-picking logic so the result is real, not a guess.
@@ -345,7 +364,7 @@ function dealCard(){
     }
     renderCannons();
     gs.timer = gs.tmax; gs.busy = false;
-    document.getElementById('card').innerHTML = `<div class="iframe"><img src="${A}${gs.card.file}" onerror="this.src='gulsabi-normal.png'"></div>`;
+    document.getElementById('card').innerHTML = `<div class="iframe"><img src="${A}${gs.card.file}" decoding="async" fetchpriority="high" onerror="this.src='gulsabi-normal.png'"></div>`;
     const t = document.getElementById('tasm'); t.classList.remove('adrop'); void t.offsetWidth; t.classList.add('adrop');
     // Once the current card is on screen, queue the next one's assets
     setTimeout(precomputeNextDeal, 50);
@@ -450,6 +469,9 @@ function renderCannons(){
     });
 }
 refreshHighScoreUI();
+// Kick off background fetching of all game images as soon as the script loads.
+// Browser fetches them in parallel; by the time the player clicks PLAY they're cached.
+bootstrapPreload();
 </script>
 </body>
 </html>
