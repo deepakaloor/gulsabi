@@ -382,7 +382,9 @@
             font-size: 2rem;
         }
         @media (max-width: 760px) {
-            .yt-grid { grid-template-columns: 1fr; max-width: 320px; }
+            .yt-grid { grid-template-columns: repeat(2, 1fr); max-width: 460px; gap: clamp(10px, 3vw, 16px); }
+            .yt-grid .yt-player:nth-child(3) { display: none; }
+            .yt-player { max-width: none; }
         }
         .yt-cta-wrap { text-align: center; }
         .btn-youtube {
@@ -1010,24 +1012,25 @@
             'oqVx1OJyUl4','K_ILOMutb9g','vL-U2vOmUH0','wnJfT90KztE','os-VHoUw1Iw',
             'HrCKL8h8Rx8','x9ktisKRFoE','BL6mh4F9DH4','391eNjnfnD8','aovcG7-BRUY'
         ];
-        function pickThreeUniqueShorts() {
-            // Fisher-Yates shuffle, take first 3
+        function pickUniqueShorts(n) {
+            // Fisher-Yates shuffle, take first n
             const pool = [...GULSABI_SHORTS_IDS];
             for (let i = pool.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [pool[i], pool[j]] = [pool[j], pool[i]];
             }
-            return pool.slice(0, 3);
+            return pool.slice(0, n);
         }
         function mountShorts() {
-            const slots = document.querySelectorAll('#ytShortsGrid .yt-player');
+            const allSlots = Array.from(document.querySelectorAll('#ytShortsGrid .yt-player'));
+            // Only fill slots that are actually visible — mobile hides the 3rd via CSS
+            const slots = allSlots.filter(s => s.offsetParent !== null);
             if (!slots.length) return;
-            const picks = pickThreeUniqueShorts();
+            const picks = pickUniqueShorts(slots.length);
             slots.forEach((slot, i) => {
                 const id = picks[i];
                 if (!id) return;
                 const iframe = document.createElement('iframe');
-                // youtube-nocookie + minimal chrome + loop the single short
                 iframe.src = `https://www.youtube-nocookie.com/embed/${id}?modestbranding=1&rel=0&controls=0&iv_load_policy=3&loop=1&playlist=${id}&playsinline=1`;
                 iframe.title = `Gulsabi Short ${i + 1}`;
                 iframe.loading = 'lazy';
