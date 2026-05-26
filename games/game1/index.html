@@ -483,11 +483,25 @@
             noteIndex: 0, nextNoteTime: 0, tempo: 0.12,
 
             voices: {
-                chant: new Audio('audio/gulsabi_chant.mp3'),
-                invincible: new Audio('audio/invincible.mp3'),
-                jetpack: new Audio('audio/jetpack.mp3'),
-                levelUp: new Audio('audio/level_up.mp3')
+                chant: new Audio('../../audio/gulsabi_chant.mp3'),
+                invincible: new Audio('../../audio/invincible.mp3'),
+                jetpack: new Audio('../../audio/jetpack.mp3'),
+                levelUp: new Audio('../../audio/level_up.mp3'),
+                // Shared voice-overs (used across all games)
+                letsStart:       new Audio('../../audio/vo_lets_start.mp3'),
+                gameIsOn:        new Audio('../../audio/vo_game_is_on.mp3'),
+                speedingUp:      new Audio('../../audio/vo_speeding_up.mp3'),
+                doingGreat:      new Audio('../../audio/vo_doing_great.mp3'),
+                greatMove:       new Audio('../../audio/vo_great_move.mp3'),
+                nailedIt:        new Audio('../../audio/vo_nailed_it.mp3'),
+                genius:          new Audio('../../audio/vo_genius.mp3'),
+                tryAgain:        new Audio('../../audio/vo_try_again.mp3'),
+                ohhTryAgain:     new Audio('../../audio/vo_ohh_try_again.mp3'),
+                friendAlwaysWin: new Audio('../../audio/vo_friend_always_win.mp3')
             },
+
+            // Pick a random voice from a list of keys
+            pickVoice: function(keys) { return keys[Math.floor(Math.random() * keys.length)]; },
 
             init: function() { 
                 if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); 
@@ -524,8 +538,8 @@
                 if (voiceFile) {
                     voiceFile.currentTime = 0;
                     voiceFile.play().catch(e => {
-                        console.warn(`Voice file audio/${key}.mp3 not found, using fallback SFX.`);
-                        this.playSound('coin'); 
+                        console.warn(`Voice file ../../audio/${key}.mp3 not found, using fallback SFX.`);
+                        this.playSound('coin');
                     });
                 }
             },
@@ -666,6 +680,11 @@
             nextLevelScore += 260 + (level * 110);
             gulsabi.spin = Math.PI * 2;
             audio.playVoice("levelUp");
+            // Layer a voice-over with the level-up SFX. Alternate between "speeding up" and encouragement.
+            setTimeout(() => {
+                const vo = (level % 2 === 0) ? 'speedingUp' : audio.pickVoice(['doingGreat','nailedIt','genius']);
+                audio.playVoice(vo);
+            }, 350);
             updateHUD();
         }
 
@@ -784,14 +803,24 @@
 
         function startGame() {
             audio.init(); audio.startMusic();
-            audio.playVoice('chant');
+            // Alternate between game-start voiceovers each session for variety
+            audio.playVoice(audio.pickVoice(['letsStart','gameIsOn','chant']));
             score = 0; level = 1; nextLevelScore = 260; gameSpeed = getDifficulty().obstacleSpeed; lives = 3; combo = 1;
             gulsabi.x = 50; gulsabi.y = canvas.height/2; gulsabi.vy = 0; gulsabi.invincible = 0; gulsabi.autopilot = 0; gulsabi.lastShot = 0; topCampFrames = 0; topObstacleCooldown = 0;
             entities = []; projectiles = []; particles = []; floatingTexts = [];
             updateHUD(); startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; currentState = STATE.PLAYING;
         }
 
-        function gameOver() { audio.stopMusic(); currentState = STATE.GAMEOVER; if (score > getHighScore()) setHighScore(score); finalScoreDisplay.innerText = `${score}`; refreshHighScoreUI(); gameOverScreen.style.display = 'flex'; }
+        function gameOver() {
+            audio.stopMusic();
+            currentState = STATE.GAMEOVER;
+            if (score > getHighScore()) setHighScore(score);
+            finalScoreDisplay.innerText = `${score}`;
+            refreshHighScoreUI();
+            gameOverScreen.style.display = 'flex';
+            // Random encouraging "try again" voice on game over
+            audio.playVoice(audio.pickVoice(['tryAgain','ohhTryAgain','friendAlwaysWin']));
+        }
         function openHelp(){ helpOverlay.style.display = 'flex'; }
         function closeHelp(){ helpOverlay.style.display = 'none'; }
 

@@ -432,15 +432,40 @@ body.mode-duo .card-face{box-shadow:0 4px 14px rgba(0,0,0,.32);}
 
 /* ── CONFIG ── */
 const ASSET_PATH = '../game2/assets/';
+const AUDIO_PATH = '../../audio/';
+
+/* ── VOICE-OVER FILES (shared across all games) ── */
+const VO_FILES = {
+    letsStart:       AUDIO_PATH+'vo_lets_start.mp3',
+    gameIsOn:        AUDIO_PATH+'vo_game_is_on.mp3',
+    itsAMatch:       AUDIO_PATH+'vo_its_a_match.mp3',
+    greatMove:       AUDIO_PATH+'vo_great_move.mp3',
+    doingGreat:      AUDIO_PATH+'vo_doing_great.mp3',
+    nailedIt:        AUDIO_PATH+'vo_nailed_it.mp3',
+    genius:          AUDIO_PATH+'vo_genius.mp3',
+    speedingUp:      AUDIO_PATH+'vo_speeding_up.mp3',
+    tryAgain:        AUDIO_PATH+'vo_try_again.mp3',
+    ohhTryAgain:     AUDIO_PATH+'vo_ohh_try_again.mp3',
+    friendAlwaysWin: AUDIO_PATH+'vo_friend_always_win.mp3',
+    playerOne:       AUDIO_PATH+'vo_player_one.mp3',
+    playerTwo:       AUDIO_PATH+'vo_player_two.mp3'
+};
+const VO_OBJ = {};
+function setupVO(){ for(const k in VO_FILES){ VO_OBJ[k] = new Audio(VO_FILES[k]); VO_OBJ[k].load(); } }
+function playVO(key){
+    if(muted || !VO_OBJ[key]) return;
+    try { VO_OBJ[key].pause(); VO_OBJ[key].currentTime = 0; VO_OBJ[key].play().catch(()=>{}); } catch(e){}
+}
+function pickVO(keys){ return keys[Math.floor(Math.random() * keys.length)]; }
 const ALL_IMAGES = [
-  'blue-Jeans.jpg','blue-bird.jpg','blue-blueberry.jpg','blue-bluewhale.jpg','blue-butterfly.jpg','blue-crayon.jpg','blue-diamond.jpg','blue-fish.jpg','blue-peacock.jpg','blue-water.jpg',
-  'brown-baseball.jpg','brown-biscut.jpg','brown-box.jpg','brown-bread.jpg','brown-chocolate.jpg','brown-coconut.jpg','brown-monkey.jpg','brown-potato.jpg','brown-teddy.jpg','brown-woodlog.jpg',
-  'green-ball.jpg','green-brocolli.jpg','green-cactus.jpg','green-cucumber.jpg','green-diamond.jpg','green-frog.jpg','green-grasshopper.jpg','green-leaf.jpg','green-lemon.jpg','green-turtle.jpg',
-  'orange-basketball.jpg','orange-butterfly.jpg','orange-carrot.jpg','orange-cone.jpg','orange-fish.jpg','orange-flower.jpg','orange-fox.jpg','orange-orange.jpg','orange-pumpkin.jpg','orange-tiger.jpg',
-  'pink-brain.jpg','pink-cottoncandy.jpg','pink-doughnut.jpg','pink-eraser.jpg','pink-flamingo.jpg','pink-lotus.jpg','pink-peach.jpg','pink-pig.jpg','pink-ribbon.jpg','pink-shoe.jpg',
-  'purple-beetroot.jpg','purple-brinjal.jpg','purple-crayon.jpg','purple-crystal.jpg','purple-fig.jpg','purple-flower.jpg','purple-grapes.jpg','purple-octopus.jpg','purple-plant.jpg','purple-plum.jpg',
-  'red-apple.jpg','red-baloon.jpg','red-button.jpg','red-car.jpg','red-chilli.jpg','red-crab.jpg','red-grapes.jpg','red-heart.jpg','red-rose.jpg','red-tomato.jpg',
-  'yellow-banana.jpg','yellow-bus.jpg','yellow-cap.jpg','yellow-cheese.jpg','yellow-corn.jpg','yellow-duck.jpg','yellow-lemon.jpg','yellow-sun.jpg','yellow-sunflower.jpg','yellow-taxi.jpg'
+  'blue-Jeans.jpg','blue-bird.jpg','blue-blueberry.jpg','blue-blueberry.png','blue-bluewhale.jpg','blue-butterfly.jpg','blue-butterfly.png','blue-caterpillar.png','blue-crayon.jpg','blue-diamond.jpg','blue-fish.jpg','blue-fish.png','blue-peacock.jpg','blue-rickshaw.png','blue-truck.png','blue-tshirt.png','blue-water.jpg',
+  'brown-baseball.jpg','brown-biscut.jpg','brown-box.jpg','brown-bread.jpg','brown-chocolate.jpg','brown-coconut.jpg','brown-date.png','brown-kiwi.png','brown-monkey.jpg','brown-peanut.png','brown-potato.jpg','brown-potato.png','brown-sapodilla.png','brown-taro.png','brown-teddy.jpg','brown-walnut.png','brown-woodlog.jpg',
+  'green-alien-face.png','green-alien.png','green-ball.jpg','green-bellpepper.png','green-bittergourd.png','green-brocolli.jpg','green-cabbage.png','green-cactus.jpg','green-chili.png','green-cucumber.jpg','green-cucumber.png','green-custardapple.png','green-diamond.jpg','green-frog.jpg','green-frog.png','green-gooseberry.png','green-grasshopper.jpg','green-grasshopper.png','green-guava.png','green-jackfruit.png','green-leaf.jpg','green-lemon.jpg','green-lime.png','green-okra.png','green-olive.png','green-pear.png','green-peas.png','green-pepper.png','green-snake.png','green-starfruit.png','green-turtle.jpg','green-turtle.png','green-zucchini.png',
+  'orange-apricot.png','orange-basketball.jpg','orange-butterfly.jpg','orange-carrot.jpg','orange-cone.jpg','orange-fish.jpg','orange-flower.jpg','orange-fox.jpg','orange-leaf.png','orange-lion.png','orange-mango.png','orange-orange.jpg','orange-orange.png','orange-pear.png','orange-persimmon.png','orange-pumpkin.jpg','orange-pumpkin.png','orange-tiger.jpg','orange-tiger.png',
+  'pink-brain.jpg','pink-cottoncandy.jpg','pink-doughnut.jpg','pink-dragonfruit.png','pink-eraser.jpg','pink-flamingo.jpg','pink-lotus.jpg','pink-peach.jpg','pink-peach.png','pink-pig.jpg','pink-ribbon.jpg','pink-shoe.jpg',
+  'purple-beetroot.jpg','purple-blackberry.png','purple-brinjal.jpg','purple-car.png','purple-crayon.jpg','purple-crystal.jpg','purple-eggplant.png','purple-fig.jpg','purple-fig.png','purple-flower.jpg','purple-grapes.jpg','purple-grapes.png','purple-leaf.png','purple-octopus.jpg','purple-onion.png','purple-passionfruit.png','purple-plant.jpg','purple-plum.jpg','purple-ufo.png',
+  'red-apple.jpg','red-apple.png','red-baloon.jpg','red-button.jpg','red-car.jpg','red-car.png','red-cherry.png','red-chili.png','red-chilli.jpg','red-crab.jpg','red-cranberry.png','red-dragonfruit.png','red-grapes.jpg','red-heart.jpg','red-ladybug.png','red-lychee.png','red-motorcycle.png','red-pomegranate.png','red-radish.png','red-raspberry.png','red-rose.jpg','red-strawberry.png','red-sweetpotato.png','red-telephone.png','red-tomato.jpg','red-tomato.png','red-tricycle.png','red-truck.png',
+  'yellow-banana.jpg','yellow-banana.png','yellow-bee.png','yellow-bus.jpg','yellow-bus.png','yellow-cap.jpg','yellow-cheese.jpg','yellow-corn.jpg','yellow-corn.png','yellow-duck.jpg','yellow-lemon.jpg','yellow-lemon.png','yellow-mushroom.png','yellow-pineapple.png','yellow-rickshaw.png','yellow-sun.jpg','yellow-sunflower.jpg','yellow-taxi.jpg'
 ];
 
 const LEVELS = [
@@ -668,7 +693,11 @@ function stopMusic(){ clearTimeout(scheduleID); scheduleID = null; bgOn = false;
 function toggleMute(){
   muted = !muted;
   muteBtn.innerHTML = muted ? '&#128263;' : '&#128266;';
-  if(muted) stopMusic();
+  if(muted){
+    stopMusic();
+    // Stop any voice-overs that are currently playing
+    for(const k in VO_OBJ){ try { VO_OBJ[k].pause(); VO_OBJ[k].currentTime = 0; } catch(e){} }
+  }
   else if(gs.running && !paused && !document.hidden) startMusic();
 }
 
@@ -788,7 +817,10 @@ function handleMatch(){
     if(owner === 1) gs.p1Score++; else gs.p2Score++;
     gs.pairsLeft--;
     sfxMatch();
+    // Flag that this player has earned a bonus turn — gates the P1/P2 voice on the next miss
+    gs.currentTurnHadMatch = true;
     setG('happy', pick(DUO_MATCH_MSG[owner]), 1100);
+    setTimeout(() => playVO('itsAMatch'), 300);
     updateDuoHUD();
     firstPick = secondPick = null;
     busy = false;
@@ -812,6 +844,12 @@ function handleMatch(){
   sfxMatch();
   if(coinsGained >= 20) sfxCoin();
   setG('happy', null, 900);
+  // Voice-overs scale with streak (solo)
+  if(gs.combo === 1)       setTimeout(() => playVO('itsAMatch'), 250);
+  else if(gs.combo === 3)  setTimeout(() => playVO('doingGreat'), 250);
+  else if(gs.combo === 5)  setTimeout(() => playVO('nailedIt'), 250);
+  else if(gs.combo === 8)  setTimeout(() => playVO('genius'), 250);
+  else if(gs.combo % 2 === 0) setTimeout(() => playVO(pickVO(['itsAMatch','greatMove'])), 250);
   if(gs.combo >= 2) showCombo(`${gs.combo}× COMBO!`);
   if(!gs.firstMatchUnlocked){ gs.firstMatchUnlocked = true; unlockAch('first_match'); }
   if(gs.combo >= 5) unlockAch('combo_5');
@@ -837,8 +875,17 @@ function handleMismatch(){
 
   if(gs.mode === 'duo'){
     const wasTurn = gs.turn;
+    const earnedBonus = !!gs.currentTurnHadMatch;
     setG('sad', pick(DUO_MISS_MSG[wasTurn]), 1000);
-    setTimeout(() => switchTurn(), 480);
+    setTimeout(() => {
+      switchTurn();
+      // Only announce the new player when the previous player FAILED their bonus turn
+      // (i.e. they had matched at least once on this sitting and then missed).
+      // First-attempt misses switch turns silently to avoid VO spam on every miss.
+      if(earnedBonus){
+        setTimeout(() => playVO(gs.turn === 1 ? 'playerOne' : 'playerTwo'), 250);
+      }
+    }, 480);
     return;
   }
 
@@ -854,6 +901,7 @@ function handleMismatch(){
 /* ── DUO TURN ── */
 function switchTurn(){
   gs.turn = gs.turn === 1 ? 2 : 1;
+  gs.currentTurnHadMatch = false;   // reset — new player hasn't earned a bonus turn yet
   document.body.classList.toggle('turn-2', gs.turn === 2);
   showTurn(gs.turn);
   updateDuoHUD();
@@ -881,11 +929,16 @@ function duoEnd(){
   if(p1 !== p2) setTimeout(burstConfetti, 700);
   sfxLevelUp();
   document.getElementById('ovDuoEnd').classList.add('show');
+  // Announce the winner — Player One / Player Two voice as the winning announcement
+  if(p1 > p2)       setTimeout(() => playVO('playerOne'), 500);
+  else if(p2 > p1)  setTimeout(() => playVO('playerTwo'), 500);
+  else              setTimeout(() => playVO(pickVO(['nailedIt','genius'])), 500);
 }
 
 /* ── SOLO FLOW ── */
 function startGame(mode, opts){
   getAC().resume();
+  setupVO();
   document.querySelectorAll('.ov').forEach(o => o.classList.remove('show'));
   document.body.classList.remove('mode-duo','turn-2');
   paused = false;
@@ -898,12 +951,14 @@ function startGame(mode, opts){
       mode: 'duo', difficulty: diff,
       p1Score: 0, p2Score: 0, turn: 1,
       pairsLeft: 0, pairsTotal: 0, running: true,
+      currentTurnHadMatch: false,   // tracks if current player earned a bonus turn — gates P1/P2 voice
       musicLevel: DUO_DIFFICULTIES[diff].musicLevel
     };
     updateDuoHUD();
     buildLevel();
     showTurn(1);
     startMusic();
+    setTimeout(() => playVO(pickVO(['letsStart','gameIsOn'])), 300);
     return;
   }
 
@@ -917,6 +972,7 @@ function startGame(mode, opts){
   buildLevel();
   startTimer();
   startMusic();
+  setTimeout(() => playVO(pickVO(['letsStart','gameIsOn'])), 300);
 }
 
 function completeLevel(){
@@ -943,6 +999,8 @@ function completeLevel(){
   sfxLevelUp();
   setG('happy');
   burstConfetti();
+  // Layer in a voice-over when level clears — celebratory if 3 stars, "speeding up" otherwise
+  setTimeout(() => playVO(stars === 3 ? pickVO(['genius','nailedIt']) : 'speedingUp'), 450);
 
   document.getElementById('lvPairs').textContent = gs.pairsTotal;
   document.getElementById('lvMoves').textContent = gs.moves;
@@ -1009,11 +1067,13 @@ function endGame(won){
     endTitle.textContent = 'You Win!';
     setG('happy');
     burstConfetti(); setTimeout(burstConfetti, 700);
+    setTimeout(() => playVO(pickVO(['genius','nailedIt'])), 500);
   } else {
     endFace.src = '../game2/gulsabi-sad.png';
     endTitle.textContent = 'Game Over';
     sfxGameOver();
     setG('sad');
+    setTimeout(() => playVO(pickVO(['tryAgain','ohhTryAgain','friendAlwaysWin'])), 500);
   }
   document.getElementById('endScore').textContent = gs.score;
   document.getElementById('endHighScore').textContent = `High Score: ${getHigh()}`;

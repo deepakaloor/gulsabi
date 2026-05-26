@@ -114,8 +114,29 @@
 
 <script>
 /* ── AUDIO & EMOTION CONFIG ── */
-const AF = 'audio/', A = 'assets/';
-const VO_FILES = { start: AF+'v_start.mp3', timeLow: AF+'v_time_low.mp3', gameover: AF+'v_gameover.mp3', win: AF+'v_win.mp3', powerup: AF+'v_powerup.mp3', oops: AF+'oops.mp3' };
+const AF = '../../audio/', A = 'assets/';
+const VO_FILES = {
+    // Game-specific SFX (kept from original game2 set)
+    start:      AF+'v_start.mp3',
+    timeLow:    AF+'v_time_low.mp3',
+    gameover:   AF+'v_gameover.mp3',
+    win:        AF+'v_win.mp3',
+    powerup:    AF+'v_powerup.mp3',
+    oops:       AF+'oops.mp3',
+    // Shared voice-overs
+    letsStart:       AF+'vo_lets_start.mp3',
+    gameIsOn:        AF+'vo_game_is_on.mp3',
+    rightPick:       AF+'vo_right_pick.mp3',
+    greatMove:       AF+'vo_great_move.mp3',
+    doingGreat:      AF+'vo_doing_great.mp3',
+    nailedIt:        AF+'vo_nailed_it.mp3',
+    genius:          AF+'vo_genius.mp3',
+    speedingUp:      AF+'vo_speeding_up.mp3',
+    tryAgain:        AF+'vo_try_again.mp3',
+    ohhTryAgain:     AF+'vo_ohh_try_again.mp3',
+    friendAlwaysWin: AF+'vo_friend_always_win.mp3'
+};
+function pickVO(keys) { return keys[Math.floor(Math.random() * keys.length)]; }
 const MOODS = {
     normal: ['Ready!', 'Good luck!', 'You can do it!', 'Stay focused!'],
     happy: ['Great job!', 'Amazing!', 'Correct!', 'You rock!'],
@@ -124,14 +145,14 @@ const MOODS = {
 };
 
 const ALL = [
-    {id:'blue', label:'Blue', hex:'#2196F3', dark:'#0D47A1', items:['blue-bird.jpg','blue-fish.jpg']},
-    {id:'green', label:'Green', hex:'#4CAF50', dark:'#1B5E20', items:['green-frog.jpg','green-leaf.jpg']},
-    {id:'red', label:'Red', hex:'#F44336', dark:'#B71C1C', items:['red-apple.jpg','red-car.jpg']},
-    {id:'yellow', label:'Yellow', hex:'#FDD835', dark:'#F57F17', items:['yellow-banana.jpg','yellow-sun.jpg']},
-    {id:'orange', label:'Orange', hex:'#FF9800', dark:'#E65100', items:['orange-orange.jpg','orange-tiger.jpg']},
-    {id:'pink', label:'Pink', hex:'#EC407A', dark:'#AD1457', items:['pink-pig.jpg','pink-shoe.jpg']},
-    {id:'purple', label:'Purple', hex:'#9C27B0', dark:'#4A148C', items:['purple-plum.jpg','purple-flower.jpg']},
-    {id:'brown', label:'Brown', hex:'#8D6E63', dark:'#3E2723', items:['brown-monkey.jpg','brown-potato.jpg']}
+    {id:'blue', label:'Blue', hex:'#2196F3', dark:'#0D47A1', items:['blue-Jeans.jpg','blue-bird.jpg','blue-blueberry.jpg','blue-blueberry.png','blue-bluewhale.jpg','blue-butterfly.jpg','blue-butterfly.png','blue-caterpillar.png','blue-crayon.jpg','blue-diamond.jpg','blue-fish.jpg','blue-fish.png','blue-peacock.jpg','blue-rickshaw.png','blue-truck.png','blue-tshirt.png','blue-water.jpg']},
+    {id:'green', label:'Green', hex:'#4CAF50', dark:'#1B5E20', items:['green-alien-face.png','green-alien.png','green-ball.jpg','green-bellpepper.png','green-bittergourd.png','green-brocolli.jpg','green-cabbage.png','green-cactus.jpg','green-chili.png','green-cucumber.jpg','green-cucumber.png','green-custardapple.png','green-diamond.jpg','green-frog.jpg','green-frog.png','green-gooseberry.png','green-grasshopper.jpg','green-grasshopper.png','green-guava.png','green-jackfruit.png','green-leaf.jpg','green-lemon.jpg','green-lime.png','green-okra.png','green-olive.png','green-pear.png','green-peas.png','green-pepper.png','green-snake.png','green-starfruit.png','green-turtle.jpg','green-turtle.png','green-zucchini.png']},
+    {id:'red', label:'Red', hex:'#F44336', dark:'#B71C1C', items:['red-apple.jpg','red-apple.png','red-baloon.jpg','red-button.jpg','red-car.jpg','red-car.png','red-cherry.png','red-chili.png','red-chilli.jpg','red-crab.jpg','red-cranberry.png','red-dragonfruit.png','red-grapes.jpg','red-heart.jpg','red-ladybug.png','red-lychee.png','red-motorcycle.png','red-pomegranate.png','red-radish.png','red-raspberry.png','red-rose.jpg','red-strawberry.png','red-sweetpotato.png','red-telephone.png','red-tomato.jpg','red-tomato.png','red-tricycle.png','red-truck.png']},
+    {id:'yellow', label:'Yellow', hex:'#FDD835', dark:'#F57F17', items:['yellow-banana.jpg','yellow-banana.png','yellow-bee.png','yellow-bus.jpg','yellow-bus.png','yellow-cap.jpg','yellow-cheese.jpg','yellow-corn.jpg','yellow-corn.png','yellow-duck.jpg','yellow-lemon.jpg','yellow-lemon.png','yellow-mushroom.png','yellow-pineapple.png','yellow-rickshaw.png','yellow-sun.jpg','yellow-sunflower.jpg','yellow-taxi.jpg']},
+    {id:'orange', label:'Orange', hex:'#FF9800', dark:'#E65100', items:['orange-apricot.png','orange-basketball.jpg','orange-butterfly.jpg','orange-carrot.jpg','orange-cone.jpg','orange-fish.jpg','orange-flower.jpg','orange-fox.jpg','orange-leaf.png','orange-lion.png','orange-mango.png','orange-orange.jpg','orange-orange.png','orange-pear.png','orange-persimmon.png','orange-pumpkin.jpg','orange-pumpkin.png','orange-tiger.jpg','orange-tiger.png']},
+    {id:'pink', label:'Pink', hex:'#EC407A', dark:'#AD1457', items:['pink-brain.jpg','pink-cottoncandy.jpg','pink-doughnut.jpg','pink-dragonfruit.png','pink-eraser.jpg','pink-flamingo.jpg','pink-lotus.jpg','pink-peach.jpg','pink-peach.png','pink-pig.jpg','pink-ribbon.jpg','pink-shoe.jpg']},
+    {id:'purple', label:'Purple', hex:'#9C27B0', dark:'#4A148C', items:['purple-beetroot.jpg','purple-blackberry.png','purple-brinjal.jpg','purple-car.png','purple-crayon.jpg','purple-crystal.jpg','purple-eggplant.png','purple-fig.jpg','purple-fig.png','purple-flower.jpg','purple-grapes.jpg','purple-grapes.png','purple-leaf.png','purple-octopus.jpg','purple-onion.png','purple-passionfruit.png','purple-plant.jpg','purple-plum.jpg','purple-ufo.png']},
+    {id:'brown', label:'Brown', hex:'#8D6E63', dark:'#3E2723', items:['brown-baseball.jpg','brown-biscut.jpg','brown-box.jpg','brown-bread.jpg','brown-chocolate.jpg','brown-coconut.jpg','brown-date.png','brown-kiwi.png','brown-monkey.jpg','brown-peanut.png','brown-potato.jpg','brown-potato.png','brown-sapodilla.png','brown-taro.png','brown-teddy.jpg','brown-walnut.png','brown-woodlog.jpg']}
 ];
 const MAX_LIVES = 4;
 const CATAPULTS_PER_ROUND = 4;
@@ -271,7 +292,7 @@ function toggleMute() { muted=!muted; document.getElementById('mbtn').textConten
 function initGame(){
     getAC().resume(); setupVO();
     document.querySelectorAll('.ov').forEach(e => e.classList.remove('show'));
-    gs = {score: 0, lives: MAX_LIVES, level: 1, timer: 10, tmax: 10, timerStep: 0.1, busy: false};
+    gs = {score: 0, lives: MAX_LIVES, level: 1, timer: 10, tmax: 10, timerStep: 0.1, busy: false, streak: 0};
     colorPool = [];
     lastSetSig = '';
     active = nextCatapultSet(); gameRunning = true;
@@ -279,6 +300,8 @@ function initGame(){
     updateUI(); dealCard(); startMusic();
     setG('normal');
     setTimeout(() => playVO('start'), 150);
+    // Layer in a "Let's start!" voice-over after the SFX
+    setTimeout(() => playVO(pickVO(['letsStart','gameIsOn'])), 900);
     if(gi) clearInterval(gi); gi = setInterval(tick, 100);
 }
 
@@ -328,34 +351,50 @@ function fire(cid, el){
     const color = active.find(c => c.id === cid).hex;
     fireCannonball(el, color, () => {
         if(cid === gs.card.cid){
-            gs.score += 100; 
+            gs.score += 100;
+            gs.streak = (gs.streak || 0) + 1;
             setG('happy', 1000);
-            if(gs.score % 500 === 0) {
+            const leveledUp = gs.score % 500 === 0;
+            if(leveledUp) {
                 gs.level++;
                 applyLevelDifficulty();
                 playVO('powerup');
+                // Layer in a "speeding up" voice on level up
+                setTimeout(() => playVO('speedingUp'), 350);
+            } else {
+                // Voice-over for correct picks: most picks get a short reaction,
+                // streak milestones get bigger encouragement
+                if(gs.streak === 3)       setTimeout(() => playVO('doingGreat'), 250);
+                else if(gs.streak === 6)  setTimeout(() => playVO('nailedIt'), 250);
+                else if(gs.streak === 10) setTimeout(() => playVO('genius'), 250);
+                else if(gs.streak % 2 === 1) setTimeout(() => playVO(pickVO(['rightPick','greatMove'])), 250);
             }
             updateUI(); setTimeout(dealCard, 350);
         } else handleMiss();
     });
 }
 
-function handleMiss(){ 
-    gs.lives = Math.max(0, gs.lives - 1); 
+function handleMiss(){
+    gs.lives = Math.max(0, gs.lives - 1);
+    gs.streak = 0;
     setG('sad', 1000);
-    playVO('oops'); 
-    updateUI(); 
-    if(gs.lives <= 0) endGame(false); else setTimeout(dealCard, 800); 
+    playVO('oops');
+    updateUI();
+    if(gs.lives <= 0) endGame(false); else setTimeout(dealCard, 800);
 }
 
-function endGame(win){ 
-    gameRunning = false; clearInterval(gi); stopMusic(); 
+function endGame(win){
+    gameRunning = false; clearInterval(gi); stopMusic();
     setG(win ? 'happy' : 'sad');
     if (gs.score > getHighScore()) setHighScore(gs.score);
     refreshHighScoreUI();
-    document.getElementById('endScore').textContent = gs.score; 
-    document.getElementById('ovEnd').classList.add('show'); 
-    playVO('gameover'); 
+    document.getElementById('endScore').textContent = gs.score;
+    document.getElementById('ovEnd').classList.add('show');
+    playVO('gameover');
+    // Encouraging voice-over after the SFX — try-again on loss, celebration on win
+    setTimeout(() => {
+        playVO(win ? pickVO(['genius','nailedIt']) : pickVO(['tryAgain','ohhTryAgain','friendAlwaysWin']));
+    }, 600);
 }
 
 function updateUI(){ 
