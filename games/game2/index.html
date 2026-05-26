@@ -295,6 +295,7 @@ function initGame(){
     gs = {score: 0, lives: MAX_LIVES, level: 1, timer: 10, tmax: 10, timerStep: 0.1, busy: false, streak: 0};
     colorPool = [];
     lastSetSig = '';
+    nextDealPreload = null;   // fresh game — discard any stale precomputed deal
     active = nextCatapultSet(); gameRunning = true;
     applyLevelDifficulty();
     updateUI(); dealCard(); startMusic();
@@ -313,14 +314,41 @@ function tick(){
     if(gs.timer <= 0) handleMiss(); 
 }
 
+/* ── PRELOAD CACHE ──
+   Pre-pick the NEXT card's color set + image right after the current card is shown,
+   and kick off a background fetch so the next round's image is already in browser cache
+   by the time we render it. Cuts perceived load time on every card transition. */
+let nextDealPreload = null;     // {active, card} for the upcoming dealCard
+const preloadRefs = [];          // keep Image refs alive so the browser doesn't GC them
+function preloadImg(src){ const im = new Image(); im.src = src; preloadRefs.push(im); if(preloadRefs.length > 24) preloadRefs.shift(); return im; }
+
+function precomputeNextDeal(){
+    // Mirrors dealCard's color/image-picking logic so the result is real, not a guess.
+    const nextActive = nextCatapultSet();
+    const col = nextActive[Math.floor(Math.random()*nextActive.length)];
+    const card = { cid: col.id, file: col.items[Math.floor(Math.random()*col.items.length)] };
+    nextDealPreload = { active: nextActive, card };
+    // Kick off browser fetch — by next dealCard call, this is in the HTTP cache
+    preloadImg(A + card.file);
+}
+
 function dealCard(){
-    active = nextCatapultSet();
+    // Consume the pre-computed deal if available, otherwise pick fresh (first call of the game)
+    if(nextDealPreload){
+        active = nextDealPreload.active;
+        gs.card = nextDealPreload.card;
+        nextDealPreload = null;
+    } else {
+        active = nextCatapultSet();
+        const col = active[Math.floor(Math.random()*active.length)];
+        gs.card = { cid: col.id, file: col.items[Math.floor(Math.random()*col.items.length)] };
+    }
     renderCannons();
     gs.timer = gs.tmax; gs.busy = false;
-    const col = active[Math.floor(Math.random()*active.length)];
-    gs.card = {cid: col.id, file: col.items[Math.floor(Math.random()*col.items.length)]};
     document.getElementById('card').innerHTML = `<div class="iframe"><img src="${A}${gs.card.file}" onerror="this.src='gulsabi-normal.png'"></div>`;
     const t = document.getElementById('tasm'); t.classList.remove('adrop'); void t.offsetWidth; t.classList.add('adrop');
+    // Once the current card is on screen, queue the next one's assets
+    setTimeout(precomputeNextDeal, 50);
 }
 
 function fireCannonball(startEl, color, onHit) {

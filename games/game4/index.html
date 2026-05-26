@@ -743,6 +743,25 @@ function burstConfetti(){
   }
 }
 
+/* ── PRELOAD CACHE ──
+   Right after the current level's grid is rendered, pre-pick the next level's image set
+   and warm the browser cache so the next "NEXT LEVEL" button feels instant. */
+const preloadRefs = [];
+function preloadImg(src){ const im = new Image(); im.src = src; preloadRefs.push(im); if(preloadRefs.length > 60) preloadRefs.shift(); return im; }
+function preloadNextLevel(){
+  if(gs.mode !== 'solo' || gs.level >= LEVEL_COUNT) return;
+  const nextCfg = LEVELS[gs.level];   // 0-indexed: gs.level is current (1-based), so this is the next
+  // Dedupe the same way buildLevel() will, so we only preload images that can actually be picked
+  const seenKey = new Set();
+  const uniquePool = [];
+  for(const f of shuffle([...ALL_IMAGES])){
+    const key = f.replace(/\.(jpg|png)$/i, '').toLowerCase();
+    if(!seenKey.has(key)){ seenKey.add(key); uniquePool.push(f); }
+  }
+  const sample = uniquePool.slice(0, Math.min(uniquePool.length, nextCfg.pairs * 2));
+  sample.forEach(src => preloadImg(ASSET_PATH + src));
+}
+
 /* ── CARD BUILDING ── */
 function buildLevel(){
   let cfg;
@@ -751,7 +770,17 @@ function buildLevel(){
   } else {
     cfg = LEVELS[Math.min(gs.level - 1, LEVEL_COUNT - 1)];
   }
-  const pool = shuffle([...ALL_IMAGES]).slice(0, cfg.pairs);
+  // Dedupe lookalike pairs (e.g. red-apple.jpg and red-apple.png are visually identical
+  // but have different filenames, so without dedup the player would see two pairs that
+  // look the same but only match within their own extension — frustrating UX).
+  // Key by lowercased filename without extension so only one variant per object survives.
+  const seenKey = new Set();
+  const uniquePool = [];
+  for(const f of shuffle([...ALL_IMAGES])){
+    const key = f.replace(/\.(jpg|png)$/i, '').toLowerCase();
+    if(!seenKey.has(key)){ seenKey.add(key); uniquePool.push(f); }
+  }
+  const pool = uniquePool.slice(0, cfg.pairs);
   const deck = shuffle([...pool, ...pool]);
 
   grid.innerHTML = '';
@@ -776,6 +805,8 @@ function buildLevel(){
     updateTimerBar();
   }
   firstPick = secondPick = null;
+  // Warm the cache for the next level once this one is on screen
+  setTimeout(preloadNextLevel, 100);
   busy = false;
   if(gs.mode === 'duo'){ setG('normal', pick(DUO_TURN_MSG[gs.turn])); }
   else setG('normal');

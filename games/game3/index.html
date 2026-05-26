@@ -661,31 +661,23 @@ function pickRoundMode(diff){
   return 'color-odd';
 }
 
-/* MODE A — original "color outlier" round */
+/* MODE A — "color outlier" round
+   N-1 cards are random objects from a single base color, +1 from a contrasting odd color.
+   Critical invariant: every base card MUST share the same color so the prompt "find the
+   odd color" stays unambiguous. If the base color's pool is smaller than N-1, we repeat
+   images from within that same color rather than supplementing with another color
+   (which would create a 3-color grid and defeat the puzzle). */
 function buildColorOddRound(cfg){
   const N = cfg.cards;
   const [oddColor, baseColor] = pickContrastPair(cfg.diff);
 
-  let basePool = [...ITEMS_BY_COLOR[baseColor]];
-
-  if(N - 1 > basePool.length){
-    const oddFam = familyOf(oddColor);
-    const candidates = Object.keys(ITEMS_BY_COLOR).filter(c => c !== baseColor && c !== oddColor);
-    const preferred = candidates.filter(c => familyOf(c) !== oddFam);
-    const supplement = pick(preferred.length ? preferred : candidates);
-    basePool = basePool.concat(ITEMS_BY_COLOR[supplement]);
+  const pool = ITEMS_BY_COLOR[baseColor];
+  const shuffled = shuffle([...pool]);
+  const baseCards = [];
+  for(let i = 0; i < N - 1; i++){
+    // Cycle through the shuffled pool, repeating if needed to fill the grid
+    baseCards.push(shuffled[i % shuffled.length]);
   }
-  if(N - 1 > basePool.length){
-    const used = new Set();
-    basePool.forEach(p => used.add(p.split('-')[0]));
-    used.add(oddColor);
-    const candidates = Object.keys(ITEMS_BY_COLOR).filter(c => !used.has(c));
-    if(candidates.length) basePool = basePool.concat(ITEMS_BY_COLOR[pick(candidates)]);
-  }
-
-  shuffle(basePool);
-  const baseCards = basePool.slice(0, N - 1);
-  while(baseCards.length < N - 1) baseCards.push(basePool[baseCards.length % basePool.length]);
 
   const oddCard = pick(ITEMS_BY_COLOR[oddColor]);
   const out = baseCards.map(src => ({ src, isOdd: false }));
@@ -737,10 +729,43 @@ function buildRoundCards(cfg){
   return buildColorOddRound(cfg);
 }
 
+/* ── PRELOAD CACHE ──
+   Pre-build the NEXT round's card list (without DOM) and preload its images right after
+   the current round is rendered. By the time the user answers and we advance, the next
+   grid's images are already in the browser cache. */
+let nextRoundCards = null;
+const preloadRefs = [];
+function preloadImg(src){ const im = new Image(); im.src = src; preloadRefs.push(im); if(preloadRefs.length > 60) preloadRefs.shift(); return im; }
+
+function precomputeNextRound(){
+  // Look ahead: if we're at the last round of this level, the "next" is round 1 of next level
+  const curCfg = LEVELS[gs.level - 1];
+  let nextCfg;
+  if(gs.round < curCfg.rounds){
+    nextCfg = curCfg;
+  } else if(gs.level < LEVEL_COUNT){
+    nextCfg = LEVELS[gs.level];
+  } else {
+    nextRoundCards = null;
+    return;
+  }
+  // Use a temporary cards-only structure — we only care about the .src strings for preloading
+  nextRoundCards = buildRoundCards(nextCfg);
+  const uniqueSrcs = new Set(nextRoundCards.map(c => c.src));
+  uniqueSrcs.forEach(src => preloadImg(ASSET_PATH + src));
+}
+
 /* ── ROUND FLOW ── */
 function startRound(){
   const cfg = LEVELS[gs.level - 1];
-  cards = buildRoundCards(cfg);
+  // Consume the precomputed next-round cards if available (saves a buildRoundCards call AND
+  // means the images we render are exactly the ones we already preloaded)
+  if(nextRoundCards){
+    cards = nextRoundCards;
+    nextRoundCards = null;
+  } else {
+    cards = buildRoundCards(cfg);
+  }
   gs.timer = cfg.time;
   gs.tmax = cfg.time;
   gs.lowTickPlayed = false;
@@ -764,6 +789,8 @@ function startRound(){
   roundStartTime = Date.now();
   startTimer();
   updatePowerupUI();
+  // Kick off precompute + preload of the next round once this one is on screen
+  setTimeout(precomputeNextRound, 50);
 }
 
 function onCardClick(idx){
@@ -861,6 +888,7 @@ function startGame(){
     running: true, firstFindUnlocked: false, usedContinue: false
   };
   paused = false;
+  nextRoundCards = null;   // fresh game — discard any stale precomputed round
   updateHUD();
   startMusic();
   // Alternate between two start voice-overs each session
