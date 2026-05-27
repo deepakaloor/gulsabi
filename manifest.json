@@ -1,13 +1,13 @@
 {
-  "name": "Gulsabi Games",
-  "short_name": "Gulsabi",
+  "name": "Gulsabi Kids",
+  "short_name": "Gulsabi Kids",
   "description": "Curiosity-powered learning games for kids. Play offline anytime.",
   "start_url": "/games.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0288D1",
-  "theme_color": "#FFD600",
+  "background_color": "#FFFCF6",
+  "theme_color": "#FF4F4F",
   "lang": "en",
   "icons": [
     {
