@@ -6,12 +6,17 @@
     <title>Games | Gulsabi Kids</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" href="images/gulsabi-logo.png">
-    <link rel="apple-touch-icon" href="images/gulsabi-logo.png">
-    <meta name="theme-color" content="#FFFCF6">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/icons/gulsabi-app-icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="images/icons/gulsabi-app-icon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/gulsabi-app-icon.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="images/icons/gulsabi-app-icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="images/icons/gulsabi-app-icon-512.png">
+    <link rel="apple-touch-startup-image" href="images/gulsabi-loading.jpg">
+    <meta name="theme-color" content="#FF4F4F">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Gulsabi Kids">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gulsabi">
     <style>
         :root {
             --gulsabi-yellow: #FFD600;
@@ -478,9 +483,52 @@
             }
             html { scroll-behavior: auto; }
         }
+
+        /* ── Splash screen (shown on first paint, fades when app is ready) ── */
+        #appSplash {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #FFFCF6 url("images/gulsabi-loading.jpg") center/cover no-repeat;
+            transition: opacity 0.5s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        #appSplash.hide { opacity: 0; pointer-events: none; }
+        #appSplash .splash-progress {
+            margin-bottom: clamp(36px, 8vh, 80px);
+            width: 110px; height: 3px;
+            background: rgba(31,41,55,0.12);
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        #appSplash .splash-progress::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: var(--text-dark, #1f2937);
+            border-radius: 100px;
+            transform-origin: left center;
+            animation: splashPulse 1.4s ease-in-out infinite;
+        }
+        @keyframes splashPulse {
+            0%, 100% { transform: scaleX(0.18); opacity: 0.65; }
+            50%      { transform: scaleX(1);    opacity: 1; }
+        }
+        /* Fullscreen helper: when launched as standalone/fullscreen PWA,
+           extend background to safe areas. */
+        @media (display-mode: standalone), (display-mode: fullscreen) {
+            html, body { background: var(--cream); }
+        }
     </style>
 </head>
 <body>
+
+    <!-- Splash (shown until the app is ready; especially useful in PWA standalone mode) -->
+    <div id="appSplash" aria-hidden="true"><div class="splash-progress"></div></div>
 
     <!-- App Bar (sticky top) -->
     <header class="app-bar">
@@ -684,10 +732,54 @@
         function showPopup() { document.getElementById('gulsabiPopup').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
         function hidePopup() { document.getElementById('gulsabiPopup').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
-        /* Service worker registration for offline PWA */
+        /* Splash: hide once the app is ready, capped at 4s as a safety net */
+        (function hideSplash() {
+            const splash = document.getElementById('appSplash');
+            if (!splash) return;
+            let hidden = false;
+            const drop = () => {
+                if (hidden) return; hidden = true;
+                splash.classList.add('hide');
+                setTimeout(() => splash.remove(), 600);
+            };
+            window.addEventListener('load', () => setTimeout(drop, 200));
+            // Safety net so we never trap the user on the splash
+            setTimeout(drop, 4000);
+        })();
+
+        /* Service worker: register, detect updates, auto-skipWaiting + reload
+           so the installed Gulsabi app always loads the latest code on open. */
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+            window.addEventListener('load', async () => {
+                try {
+                    const reg = await navigator.serviceWorker.register('/service-worker.js');
+
+                    // When a new SW is found, ask it to take over as soon as installed
+                    reg.addEventListener('updatefound', () => {
+                        const sw = reg.installing;
+                        if (!sw) return;
+                        sw.addEventListener('statechange', () => {
+                            if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version is ready — skip waiting and reload below
+                                sw.postMessage({ type: 'SKIP_WAITING' });
+                            }
+                        });
+                    });
+
+                    // When the controller actually changes (new SW took over), reload
+                    let reloaded = false;
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (reloaded) return; reloaded = true;
+                        window.location.reload();
+                    });
+
+                    // Proactively check for updates on every app open / focus
+                    const poke = () => reg.update().catch(() => {});
+                    poke();
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.visibilityState === 'visible') poke();
+                    });
+                } catch (e) { /* SW registration failed — fine, just no offline */ }
             });
         }
     </script>
