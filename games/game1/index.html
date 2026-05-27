@@ -840,24 +840,38 @@
     </script>
 
 <script type="module">
-import { trackEvent } from "../../js/analytics.js";
-let _gulsabi_startTime = null;
+import { setupPageTracking, startGameSession, endGameSession, trackScore, trackRetry } from "../../js/analytics.js";
+setupPageTracking();
+const _GAME = { id: "game1", name: "Sky Adventure" };
+let _gulsabi_gsid = null;
+let _gulsabi_lastScore = null;
 
-// Hook startGame
-const _origStartGame = window.startGame || startGame;
-window.startGame = function() {
-  _gulsabi_startTime = Date.now();
+const _origStartGame = window.startGame || (typeof startGame !== "undefined" ? startGame : null);
+window.startGame = async function() {
+  if (_gulsabi_gsid) trackRetry(_GAME.id, _GAME.name);
+  _gulsabi_gsid = await startGameSession(_GAME.id, _GAME.name);
   if (_origStartGame) _origStartGame.apply(this, arguments);
-  trackEvent("game_started", { game_name: "Sky Adventure" });
 };
 
-// Hook gameOver
-const _origGameOver = window.gameOver || gameOver;
+const _origGameOver = window.gameOver || (typeof gameOver !== "undefined" ? gameOver : null);
 window.gameOver = function() {
-  const secs = _gulsabi_startTime ? Math.round((Date.now() - _gulsabi_startTime) / 1000) : null;
+  const sc = typeof score !== "undefined" ? score : null;
   if (_origGameOver) _origGameOver.apply(this, arguments);
-  trackEvent("game_completed", { game_name: "Sky Adventure", score: typeof score !== "undefined" ? score : null, time_spent_seconds: secs });
+  if (_gulsabi_gsid) {
+    endGameSession(_gulsabi_gsid, { completed: true, score: sc, highest_score: sc, highest_level: typeof level !== "undefined" ? level : null });
+    _gulsabi_gsid = null;
+  }
 };
+
+// Periodic score capture (lightweight — only when score actually changes)
+setInterval(() => {
+  if (!_gulsabi_gsid) return;
+  const sc = typeof score !== "undefined" ? score : null;
+  if (sc != null && sc !== _gulsabi_lastScore) {
+    _gulsabi_lastScore = sc;
+    trackScore(_gulsabi_gsid, sc, _GAME.id, _GAME.name);
+  }
+}, 5000);
 </script>
 </body>
 </html>

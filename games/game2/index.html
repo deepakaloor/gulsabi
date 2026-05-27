@@ -475,23 +475,38 @@ bootstrapPreload();
 </script>
 
 <script type="module">
-import { trackEvent } from "../../js/analytics.js";
-let _gulsabi_startTime = null;
+import { setupPageTracking, startGameSession, endGameSession, trackScore, trackRetry } from "../../js/analytics.js";
+setupPageTracking();
+const _GAME = { id: "game2", name: "Cannon Color Range" };
+let _gulsabi_gsid = null;
+let _gulsabi_lastScore = null;
 
 const _origInitGame = window.initGame;
-window.initGame = function() {
-  _gulsabi_startTime = Date.now();
+window.initGame = async function() {
+  if (_gulsabi_gsid) trackRetry(_GAME.id, _GAME.name);
+  _gulsabi_gsid = await startGameSession(_GAME.id, _GAME.name);
   if (_origInitGame) _origInitGame.apply(this, arguments);
-  trackEvent("game_started", { game_name: "Color Cannon" });
 };
 
 const _origEndGame = window.endGame;
 window.endGame = function() {
-  const secs = _gulsabi_startTime ? Math.round((Date.now() - _gulsabi_startTime) / 1000) : null;
   const sc = (typeof gs !== "undefined" && gs.score !== undefined) ? gs.score : null;
+  const lvl = (typeof gs !== "undefined" && gs.level !== undefined) ? gs.level : null;
   if (_origEndGame) _origEndGame.apply(this, arguments);
-  trackEvent("game_completed", { game_name: "Color Cannon", score: sc, time_spent_seconds: secs });
+  if (_gulsabi_gsid) {
+    endGameSession(_gulsabi_gsid, { completed: true, score: sc, highest_score: sc, highest_level: lvl });
+    _gulsabi_gsid = null;
+  }
 };
+
+setInterval(() => {
+  if (!_gulsabi_gsid) return;
+  const sc = (typeof gs !== "undefined" && gs.score !== undefined) ? gs.score : null;
+  if (sc != null && sc !== _gulsabi_lastScore) {
+    _gulsabi_lastScore = sc;
+    trackScore(_gulsabi_gsid, sc, _GAME.id, _GAME.name);
+  }
+}, 5000);
 </script>
 </body>
 </html>

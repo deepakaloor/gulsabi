@@ -1,5 +1,5 @@
-// Gulsabi main.js - tracks page views on every page load
-import { trackEvent } from "./analytics.js";
-
-// Track this page view
-trackEvent("page_view");
+// Gulsabi main.js — bootstraps page-level analytics.
+// Runs page_view, game_card_view (via [data-game-card-id]), exit
+// tracking, PWA install events and error reporting in one call.
+import { setupPageTracking } from "./analytics.js";
+setupPageTracking();
