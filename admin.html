@@ -295,6 +295,54 @@
     }
     .section-row .meta { font-size: 0.78rem; color: var(--text-muted); }
 
+    /* ── Diagnostics panel ─────────────────────────────── */
+    .diag-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .diag-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 12px;
+    }
+    .diag-title {
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .diag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 8px;
+    }
+    .diag-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      font-size: 0.82rem;
+      font-family: -apple-system, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .diag-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .diag-item.ok    .diag-dot { background: var(--success); }
+    .diag-item.fail  .diag-dot { background: var(--danger);  }
+    .diag-item.fail  { color: var(--danger); }
+    .diag-hint {
+      font-size: 0.78rem; color: var(--text-muted);
+      margin-top: 12px; line-height: 1.5;
+    }
+    .diag-hint code {
+      background: var(--accent-soft);
+      padding: 1px 6px; border-radius: 4px;
+      font-size: 0.82rem;
+    }
+
     .privacy-card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 22px 24px;
@@ -414,6 +462,16 @@
 
       <!-- OVERVIEW -->
       <section class="page active" data-page="overview">
+        <!-- Diagnostics: probes the 6 analytics tables on dashboard load.
+             If any are red, events from games won't land in the DB. -->
+        <div id="diagPanel" class="diag-panel" hidden>
+          <div class="diag-head">
+            <span class="diag-title">Connection check</span>
+            <button class="btn ghost" id="diagRecheckBtn">Recheck</button>
+          </div>
+          <div class="diag-grid" id="diagGrid"></div>
+          <p class="diag-hint" id="diagHint"></p>
+        </div>
         <div class="cards">
           <div class="card"><div class="label">Anonymous users</div><div class="num" id="ovUsers">—</div></div>
           <div class="card"><div class="label">New today</div><div class="num" id="ovNewToday">—</div></div>

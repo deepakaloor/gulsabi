@@ -177,10 +177,11 @@ function ensureProfile() {
       is_returning_user: isReturningUser()
     };
     try {
-      await supabase
+      const { error } = await supabase
         .from("anonymous_users")
         .upsert(userRow, { onConflict: "anonymous_user_id", ignoreDuplicates: false });
-    } catch (e) {}
+      if (error) logFail("anonymous_users upsert", error);
+    } catch (e) { logFail("anonymous_users upsert", e); }
 
     const sessId = getSessionId();
     const sessRow = {
@@ -195,10 +196,11 @@ function ensureProfile() {
       os:                detectOS()
     };
     try {
-      await supabase
+      const { error } = await supabase
         .from("sessions")
         .upsert(sessRow, { onConflict: "session_id", ignoreDuplicates: true });
-    } catch (e) {}
+      if (error) logFail("sessions upsert", error);
+    } catch (e) { logFail("sessions upsert", e); }
 
     return { anonId, sessId };
   })();
@@ -218,6 +220,28 @@ function stripPii(obj) {
     out[k] = obj[k];
   }
   return out;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Diagnostics: any insert/upsert that fails — RLS denied, table
+// missing, network down, anything — gets routed here so it shows in
+// DevTools with a clear "Gulsabi analytics" tag. Set
+//   window.GULSABI_ANALYTICS_DEBUG = true
+// before this script loads (or via dev console) to see every event
+// payload as it's sent, not just the failures.
+// ─────────────────────────────────────────────────────────────────
+function logFail(stage, error) {
+  const msg = (error && error.message) || String(error || "unknown error");
+  // Always warn; the message usually says exactly what's wrong
+  // (relation does not exist / new row violates RLS / fetch failed / etc.)
+  if (typeof console !== "undefined") {
+    console.warn("[Gulsabi analytics] " + stage + " — " + msg);
+  }
+}
+function logDebug(stage, payload) {
+  if (typeof window !== "undefined" && window.GULSABI_ANALYTICS_DEBUG && typeof console !== "undefined") {
+    console.info("[Gulsabi analytics] " + stage, payload);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -246,10 +270,40 @@ export async function trackEvent(eventName, payload = {}) {
         ...(payload.metadata || {})
       })
     };
-    await supabase.from("game_events").insert(row);
+    logDebug("trackEvent " + eventName, row);
+    const { error } = await supabase.from("game_events").insert(row);
+    if (error) logFail("game_events insert (" + eventName + ")", error);
   } catch (err) {
-    if (typeof console !== "undefined") console.warn("Gulsabi analytics:", err && err.message);
+    logFail("trackEvent " + eventName, err);
   }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Self-test: probes each of the 6 analytics tables with a tiny
+// SELECT to see if the schema is reachable. The admin dashboard
+// calls this on login and renders red/green dots. Visitors can
+// also run it from the browser console:
+//   await window.GULSABI_DIAGNOSE()
+// ─────────────────────────────────────────────────────────────────
+export async function runDiagnostics() {
+  const tables = [
+    "anonymous_users", "sessions", "game_sessions",
+    "game_events", "pwa_installs", "errors"
+  ];
+  const out = {};
+  await Promise.all(tables.map(async t => {
+    try {
+      const { error } = await supabase.from(t).select("*", { count: "exact", head: true });
+      out[t] = error ? { ok: false, error: error.message } : { ok: true };
+    } catch (e) {
+      out[t] = { ok: false, error: (e && e.message) || String(e) };
+    }
+  }));
+  return out;
+}
+if (typeof window !== "undefined") {
+  // Expose for quick debugging from the browser console
+  window.GULSABI_DIAGNOSE = runDiagnostics;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -271,7 +325,10 @@ export async function startGameSession(gameId, gameName) {
   };
   _activeGameSessions.set(gsid, { gameId, gameName, startedAt: start.getTime(), score: null, level: null, hints: 0, mistakes: 0 });
   try { localStorage.setItem(KEYS.lastGameSession, gsid); } catch (e) {}
-  try { await supabase.from("game_sessions").insert(meta); } catch (e) {}
+  try {
+    const { error } = await supabase.from("game_sessions").insert(meta);
+    if (error) logFail("game_sessions insert", error);
+  } catch (e) { logFail("game_sessions insert", e); }
   trackEvent("game_start", { game_id: gameId, game_name: gameName, game_session_id: gsid });
   return gsid;
 }
@@ -294,8 +351,9 @@ export async function endGameSession(gameSessionId, payload = {}) {
     mistakes_count:   state ? state.mistakes : 0
   };
   try {
-    await supabase.from("game_sessions").update(patch).eq("game_session_id", gameSessionId);
-  } catch (e) {}
+    const { error } = await supabase.from("game_sessions").update(patch).eq("game_session_id", gameSessionId);
+    if (error) logFail("game_sessions update", error);
+  } catch (e) { logFail("game_sessions update", e); }
   const eventName = patch.completed ? "game_complete"
                   : patch.failed    ? "game_failed"
                   : patch.exited    ? "game_exit"
@@ -367,8 +425,9 @@ async function _pwaInsert(status, when) {
     if (status === "accepted")  row.install_prompt_clicked_at = when || new Date().toISOString();
     if (status === "dismissed") row.install_prompt_clicked_at = when || new Date().toISOString();
     if (status === "installed") row.installed_at              = when || new Date().toISOString();
-    await supabase.from("pwa_installs").insert(row);
-  } catch (e) {}
+    const { error } = await supabase.from("pwa_installs").insert(row);
+    if (error) logFail("pwa_installs insert (" + status + ")", error);
+  } catch (e) { logFail("pwa_installs insert (" + status + ")", e); }
 }
 export function trackPWAInstallShown()     { _pwaInsert("shown");     return trackEvent("install_prompt_shown");     }
 export function trackPWAInstallAccepted()  { _pwaInsert("accepted");  return trackEvent("install_prompt_accepted");  }
@@ -383,7 +442,7 @@ export async function trackError(error, context = {}) {
     const { anonId, sessId } = await ensureProfile();
     const msg = (error && error.message) ? String(error.message) : String(error || "unknown");
     const stack = (error && error.stack) ? String(error.stack).slice(0, 2000) : null;
-    await supabase.from("errors").insert({
+    const { error: insErr } = await supabase.from("errors").insert({
       anonymous_user_id: anonId,
       session_id:        sessId,
       game_id:           context.game_id || null,
@@ -394,7 +453,8 @@ export async function trackError(error, context = {}) {
       browser:           detectBrowser(),
       device_type:       detectDeviceType()
     });
-  } catch (e) {}
+    if (insErr) logFail("errors insert", insErr);
+  } catch (e) { logFail("errors insert", e); }
 }
 
 // ─────────────────────────────────────────────────────────────────

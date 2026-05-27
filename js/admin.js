@@ -4,6 +4,7 @@
 // keys are never referenced or shipped to the client.
 // ─────────────────────────────────────────────────────────────────
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { runDiagnostics } from "./analytics.js";
 
 const SUPABASE_URL = "https://liqksvypfrnvhbnsroaa.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_0G9K_r3z-fbMx_hkk3IAPg_HHAIM9pO";
@@ -160,6 +161,8 @@ function switchPage(key) {
 /* ── Data load (parallel) ──────────────────────────────────── */
 async function loadAll() {
   pageSub.textContent = "Loading…";
+  // Run diagnostics in parallel — non-blocking, just reports table reachability
+  paintDiagnostics();
   try {
     const [u, s, gs, e, p, er] = await Promise.all([
       supabase.from("anonymous_users").select("*").limit(20000),
@@ -180,6 +183,48 @@ async function loadAll() {
   }
   renderAll();
 }
+
+/* ── Diagnostics: probe each analytics table; show red/green dots
+   and a hint if anything is broken (most common: schema migration
+   wasn't run yet on the connected Supabase project). ───────────── */
+async function paintDiagnostics() {
+  const panel = document.getElementById("diagPanel");
+  const grid  = document.getElementById("diagGrid");
+  const hint  = document.getElementById("diagHint");
+  if (!panel || !grid) return;
+  grid.innerHTML = '<div class="diag-item"><span class="diag-dot"></span><span>Checking…</span></div>';
+  panel.hidden = false;
+  const results = await runDiagnostics();
+  const failures = Object.entries(results).filter(([, v]) => !v.ok);
+  grid.innerHTML = "";
+  Object.entries(results).forEach(([tbl, res]) => {
+    const div = document.createElement("div");
+    div.className = "diag-item " + (res.ok ? "ok" : "fail");
+    div.title = res.ok ? "OK" : (res.error || "Error");
+    div.innerHTML = '<span class="diag-dot"></span><span>' + tbl + (res.ok ? '' : ' ✗') + '</span>';
+    grid.appendChild(div);
+  });
+  if (failures.length === 0) {
+    hint.innerHTML = "All analytics tables reachable. Events from games will land here in real time.";
+    panel.style.borderColor = "var(--border)";
+  } else {
+    panel.style.borderColor = "rgba(215,0,21,0.35)";
+    const first = failures[0][1].error || "";
+    const lower = first.toLowerCase();
+    let advice = "";
+    if (lower.includes("relation") || lower.includes("does not exist") || lower.includes("schema")) {
+      advice = "Tables are missing. Open Supabase → SQL editor and run <code>supabase/migrations/2026_05_27_analytics.sql</code>.";
+    } else if (lower.includes("permission") || lower.includes("rls") || lower.includes("policy")) {
+      advice = "Row Level Security is blocking. Re-run the migration (it includes the RLS policies) or grant SELECT to the <code>authenticated</code> role on these tables.";
+    } else if (lower.includes("invalid api key") || lower.includes("jwt")) {
+      advice = "The Supabase ANON key is invalid. Check the value at the top of <code>js/analytics.js</code> + <code>js/admin.js</code> against your project's <em>Publishable / anon</em> key.";
+    } else {
+      advice = "First error: " + first;
+    }
+    hint.innerHTML = failures.length + " of " + Object.keys(results).length + " tables unreachable. " + advice;
+  }
+}
+document.getElementById("diagRecheckBtn")?.addEventListener("click", paintDiagnostics);
 
 /* ── Date filtering ─────────────────────────────────────────── */
 function cutoffFromFilter(value) {
