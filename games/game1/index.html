@@ -838,5 +838,26 @@
         init();
         loop();
     </script>
+
+<script type="module">
+import { trackEvent } from "../../js/analytics.js";
+let _gulsabi_startTime = null;
+
+// Hook startGame
+const _origStartGame = window.startGame || startGame;
+window.startGame = function() {
+  _gulsabi_startTime = Date.now();
+  if (_origStartGame) _origStartGame.apply(this, arguments);
+  trackEvent("game_started", { game_name: "Sky Adventure" });
+};
+
+// Hook gameOver
+const _origGameOver = window.gameOver || gameOver;
+window.gameOver = function() {
+  const secs = _gulsabi_startTime ? Math.round((Date.now() - _gulsabi_startTime) / 1000) : null;
+  if (_origGameOver) _origGameOver.apply(this, arguments);
+  trackEvent("game_completed", { game_name: "Sky Adventure", score: typeof score !== "undefined" ? score : null, time_spent_seconds: secs });
+};
+</script>
 </body>
 </html>

@@ -1176,5 +1176,25 @@ init();
 // Kick off background fetch of all game images while user is on the start screen
 bootstrapPreload();
 </script>
+
+<script type="module">
+import { trackEvent } from "../../js/analytics.js";
+let _gulsabi_startTime = null;
+
+const _origStartGame = window.startGame;
+window.startGame = function() {
+  _gulsabi_startTime = Date.now();
+  if (_origStartGame) _origStartGame.apply(this, arguments);
+  trackEvent("game_started", { game_name: "Odd One Out" });
+};
+
+const _origEndGame = window.endGame;
+window.endGame = function() {
+  const secs = _gulsabi_startTime ? Math.round((Date.now() - _gulsabi_startTime) / 1000) : null;
+  const sc = (typeof gs !== "undefined" && gs.score !== undefined) ? gs.score : null;
+  if (_origEndGame) _origEndGame.apply(this, arguments);
+  trackEvent("game_completed", { game_name: "Odd One Out", score: sc, time_spent_seconds: secs });
+};
+</script>
 </body>
 </html>
