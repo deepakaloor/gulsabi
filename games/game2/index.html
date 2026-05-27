@@ -473,5 +473,25 @@ refreshHighScoreUI();
 // Browser fetches them in parallel; by the time the player clicks PLAY they're cached.
 bootstrapPreload();
 </script>
+
+<script type="module">
+import { trackEvent } from "../../js/analytics.js";
+let _gulsabi_startTime = null;
+
+const _origInitGame = window.initGame;
+window.initGame = function() {
+  _gulsabi_startTime = Date.now();
+  if (_origInitGame) _origInitGame.apply(this, arguments);
+  trackEvent("game_started", { game_name: "Color Cannon" });
+};
+
+const _origEndGame = window.endGame;
+window.endGame = function() {
+  const secs = _gulsabi_startTime ? Math.round((Date.now() - _gulsabi_startTime) / 1000) : null;
+  const sc = (typeof gs !== "undefined" && gs.score !== undefined) ? gs.score : null;
+  if (_origEndGame) _origEndGame.apply(this, arguments);
+  trackEvent("game_completed", { game_name: "Color Cannon", score: sc, time_spent_seconds: secs });
+};
+</script>
 </body>
 </html>
