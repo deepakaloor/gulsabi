@@ -9,6 +9,21 @@ const SUPABASE_URL = "https://liqksvypfrnvhbnsroaa.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_0G9K_r3z-fbMx_hkk3IAPg_HHAIM9pO";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ── Game ID → Display Name map ────────────────────────────────
+// Ensures charts and cards always show the friendly game name
+// even if game_name is missing from a DB row.
+const GAME_NAMES = {
+  game1: "Sky Adventure",
+  game2: "Color Cannon",
+  game3: "Odd One Out",
+  game4: "Memory Match",
+  game5: "Quiz Time"
+};
+function gameDisplayName(gameId, gameName) {
+  if (gameName && gameName !== gameId) return gameName;
+  return GAME_NAMES[gameId] || gameId;
+}
+
 
 /* ── DOM refs ───────────────────────────────────────────────── */
 const loginBox  = document.getElementById("loginBox");
@@ -274,9 +289,9 @@ function computeSummary() {
     avgPlay:         avgDur ? formatDuration(avgDur) : "—",
     avgPlaySeconds:  avgDur,
     totalMins,
-    mostPlayed:      mostPlayed ? mostPlayed[0] : "—",
+    mostPlayed:      mostPlayed ? gameDisplayName(mostPlayed[0], null) : "—",
     mostPlayedCount: mostPlayed ? mostPlayed[1] : 0,
-    bestRet:         bestRet || "—",
+    bestRet:         bestRet ? gameDisplayName(bestRet, null) : "—",
     bestRetRate,
     pwaInstalls:     installsInstalled,
     pwaConv:         installsConv,
@@ -329,7 +344,7 @@ function computeGameReport() {
   f.gs.forEach(s => {
     const g = s.game_id || "unknown";
     if (!games[g]) games[g] = {
-      game: s.game_name || g,
+      game: gameDisplayName(g, s.game_name),
       game_id: g,
       uniqueUsers: new Set(),
       plays: 0, completions: 0, exits: 0, retries: 0, failed: 0,
@@ -633,7 +648,7 @@ function renderScores() {
   const byGame = {};
   f.gs.forEach(s => {
     if (!Number.isFinite(s.score) || s.score <= 0) return;
-    const g = s.game_name || s.game_id || "unknown";
+    const g = gameDisplayName(s.game_id || "unknown", s.game_name);
     if (!byGame[g]) byGame[g] = [];
     byGame[g].push(s.score);
   });
@@ -706,7 +721,7 @@ function renderErrors() {
     const tr = document.createElement("tr");
     tr.innerHTML =
       "<td>" + esc(new Date(e.created_at).toLocaleString()) + "</td>" +
-      "<td>" + esc(e.game_id || "—") + "</td>" +
+      "<td>" + esc(e.game_id ? gameDisplayName(e.game_id, null) : "—") + "</td>" +
       "<td>" + esc(e.error_type || "—") + "</td>" +
       "<td>" + esc((e.error_message || "").slice(0,120)) + "</td>" +
       "<td>" + esc(e.browser || "—") + "</td>" +
@@ -803,7 +818,7 @@ function buildRecentEventRows() {
   return [head, ...recent.map(e => [
     new Date(e.event_time).toLocaleString(),
     e.event_name || "—",
-    (e.metadata && e.metadata.game_name) || e.game_id || "—",
+    gameDisplayName(e.game_id || "", (e.metadata && e.metadata.game_name)) || "—",
     Number.isFinite(e.score) ? e.score : "—",
     Number.isFinite(e.duration_seconds) ? e.duration_seconds + "s" : "—",
     (rawAnonUsers.find(u => u.anonymous_user_id === e.anonymous_user_id) || {}).device_type || "—",
@@ -830,7 +845,7 @@ function buildGameSessionRows() {
   const head = ["Started","Ended","Game","Duration (s)","Score","High Level","Completed","Exited","Anon User ID","Session ID"];
   return [head, ...rawGameSessions.map(s => [
     s.started_at || "", s.ended_at || "",
-    s.game_name || s.game_id || "",
+    gameDisplayName(s.game_id || "", s.game_name) || "",
     s.duration_seconds || 0,
     Number.isFinite(s.score) ? s.score : "",
     Number.isFinite(s.highest_level) ? s.highest_level : "",
