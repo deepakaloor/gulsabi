@@ -38,7 +38,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
         body {
             font-family: 'Fredoka', sans-serif;
             font-weight: 400;
@@ -52,11 +52,12 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
+            min-width: 0;
             padding-top: calc(var(--app-bar-h) + var(--safe-top));
             padding-bottom: calc(var(--tab-bar-h) + var(--safe-bottom) + 16px);
         }
         a { text-decoration: none; color: inherit; }
-        img { display: block; max-width: 100%; }
+        img, video, iframe { display: block; max-width: 100%; }
 
         /* ── App Bar ──────────────────────────────────────── */
         .app-bar {
@@ -125,21 +126,40 @@
 
         /* ── Featured (large hero tile) ───────────────────── */
         .featured {
+            display: block;
             position: relative;
             border-radius: 24px;
             overflow: hidden;
+            /* Force a paint/transform containing block so the child's
+               scale() is clipped by the rounded border. Without this,
+               Safari + some Chrome builds let the image escape the
+               rounded corners on hover zoom. */
+            isolation: isolate;
+            transform: translateZ(0);
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
             margin-bottom: clamp(20px, 4vw, 32px);
             aspect-ratio: 16/9;
             background: var(--text-dark);
             opacity: 0;
             animation: fadeUp 0.7s 0.25s var(--ease-out-quint) forwards;
         }
-        .featured img {
+        /* Inner wrapper that holds the actual <img>. Putting the zoom
+           on this wrapper guarantees the parent's border-radius clip
+           wins, since the wrapper is positioned to fill the tile and
+           the image inside it stays at 100%/100%. */
+        .featured-media {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            transition: transform 0.6s var(--ease-out-quint);
+            will-change: transform;
+        }
+        .featured-media img {
             width: 100%; height: 100%;
             object-fit: cover;
-            transition: transform 0.6s var(--ease-out-quint);
+            display: block;
         }
-        .featured:hover img { transform: scale(1.04); }
+        .featured:hover .featured-media { transform: scale(1.04); }
         .featured .feat-overlay {
             position: absolute; inset: 0;
             background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 60%);
@@ -227,6 +247,8 @@
             background: white;
             border-radius: 20px;
             overflow: hidden;
+            isolation: isolate;
+            transform: translateZ(0);
             border: 1px solid rgba(31,41,55,0.06);
             transition: transform 0.3s var(--ease-out-quint), box-shadow 0.3s var(--ease-out-quint);
             display: flex; flex-direction: column;
@@ -484,6 +506,22 @@
             html { scroll-behavior: auto; }
         }
 
+        /* Tighten tile spacing on small phones */
+        @media (max-width: 380px) {
+            .app { padding: 14px 12px; }
+            .tile-grid { gap: 10px; }
+            .tile-body { padding: 12px 12px 14px; }
+            .tile-body h3 { font-size: 0.96rem; }
+            .tile-desc { font-size: 0.78rem; }
+            .badge { font-size: 0.66rem; padding: 2px 8px; }
+            .greeting h1 { font-size: 1.5rem; }
+            .featured .feat-overlay { padding: 16px 18px; }
+            .featured .feat-title { font-size: 1.2rem; }
+            .featured .feat-sub { font-size: 0.85rem; }
+            .icon-btn { width: 44px; height: 44px; } /* min-recommended tap target */
+            .tab { min-height: 44px; }
+        }
+
         /* ── Splash screen (shown on first paint, fades when app is ready) ── */
         #appSplash {
             position: fixed;
@@ -563,7 +601,7 @@
 
         <!-- Featured tile (one of the games picked randomly each visit) -->
         <a class="featured" id="featuredTile" href="games/game4/index.html">
-            <img src="assets/game4.jpg" alt="Memory Match" id="featuredImg" loading="eager" decoding="async">
+            <span class="featured-media"><img src="assets/game4.jpg" alt="Memory Match" id="featuredImg" loading="eager" decoding="async"></span>
             <div class="feat-overlay">
                 <span class="feat-tag">Featured</span>
                 <div class="feat-title" id="featuredTitle">Memory Match</div>

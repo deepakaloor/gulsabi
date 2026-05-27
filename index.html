@@ -31,6 +31,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
 
+        html { overflow-x: hidden; }
         body {
             font-family: 'Fredoka', sans-serif;
             font-weight: 400;
@@ -40,7 +41,9 @@
             padding-top: var(--nav-height);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
+            min-width: 0;
         }
+        img, video, iframe { max-width: 100%; }
 
         a { text-decoration: none; color: inherit; }
         img { display: block; max-width: 100%; }
@@ -213,10 +216,18 @@
         .hero-rotator .phrase {
             position: absolute;
             top: 0; left: 50%;
+            width: 100%;
+            max-width: 92vw;
+            text-align: center;
             transform: translate(-50%, 20px);
             opacity: 0;
             white-space: nowrap;
             animation: phraseLoop 16s linear infinite;
+        }
+        @media (max-width: 520px) {
+            /* Narrow phones: let phrases wrap instead of forcing a tiny font. */
+            .hero-rotator { height: clamp(110px, 30vw, 160px); }
+            .hero-rotator .phrase { white-space: normal; }
         }
         .hero-rotator .phrase:nth-child(1) { animation-delay: 0s; }
         .hero-rotator .phrase:nth-child(2) { animation-delay: 4s; }
@@ -720,6 +731,18 @@
             .nav-right .nav-links, .nav-right > .nav-btn { display: none; }
             .hamburger { display: flex; }
             :root { --nav-height: 72px; }
+            section.page-section { padding: clamp(60px, 12vw, 90px) 18px; }
+            .pillar { padding: 26px 20px; }
+            .games-cta .games-stack { max-width: 320px; }
+            .hero-sub { padding: 0 8px; }
+            .yt-grid { max-width: 100%; padding: 0 4px; }
+        }
+        @media (max-width: 380px) {
+            /* Very narrow phones (≤ iPhone SE width) */
+            .hero-content { padding: 0 18px; }
+            .pillars-grid, .modes-grid { gap: 14px; }
+            .btn-pill { padding: 12px 22px; font-size: 0.95rem; }
+            .btn-explore, .btn-youtube { padding: 12px 22px; }
         }
 
         /* Respect reduced motion */

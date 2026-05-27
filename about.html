@@ -28,7 +28,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
         body {
             font-family: 'Fredoka', sans-serif;
             font-weight: 400;
@@ -38,9 +38,10 @@
             padding-top: var(--nav-height);
             line-height: 1.55;
             -webkit-font-smoothing: antialiased;
+            min-width: 0;
         }
         a { text-decoration: none; color: inherit; }
-        img { display: block; max-width: 100%; }
+        img, video, iframe { display: block; max-width: 100%; }
 
         /* Reveal animations */
         .reveal-up    { opacity: 0; transform: translateY(40px); transition: opacity 0.9s var(--ease-out-quint), transform 0.9s var(--ease-out-quint); }
@@ -654,6 +655,25 @@
                 transition-duration: 0.01ms !important;
             }
             html { scroll-behavior: auto; }
+        }
+
+        /* Narrow-phone tightening */
+        @media (max-width: 760px) {
+            .nav-right .nav-links, .nav-right > .nav-btn { display: none; }
+            .hamburger { display: flex; }
+            :root { --nav-height: 72px; }
+            section.page-section { padding: clamp(50px, 12vw, 80px) 18px; }
+            .pillar-card, .mode-card, .roadmap-item { padding: 22px 20px; }
+            .who-stats-grid { gap: 10px; }
+        }
+        @media (max-width: 380px) {
+            .about-hero { padding: 60px 16px 32px; }
+            .about-hero h1 { font-size: clamp(1.9rem, 9vw, 2.4rem); }
+            .hero-bg .glow { width: 280px; height: 280px; }
+            .who-stat { padding: 16px; }
+            .who-stat .who-val { font-size: 0.85rem; }
+            .philosophy-card { padding: 30px 22px; }
+            .roadmap-row { max-width: 100%; }
         }
     </style>
 </head>
