@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gulsabi Admin Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4ff;
+      color: #222;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 1.3rem; letter-spacing: 1px; }
+    #logoutBtn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.5);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    #logoutBtn:hover { background: rgba(255,255,255,0.35); }
+
+    /* LOGIN */
+    #loginBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+    .login-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 24px rgba(79,70,229,0.15);
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-card h2 {
+      color: #4f46e5;
+      margin-bottom: 24px;
+      font-size: 1.4rem;
+      text-align: center;
+    }
+    .login-card label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    .login-card input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .login-card input:focus {
+      outline: none;
+      border-color: #4f46e5;
+    }
+    #loginBtn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #loginBtn:hover { opacity: 0.9; }
+    #loginError { color: #e53e3e; font-size: 0.85rem; margin-top: 10px; text-align: center; }
+
+    /* DASHBOARD */
+    #dashboard { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+    #dashStatus { color: #7c3aed; font-style: italic; margin-bottom: 16px; }
+
+    /* SUMMARY CARDS */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(79,70,229,0.1);
+      border-top: 4px solid #4f46e5;
+    }
+    .card .num { font-size: 2rem; font-weight: bold; color: #4f46e5; }
+    .card .label { font-size: 0.8rem; color: #777; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* SECTION TITLES */
+    h2 { color: #4f46e5; font-size: 1.1rem; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e0e7ff; }
+
+    /* TABLES */
+    .table-wrap { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(79,70,229,0.1); overflow: auto; margin-bottom: 32px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th { background: #4f46e5; color: white; padding: 12px 16px; text-align: left; white-space: nowrap; }
+    td { padding: 10px 16px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f0ff; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌸 Gulsabi Admin Dashboard</h1>
+    <button id="logoutBtn" style="display:none">Logout</button>
+  </header>
+
+  <!-- LOGIN -->
+  <div id="loginBox">
+    <div class="login-card">
+      <h2>🔐 Admin Login</h2>
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="admin@example.com" autocomplete="username">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+      <button id="loginBtn">Sign In</button>
+      <div id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard">
+    <div id="dashStatus"></div>
+
+    <div class="cards">
+      <div class="card"><div class="num" id="totalViews">-</div><div class="label">Page Views</div></div>
+      <div class="card"><div class="num" id="totalGameStarts">-</div><div class="label">Game Starts</div></div>
+      <div class="card"><div class="num" id="totalGameCompletions">-</div><div class="label">Completions</div></div>
+      <div class="card"><div class="num" id="uniqueUsers">-</div><div class="label">Unique Users</div></div>
+      <div class="card"><div class="num" id="averageTime">-</div><div class="label">Avg Time</div></div>
+    </div>
+
+    <h2>🎮 Game Report</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Game</th>
+            <th>Starts</th>
+            <th>Completions</th>
+            <th>Avg Score</th>
+            <th>Avg Time</th>
+          </tr>
+        </thead>
+        <tbody id="gameReportBody">
+          <tr><td colspan="5">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>🕒 Recent Activity (Last 20)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Event</th>
+            <th>Game</th>
+            <th>Score</th>
+            <th>Time (s)</th>
+            <th>Device</th>
+          </tr>
+        </thead>
+        <tbody id="recentEventsBody">
+          <tr><td colspan="6">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Show logout button only when dashboard is visible
+    const obs = new MutationObserver(() => {
+      const d = document.getElementById("dashboard");
+      document.getElementById("logoutBtn").style.display =
+        d && d.style.display !== "none" ? "inline-block" : "none";
+    });
+    obs.observe(document.getElementById("dashboard"), { attributes: true });
+  </script>
+  <script type="module" src="./js/admin.js"></script>
+</body>
+</html>
