@@ -294,7 +294,12 @@
         }
 
         /* ── Section 2: Three Pillars ──────────────────────── */
-        .pillars-section { background: var(--cream); }
+        .pillars-section {
+            background:
+                radial-gradient(ellipse at top left, rgba(255,79,79,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(0,163,224,0.06) 0%, transparent 50%),
+                var(--cream);
+        }
         .pillars-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -376,7 +381,12 @@
         }
 
         /* ── Section 3: YouTube ────────────────────────────── */
-        .youtube-section { background: var(--soft-grey); }
+        .youtube-section {
+            background:
+                radial-gradient(ellipse at top right, rgba(255,214,0,0.07) 0%, transparent 55%),
+                radial-gradient(ellipse at bottom left, rgba(255,79,79,0.05) 0%, transparent 50%),
+                var(--soft-grey);
+        }
         .yt-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -439,7 +449,12 @@
         }
 
         /* ── Section 4: Games ──────────────────────────────── */
-        .games-section { background: var(--cream); }
+        .games-section {
+            background:
+                radial-gradient(ellipse at bottom right, rgba(0,163,224,0.06) 0%, transparent 50%),
+                radial-gradient(circle at top left, rgba(255,214,0,0.05) 0%, transparent 45%),
+                var(--cream);
+        }
         .games-cta {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -550,7 +565,9 @@
         /* ── Know More section ─────────────────────────────── */
         .know-more-section {
             padding: clamp(80px, 12vw, 140px) clamp(24px, 6vw, 48px);
-            background: var(--cream);
+            background:
+                radial-gradient(ellipse at top, rgba(0,163,224,0.08) 0%, transparent 60%),
+                var(--cream);
             text-align: center;
         }
         .know-more-inner {
@@ -601,26 +618,11 @@
             transform: translateY(-3px) scale(1.03);
             box-shadow: 0 14px 32px rgba(255,214,0,0.35);
         }
-        .footer-social {
-            display: flex;
-            justify-content: center;
-            gap: 18px;
-            margin: clamp(40px, 6vw, 60px) 0 24px;
-        }
-        .footer-social a {
-            width: 56px; height: 56px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            border: 1.5px solid rgba(255,255,255,0.12);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
-        }
-        .footer-social a img { width: 30px; height: 30px; }
-        .footer-social a:hover { transform: translateY(-3px); background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); }
         .footer-meta {
             font-size: 0.85rem;
             opacity: 0.55;
             font-weight: 400;
+            margin-top: clamp(28px, 5vw, 40px);
         }
         .footer-meta a { color: white; opacity: 0.85; font-weight: 500; }
 
@@ -868,11 +870,6 @@
         <div class="footer-inner">
             <h2 class="footer-headline">Ready to think it through?</h2>
             <button class="btn-call" onclick="showPopup()">GUL GUL GULSABI! &#9889;</button>
-            <div class="footer-social">
-                <a href="https://www.youtube.com/@GulsabiKids" target="_blank" rel="noopener" aria-label="YouTube"><img src="assets/icons/youtube-icon.png" alt="YouTube"></a>
-                <a href="https://www.instagram.com/gulsabikids" target="_blank" rel="noopener" aria-label="Instagram"><img src="assets/icons/instagram-icon.png" alt="Instagram"></a>
-                <a href="https://fb.com/gulsabikids" target="_blank" rel="noopener" aria-label="Facebook"><img src="assets/icons/facebook-icon.png" alt="Facebook"></a>
-            </div>
             <p class="footer-meta">&copy; 2026 Gulsabi Ecosystem. A <a href="https://pixnut.com/" target="_blank" rel="noopener">Pixnut</a> Creation.</p>
         </div>
     </footer>
