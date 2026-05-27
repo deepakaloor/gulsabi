@@ -159,11 +159,11 @@
             object-fit: cover;
             z-index: 0;
             opacity: 0;
-            transition: opacity 0.6s ease;
-            /* Mobile Safari + Chrome: poster paints from this image while we wait */
+            transition: opacity 0.8s ease;
+            /* Brand poster paints instantly while video loads */
             background: #000 url("images/gulsabi-bridge.jpg") center/cover no-repeat;
         }
-        .hero-video.is-active { opacity: 1; }
+        .hero-video.ready { opacity: 1; }
         .hero-overlay {
             position: absolute;
             inset: 0;
@@ -755,23 +755,19 @@
 
     <!-- ── SECTION 1: Hero ──────────────────────────────── -->
     <!--
-      Hero loading sequence (designed for fast first paint):
-        1. Hero text + scroll cue render immediately (no waiting for video).
-        2. Poster image (gulsabi-bridge.jpg) paints as a background instantly.
-        3. video #1 has preload="auto" — starts downloading early, plays as
-           soon as it can with autoplay+muted.
-        4. video #2 has preload="metadata" — fetches only enough to be
-           ready to swap in, doesn't fight #1 for bandwidth on first paint.
-           Once #1 fires `loadeddata`, we upgrade #2 to preload="auto".
-        5. Each video's `ended` event hands off to the other (cross-fade)
-           so they loop together forever.
+      Fast first-paint sequence:
+        1. Hero text + animated rotator + scroll cue render IMMEDIATELY (no wait).
+        2. The poster image (gulsabi-bridge.jpg) paints as a CSS background on
+           the <video>, so the moment before video has data the user sees the
+           brand image, not a black box.
+        3. Video uses preload="auto" + autoplay muted playsinline loop — starts
+           downloading as soon as the page parses and plays the moment it has
+           enough buffer. Browser handles the looping natively.
+        4. We fade the video in (opacity 0 -> 1) once it actually has frames.
     -->
     <section class="hero">
-        <video id="heroVid1" class="hero-video is-active" muted playsinline preload="auto" poster="images/gulsabi-bridge.jpg" aria-hidden="true">
+        <video id="heroVid" class="hero-video" autoplay muted loop playsinline preload="auto" poster="images/gulsabi-bridge.jpg" aria-hidden="true">
             <source src="assets/cover-video.mp4" type="video/mp4">
-        </video>
-        <video id="heroVid2" class="hero-video" muted playsinline preload="metadata" aria-hidden="true">
-            <source src="assets/cover-video-2.mp4" type="video/mp4">
         </video>
         <div class="hero-overlay"></div>
         <div class="hero-content">
@@ -909,43 +905,27 @@
     </div>
 
     <script>
-        /* === Hero video loop: alternate two videos with smooth cross-fade ===
-           First load: video #1 paints first (poster background hides any white
-           flash). Once #1 has data, #2 is upgraded to preload=auto so it's
-           ready when #1 ends. From then on the two ping-pong forever. */
+        /* === Hero video: smooth fade-in once frames are ready ===
+           The brand poster paints instantly under the video; we fade the
+           video element in only once it actually has data, so the poster
+           never visibly snaps. Native `loop` attribute handles the repeat. */
         (function () {
-            const v1 = document.getElementById('heroVid1');
-            const v2 = document.getElementById('heroVid2');
-            if (!v1 || !v2) return;
-
-            // Kick off #1 (autoplay muted is allowed even without user gesture)
-            const playSafe = (el) => { const p = el.play(); if (p && p.catch) p.catch(() => {}); };
-            playSafe(v1);
-
-            // Once #1 actually has video data, promote #2 to preload=auto so
-            // it's ready to take over without re-buffering.
-            v1.addEventListener('loadeddata', () => { v2.preload = 'auto'; v2.load(); }, { once: true });
-
-            // Cross-fade handoff on each ended event.
-            function handoff(from, to) {
-                to.currentTime = 0;
-                playSafe(to);
-                to.classList.add('is-active');
-                from.classList.remove('is-active');
-                // Reset the outgoing one so it's ready next time
-                from.currentTime = 0;
-            }
-            v1.addEventListener('ended', () => handoff(v1, v2));
-            v2.addEventListener('ended', () => handoff(v2, v1));
-
-            // If autoplay was blocked (rare on muted), resume on first user gesture
-            const resumeOnGesture = () => {
-                playSafe(v1.classList.contains('is-active') ? v1 : v2);
-                window.removeEventListener('touchstart', resumeOnGesture);
-                window.removeEventListener('pointerdown', resumeOnGesture);
+            const v = document.getElementById('heroVid');
+            if (!v) return;
+            const reveal = () => v.classList.add('ready');
+            if (v.readyState >= 2) reveal();
+            else v.addEventListener('loadeddata', reveal, { once: true });
+            // autoplay muted is allowed without a gesture; .catch swallows
+            // the very rare promise rejection cleanly.
+            const p = v.play(); if (p && p.catch) p.catch(() => {});
+            // Fallback: if a strict browser blocked autoplay, resume on first tap.
+            const resume = () => {
+                const q = v.play(); if (q && q.catch) q.catch(() => {});
+                window.removeEventListener('touchstart', resume);
+                window.removeEventListener('pointerdown', resume);
             };
-            window.addEventListener('touchstart', resumeOnGesture, { once: true, passive: true });
-            window.addEventListener('pointerdown', resumeOnGesture, { once: true });
+            window.addEventListener('touchstart', resume, { once: true, passive: true });
+            window.addEventListener('pointerdown', resume, { once: true });
         })();
 
         /* === Reveal on scroll === */
