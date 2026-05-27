@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Games | Gulsabi Kids</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="images/icons/gulsabi-app-icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="images/icons/gulsabi-app-icon-512.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="images/gulsabi-app-icon.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="images/icons/gulsabi-app-icon-192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="images/icons/gulsabi-app-icon-512.png">
-    <link rel="apple-touch-startup-image" href="images/gulsabi-loading.jpg">
+    <link rel="manifest" href="/manifest.json?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/icons/gulsabi-app-icon-192.png?v=2">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/icons/gulsabi-app-icon-512.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/gulsabi-app-icon.png?v=2">
+    <link rel="apple-touch-icon" sizes="192x192" href="/images/icons/gulsabi-app-icon-192.png?v=2">
+    <link rel="apple-touch-icon" sizes="512x512" href="/images/icons/gulsabi-app-icon-512.png?v=2">
+    <link rel="apple-touch-startup-image" href="/images/gulsabi-loading.jpg?v=2">
     <meta name="theme-color" content="#FF4F4F">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -527,7 +527,7 @@
             position: fixed;
             inset: 0;
             z-index: 99999;
-            background: #FFFCF6 url("images/gulsabi-loading.jpg") center/cover no-repeat;
+            background: #FFFCF6 url("/images/gulsabi-loading.jpg?v=2") center/cover no-repeat;
             transition: opacity 0.5s ease;
             display: flex;
             align-items: flex-end;
@@ -770,19 +770,31 @@
         function showPopup() { document.getElementById('gulsabiPopup').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
         function hidePopup() { document.getElementById('gulsabiPopup').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
-        /* Splash: hide once the app is ready, capped at 4s as a safety net */
+        /* Splash: minimum 1.4s of brand exposure so the loading screen
+           is actually visible (especially when launched as installed
+           PWA where the page is often cached and "load" fires fast).
+           Caps at 4.5s as a safety net. */
         (function hideSplash() {
             const splash = document.getElementById('appSplash');
             if (!splash) return;
             let hidden = false;
+            const showStart = performance.now();
+            const MIN_MS = 1400;
+            const MAX_MS = 4500;
             const drop = () => {
                 if (hidden) return; hidden = true;
                 splash.classList.add('hide');
                 setTimeout(() => splash.remove(), 600);
             };
-            window.addEventListener('load', () => setTimeout(drop, 200));
-            // Safety net so we never trap the user on the splash
-            setTimeout(drop, 4000);
+            const dropWhenReady = () => {
+                const elapsed = performance.now() - showStart;
+                const wait = Math.max(0, MIN_MS - elapsed);
+                setTimeout(drop, wait);
+            };
+            if (document.readyState === 'complete') dropWhenReady();
+            else window.addEventListener('load', dropWhenReady, { once: true });
+            // Safety net so a slow load never traps the user
+            setTimeout(drop, MAX_MS);
         })();
 
         /* Service worker: register, detect updates, auto-skipWaiting + reload
