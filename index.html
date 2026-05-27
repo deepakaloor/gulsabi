@@ -158,7 +158,12 @@
             width: 100%; height: 100%;
             object-fit: cover;
             z-index: 0;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            /* Mobile Safari + Chrome: poster paints from this image while we wait */
+            background: #000 url("images/gulsabi-bridge.jpg") center/cover no-repeat;
         }
+        .hero-video.is-active { opacity: 1; }
         .hero-overlay {
             position: absolute;
             inset: 0;
@@ -749,9 +754,24 @@
     </div>
 
     <!-- ── SECTION 1: Hero ──────────────────────────────── -->
+    <!--
+      Hero loading sequence (designed for fast first paint):
+        1. Hero text + scroll cue render immediately (no waiting for video).
+        2. Poster image (gulsabi-bridge.jpg) paints as a background instantly.
+        3. video #1 has preload="auto" — starts downloading early, plays as
+           soon as it can with autoplay+muted.
+        4. video #2 has preload="metadata" — fetches only enough to be
+           ready to swap in, doesn't fight #1 for bandwidth on first paint.
+           Once #1 fires `loadeddata`, we upgrade #2 to preload="auto".
+        5. Each video's `ended` event hands off to the other (cross-fade)
+           so they loop together forever.
+    -->
     <section class="hero">
-        <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="images/gulsabi-bridge.jpg">
+        <video id="heroVid1" class="hero-video is-active" muted playsinline preload="auto" poster="images/gulsabi-bridge.jpg" aria-hidden="true">
             <source src="assets/cover-video.mp4" type="video/mp4">
+        </video>
+        <video id="heroVid2" class="hero-video" muted playsinline preload="metadata" aria-hidden="true">
+            <source src="assets/cover-video-2.mp4" type="video/mp4">
         </video>
         <div class="hero-overlay"></div>
         <div class="hero-content">
@@ -889,6 +909,45 @@
     </div>
 
     <script>
+        /* === Hero video loop: alternate two videos with smooth cross-fade ===
+           First load: video #1 paints first (poster background hides any white
+           flash). Once #1 has data, #2 is upgraded to preload=auto so it's
+           ready when #1 ends. From then on the two ping-pong forever. */
+        (function () {
+            const v1 = document.getElementById('heroVid1');
+            const v2 = document.getElementById('heroVid2');
+            if (!v1 || !v2) return;
+
+            // Kick off #1 (autoplay muted is allowed even without user gesture)
+            const playSafe = (el) => { const p = el.play(); if (p && p.catch) p.catch(() => {}); };
+            playSafe(v1);
+
+            // Once #1 actually has video data, promote #2 to preload=auto so
+            // it's ready to take over without re-buffering.
+            v1.addEventListener('loadeddata', () => { v2.preload = 'auto'; v2.load(); }, { once: true });
+
+            // Cross-fade handoff on each ended event.
+            function handoff(from, to) {
+                to.currentTime = 0;
+                playSafe(to);
+                to.classList.add('is-active');
+                from.classList.remove('is-active');
+                // Reset the outgoing one so it's ready next time
+                from.currentTime = 0;
+            }
+            v1.addEventListener('ended', () => handoff(v1, v2));
+            v2.addEventListener('ended', () => handoff(v2, v1));
+
+            // If autoplay was blocked (rare on muted), resume on first user gesture
+            const resumeOnGesture = () => {
+                playSafe(v1.classList.contains('is-active') ? v1 : v2);
+                window.removeEventListener('touchstart', resumeOnGesture);
+                window.removeEventListener('pointerdown', resumeOnGesture);
+            };
+            window.addEventListener('touchstart', resumeOnGesture, { once: true, passive: true });
+            window.addEventListener('pointerdown', resumeOnGesture, { once: true });
+        })();
+
         /* === Reveal on scroll === */
         const revealObs = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
