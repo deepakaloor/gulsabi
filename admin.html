@@ -4,151 +4,400 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gulsabi Admin Dashboard</title>
+  <link rel="icon" type="image/png" href="images/gulsabi-logo.png">
+  <!-- SheetJS Community Edition (free) for .xlsx export. Pinned to a stable version. -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
   <style>
+    :root {
+      --bg:          #f5f6f8;
+      --surface:     #ffffff;
+      --surface-2:   #fafafb;
+      --text:        #1d1d1f;
+      --text-muted:  #6e6e73;
+      --border:      rgba(0,0,0,0.08);
+      --border-hover:rgba(0,0,0,0.16);
+      --accent:      #1d1d1f;
+      --accent-soft: #f0f0f3;
+      --danger:      #d70015;
+      --success:     #28a745;
+      --radius-sm:   8px;
+      --radius:      14px;
+      --radius-lg:   18px;
+      --shadow-sm:   0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.05);
+      --shadow:      0 4px 14px rgba(0,0,0,0.06);
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f0f4ff;
-      color: #222;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
     }
-    header {
-      background: linear-gradient(135deg, #7c3aed, #4f46e5);
-      color: white;
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    header h1 { font-size: 1.3rem; letter-spacing: 1px; }
-    #logoutBtn {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.5);
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    #logoutBtn:hover { background: rgba(255,255,255,0.35); }
+    a { color: inherit; }
 
-    /* LOGIN */
+    /* ── Top bar ───────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px clamp(20px, 4vw, 36px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px) saturate(160%);
+      background: rgba(255,255,255,0.92);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: var(--accent-soft);
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+    .brand .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .brand h1 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .brand .sub {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .btn {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+      letter-spacing: -0.005em;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover { background: var(--accent-soft); border-color: var(--border-hover); }
+    .btn:active { transform: scale(0.97); }
+    .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn.primary:hover { background: #000; }
+    .btn.ghost { background: transparent; }
+    .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+    .btn .ic { font-size: 0.95em; opacity: 0.65; }
+    #logoutBtn { display: none; }
+
+    /* ── Login ─────────────────────────────────────────── */
     #loginBox {
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 80vh;
+      min-height: calc(100vh - 73px);
+      padding: 32px 20px;
     }
     .login-card {
-      background: white;
-      border-radius: 16px;
-      padding: 40px;
-      box-shadow: 0 4px 24px rgba(79,70,229,0.15);
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: clamp(28px, 5vw, 44px);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
     }
-    .login-card h2 {
-      color: #4f46e5;
-      margin-bottom: 24px;
-      font-size: 1.4rem;
+    .login-card .login-head {
       text-align: center;
+      margin-bottom: 28px;
+    }
+    .login-card .login-head .avatar {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 0 auto 14px;
+      border: 1px solid var(--border);
+    }
+    .login-card .login-head .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .login-card .login-head h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+    .login-card .login-head p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
     }
     .login-card label {
       display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #555;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
       margin-bottom: 6px;
+      letter-spacing: 0.1px;
     }
     .login-card input {
       width: 100%;
-      padding: 10px 14px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 1rem;
-      margin-bottom: 16px;
-      transition: border-color 0.2s;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
     }
     .login-card input:focus {
       outline: none;
-      border-color: #4f46e5;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
     }
     #loginBtn {
       width: 100%;
-      padding: 12px;
-      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      padding: 11px;
+      background: var(--accent);
       color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
+      border: 0;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.2s;
+      font-family: inherit;
+      transition: background 0.18s ease;
+      margin-top: 4px;
     }
-    #loginBtn:hover { opacity: 0.9; }
-    #loginError { color: #e53e3e; font-size: 0.85rem; margin-top: 10px; text-align: center; }
-
-    /* DASHBOARD */
-    #dashboard { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
-    #dashStatus { color: #7c3aed; font-style: italic; margin-bottom: 16px; }
-
-    /* SUMMARY CARDS */
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
+    #loginBtn:hover { background: #000; }
+    #loginError {
+      color: var(--danger);
+      font-size: 0.82rem;
+      margin-top: 12px;
       text-align: center;
-      box-shadow: 0 2px 12px rgba(79,70,229,0.1);
-      border-top: 4px solid #4f46e5;
+      min-height: 1.2em;
     }
-    .card .num { font-size: 2rem; font-weight: bold; color: #4f46e5; }
-    .card .label { font-size: 0.8rem; color: #777; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* SECTION TITLES */
-    h2 { color: #4f46e5; font-size: 1.1rem; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e0e7ff; }
+    /* ── Dashboard ─────────────────────────────────────── */
+    #dashboard {
+      display: none;
+      padding: clamp(20px, 4vw, 36px);
+      max-width: 1240px;
+      margin: 0 auto;
+    }
 
-    /* TABLES */
-    .table-wrap { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(79,70,229,0.1); overflow: auto; margin-bottom: 32px; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    th { background: #4f46e5; color: white; padding: 12px 16px; text-align: left; white-space: nowrap; }
-    td { padding: 10px 16px; border-bottom: 1px solid #f0f0f0; }
+    .dash-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .dash-head .title-block h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      border: 0;
+      padding: 0;
+      color: var(--text);
+      margin: 0;
+    }
+    .dash-head .title-block .status {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .export-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .export-note {
+      width: 100%;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      letter-spacing: 0.05px;
+    }
+
+    /* Summary cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      transition: border-color 0.18s ease;
+    }
+    .card:hover { border-color: var(--border-hover); }
+    .card .label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .card .num {
+      font-size: 1.85rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1.05;
+    }
+
+    /* Section heading */
+    h2.section-h {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      margin: 0 0 12px;
+      color: var(--text);
+      padding: 0;
+      border: 0;
+    }
+    .section-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-row .meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Tables */
+    .table-wrap {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: auto;
+      margin-bottom: 32px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th {
+      background: var(--surface-2);
+      color: var(--text-muted);
+      padding: 11px 16px;
+      text-align: left;
+      white-space: nowrap;
+      font-weight: 500;
+      font-size: 0.76rem;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f8f0ff; }
+    tr:hover td { background: var(--accent-soft); }
+    .empty-row td {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 32px;
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 640px) {
+      .dash-head { flex-direction: column; align-items: stretch; }
+      .export-group { justify-content: flex-start; }
+      .brand h1 { font-size: 0.95rem; }
+      .brand .sub { display: none; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>🌸 Gulsabi Admin Dashboard</h1>
-    <button id="logoutBtn" style="display:none">Logout</button>
+    <div class="brand">
+      <div class="avatar"><img src="games/game2/gulsabi-normal.png" alt="Gulsabi"></div>
+      <div>
+        <h1>Gulsabi Admin</h1>
+        <span class="sub">Analytics Dashboard</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="refreshBtn" class="btn ghost" style="display:none" title="Refresh data">Refresh</button>
+      <button id="logoutBtn" class="btn">Logout</button>
+    </div>
   </header>
 
   <!-- LOGIN -->
   <div id="loginBox">
     <div class="login-card">
-      <h2>🔐 Admin Login</h2>
+      <div class="login-head">
+        <div class="avatar"><img src="games/game2/gulsabi-normal.png" alt="Gulsabi"></div>
+        <h2>Gulsabi Admin</h2>
+        <p>Sign in to view analytics.</p>
+      </div>
       <label for="email">Email</label>
       <input type="email" id="email" placeholder="admin@example.com" autocomplete="username">
       <label for="password">Password</label>
       <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-      <button id="loginBtn">Sign In</button>
+      <button id="loginBtn">Sign in</button>
       <div id="loginError"></div>
     </div>
   </div>
 
   <!-- DASHBOARD -->
   <div id="dashboard">
-    <div id="dashStatus"></div>
 
-    <div class="cards">
-      <div class="card"><div class="num" id="totalViews">-</div><div class="label">Page Views</div></div>
-      <div class="card"><div class="num" id="totalGameStarts">-</div><div class="label">Game Starts</div></div>
-      <div class="card"><div class="num" id="totalGameCompletions">-</div><div class="label">Completions</div></div>
-      <div class="card"><div class="num" id="uniqueUsers">-</div><div class="label">Unique Users</div></div>
-      <div class="card"><div class="num" id="averageTime">-</div><div class="label">Avg Time</div></div>
+    <!-- Header row: title + exports -->
+    <div class="dash-head">
+      <div class="title-block">
+        <h2>Overview</h2>
+        <div class="status" id="dashStatus">Loading&hellip;</div>
+      </div>
+      <div class="export-group">
+        <button class="btn" id="exportGameBtn">Export Game Report</button>
+        <button class="btn" id="exportEventsBtn">Export Events</button>
+        <button class="btn primary" id="exportFullBtn">Export Full Data</button>
+      </div>
+      <p class="export-note">Exports are admin-only and contain anonymous analytics data.</p>
     </div>
 
-    <h2>🎮 Game Report</h2>
+    <!-- Summary cards -->
+    <div class="cards">
+      <div class="card"><div class="label">Page Views</div><div class="num" id="totalViews">&mdash;</div></div>
+      <div class="card"><div class="label">Game Starts</div><div class="num" id="totalGameStarts">&mdash;</div></div>
+      <div class="card"><div class="label">Completions</div><div class="num" id="totalGameCompletions">&mdash;</div></div>
+      <div class="card"><div class="label">Unique Users</div><div class="num" id="uniqueUsers">&mdash;</div></div>
+      <div class="card"><div class="label">Avg Game Time</div><div class="num" id="averageTime">&mdash;</div></div>
+    </div>
+
+    <!-- Game Report -->
+    <div class="section-row">
+      <h2 class="section-h">Game Report</h2>
+      <span class="meta" id="gameReportMeta"></span>
+    </div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -156,17 +405,24 @@
             <th>Game</th>
             <th>Starts</th>
             <th>Completions</th>
-            <th>Avg Score</th>
+            <th>Completion Rate</th>
             <th>Avg Time</th>
+            <th>Avg Score</th>
+            <th>Exits</th>
+            <th>Replays</th>
           </tr>
         </thead>
         <tbody id="gameReportBody">
-          <tr><td colspan="5">Loading...</td></tr>
+          <tr class="empty-row"><td colspan="8">Loading&hellip;</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h2>🕒 Recent Activity (Last 20)</h2>
+    <!-- Recent Events -->
+    <div class="section-row">
+      <h2 class="section-h">Recent Activity</h2>
+      <span class="meta">Latest 20 events</span>
+    </div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -175,23 +431,26 @@
             <th>Event</th>
             <th>Game</th>
             <th>Score</th>
-            <th>Time (s)</th>
+            <th>Time Spent</th>
             <th>Device</th>
+            <th>Page</th>
           </tr>
         </thead>
         <tbody id="recentEventsBody">
-          <tr><td colspan="6">Loading...</td></tr>
+          <tr class="empty-row"><td colspan="7">Loading&hellip;</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <script>
-    // Show logout button only when dashboard is visible
+    // Reveal logout / refresh only when dashboard is visible
     const obs = new MutationObserver(() => {
       const d = document.getElementById("dashboard");
-      document.getElementById("logoutBtn").style.display =
-        d && d.style.display !== "none" ? "inline-block" : "none";
+      const visible = d && d.style.display !== "none";
+      document.getElementById("logoutBtn").style.display = visible ? "inline-flex" : "none";
+      const r = document.getElementById("refreshBtn");
+      if (r) r.style.display = visible ? "inline-flex" : "none";
     });
     obs.observe(document.getElementById("dashboard"), { attributes: true });
   </script>
