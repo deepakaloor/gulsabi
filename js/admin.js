@@ -63,30 +63,65 @@ function destroyChart(key) {
 const loginSuccessEl = document.getElementById("loginSuccess");
 const loginErrorEl   = document.getElementById("loginError");
 
-googleBtn.addEventListener("click", async () => {
+if (!googleBtn) {
+  console.error("[Gulsabi admin] googleBtn not found in DOM — markup mismatch?");
+}
+googleBtn?.addEventListener("click", async () => {
+  console.info("[Gulsabi admin] Google sign-in clicked");
   loginErrorEl.textContent   = "";
   loginSuccessEl.style.display = "none";
   googleBtn.disabled = true;
   const label = googleBtn.querySelector("span");
   const original = label ? label.textContent : "Continue with Google";
   if (label) label.textContent = "Redirecting to Google...";
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      // Return to /admin/ after Google sends the user back
-      redirectTo: window.location.origin + window.location.pathname,
-      // Force account picker each time so the user can choose between
-      // multiple Google accounts (handy on shared computers)
-      queryParams: { prompt: "select_account" }
-    }
-  });
-  if (error) {
+
+  let result;
+  try {
+    result = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + window.location.pathname,
+        queryParams: { prompt: "select_account" }
+      }
+    });
+  } catch (err) {
+    console.error("[Gulsabi admin] signInWithOAuth threw:", err);
     googleBtn.disabled = false;
     if (label) label.textContent = original;
-    loginErrorEl.textContent = "Couldn't start Google sign-in: " + error.message;
+    loginErrorEl.textContent = "Sign-in error: " + (err && err.message || String(err));
+    return;
   }
-  // On success the browser is navigating away to accounts.google.com,
-  // so there's nothing more to do here.
+  console.info("[Gulsabi admin] signInWithOAuth response:", result);
+  const { data, error } = result || {};
+  if (error) {
+    console.error("[Gulsabi admin] signInWithOAuth error:", error);
+    googleBtn.disabled = false;
+    if (label) label.textContent = original;
+    // Friendly hints for the most common setup gaps
+    const msg = (error.message || "").toLowerCase();
+    if (msg.includes("provider") && msg.includes("not")) {
+      loginErrorEl.innerHTML = "Google provider is not enabled yet. In Supabase: <strong>Authentication &rarr; Providers &rarr; Google</strong> &rarr; turn on and paste your OAuth client ID + secret.";
+    } else if (msg.includes("redirect") || msg.includes("not allowed")) {
+      loginErrorEl.innerHTML = "Redirect URL is not allowlisted. In Supabase: <strong>Authentication &rarr; URL Configuration</strong> &rarr; add <code>" + window.location.origin + window.location.pathname + "</code>.";
+    } else {
+      loginErrorEl.textContent = "Couldn't start Google sign-in: " + error.message;
+    }
+    return;
+  }
+  // If we got a redirect URL but the browser hasn't navigated yet, do it manually.
+  // Some Safari/iOS configurations need the explicit window.location.assign.
+  if (data && data.url) {
+    console.info("[Gulsabi admin] navigating to OAuth URL:", data.url);
+    window.location.assign(data.url);
+    // Safety: if navigation hasn't happened in ~3s, surface a hint.
+    setTimeout(() => {
+      if (document.visibilityState === "visible") {
+        googleBtn.disabled = false;
+        if (label) label.textContent = original;
+        loginErrorEl.innerHTML = "Redirect to Google didn't happen. Check your popup/redirect blocker. <a href=\"" + data.url + "\" style=\"color:var(--accent);\">Click here to continue manually</a>.";
+      }
+    }, 3000);
+  }
 });
 
 /* Verify a signed-in user is actually an admin. Calls the public
