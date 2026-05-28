@@ -33,7 +33,7 @@ const loginBtn  = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const refreshBtn = document.getElementById("refreshBtn");
 const dateRange = document.getElementById("dateRange");
-let recoveryBox = null;
+let recoveryBox = null; // legacy slot — no longer used now that we're magic-link only
 
 /* ── Module-level state ─────────────────────────────────────── */
 let rawAnonUsers   = [];
@@ -54,59 +54,73 @@ function destroyChart(key) {
   if (_charts[key]) { _charts[key].destroy(); delete _charts[key]; }
 }
 
-/* ── Auth recovery (deep link from password-reset email) ────── */
+/* ── Auth redirect handler (magic-link callback) ─────────────────
+   Supabase emails a magic link that lands here as
+     /admin.html#access_token=…&refresh_token=…&type=magiclink
+   We unpack the tokens, set the session, and clean the URL. */
 async function handleAuthRedirect() {
   const hash = window.location.hash;
   if (!hash) return false;
   const params = new URLSearchParams(hash.substring(1));
-  if (params.get("type") === "recovery" && params.get("access_token")) {
-    await supabase.auth.setSession({
-      access_token:  params.get("access_token"),
-      refresh_token: params.get("refresh_token") || ""
-    });
+  const accessToken  = params.get("access_token");
+  const refreshToken = params.get("refresh_token") || "";
+  const type         = params.get("type");
+  if (!accessToken) return false;
+  if (type === "magiclink" || type === "email" || type === "signup" || type === "recovery") {
+    await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
     history.replaceState(null, "", window.location.pathname);
-    showResetPasswordBox();
     return true;
   }
   return false;
 }
 
-function showResetPasswordBox() {
-  loginBox.style.display = "none";
-  app.style.display = "none";
-  if (!recoveryBox) {
-    recoveryBox = document.createElement("div");
-    recoveryBox.style.cssText = "max-width:380px;margin:80px auto;background:#fff;padding:36px;border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.08);text-align:center;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,system-ui,sans-serif;";
-    recoveryBox.innerHTML = '<h2 style="font-size:1.2rem;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px;color:#1d1d1f;">Set new password</h2><p style="color:#6e6e73;margin-bottom:22px;font-size:0.88rem;">Enter your new password below.</p><input id="newPassword" type="password" placeholder="New password (min 8 chars)" style="width:100%;padding:11px 14px;border:1px solid rgba(0,0,0,0.08);border-radius:8px;font-size:0.95rem;box-sizing:border-box;margin-bottom:10px;font-family:inherit;" /><input id="confirmPassword" type="password" placeholder="Confirm new password" style="width:100%;padding:11px 14px;border:1px solid rgba(0,0,0,0.08);border-radius:8px;font-size:0.95rem;box-sizing:border-box;margin-bottom:14px;font-family:inherit;" /><div id="recoveryError" style="color:#d70015;font-size:0.82rem;margin-bottom:12px;min-height:1.1em;"></div><button id="setPasswordBtn" style="width:100%;padding:11px;background:#1d1d1f;color:#fff;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer;font-weight:600;font-family:inherit;">Set password</button>';
-    document.body.appendChild(recoveryBox);
-    document.getElementById("setPasswordBtn").addEventListener("click", async () => {
-      const a = document.getElementById("newPassword").value;
-      const b = document.getElementById("confirmPassword").value;
-      const err = document.getElementById("recoveryError");
-      if (a.length < 8) { err.textContent = "Password must be at least 8 characters."; return; }
-      if (a !== b)      { err.textContent = "Passwords do not match."; return; }
-      err.textContent = "";
-      const { error } = await supabase.auth.updateUser({ password: a });
-      if (error) { err.textContent = "Error: " + error.message; return; }
-      recoveryBox.innerHTML = '<h2 style="font-size:1.2rem;font-weight:600;color:#28a745;margin-bottom:8px;">Password updated</h2><button onclick="window.location.reload()" style="padding:11px 28px;background:#1d1d1f;color:#fff;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer;font-family:inherit;font-weight:600;">Go to login</button>';
-    });
-  }
-  recoveryBox.style.display = "block";
-}
+/* ── Login / logout ─────────────────────────────────────────────
+   Magic-link only: enter your email, we email you a one-tap login.
+   No password to phish, no password to remember. */
+const loginSuccessEl = document.getElementById("loginSuccess");
+const loginErrorEl   = document.getElementById("loginError");
 
-/* ── Login / logout ─────────────────────────────────────────── */
 loginBtn.addEventListener("click", async () => {
   const email = document.getElementById("email").value.trim();
-  const pwd   = document.getElementById("password").value;
-  loginBtn.textContent = "Signing in…";
-  const { error } = await supabase.auth.signInWithPassword({ email, password: pwd });
-  loginBtn.textContent = "Sign in";
-  if (error) {
-    document.getElementById("loginError").textContent = "Sign in failed. Check email and password.";
+  loginErrorEl.textContent   = "";
+  loginSuccessEl.style.display = "none";
+  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    loginErrorEl.textContent = "Enter a valid email address.";
     return;
   }
-  document.getElementById("loginError").textContent = "";
-  showApp();
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Sending link…";
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      // Send the user back to the admin dashboard after they click the link
+      emailRedirectTo: window.location.origin + window.location.pathname,
+      // Don't auto-create new accounts: only existing users (added via
+      // Supabase Authentication → Users → Invite) can sign in. Defense
+      // against random people guessing the admin URL.
+      shouldCreateUser: false
+    }
+  });
+  loginBtn.disabled = false;
+  loginBtn.textContent = "Send login link";
+  if (error) {
+    // We deliberately don't leak whether the email exists.
+    const msg = (error.message || "").toLowerCase();
+    if (msg.includes("signups not allowed") || msg.includes("not allowed") || msg.includes("not found")) {
+      loginErrorEl.textContent = "This email is not authorized for the dashboard.";
+    } else if (msg.includes("rate")) {
+      loginErrorEl.textContent = "Too many requests. Please wait a minute and try again.";
+    } else {
+      loginErrorEl.textContent = "Couldn't send link. " + error.message;
+    }
+    return;
+  }
+  loginSuccessEl.style.display = "block";
+  loginSuccessEl.innerHTML = "Check <strong>" + email.replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;') + "</strong> for your login link. It expires in an hour — click it on this device to come back signed in.";
+});
+// Submit on Enter from the email field
+document.getElementById("email").addEventListener("keydown", e => {
+  if (e.key === "Enter") loginBtn.click();
 });
 logoutBtn.addEventListener("click", async () => {
   await supabase.auth.signOut();
