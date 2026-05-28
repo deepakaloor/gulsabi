@@ -177,9 +177,7 @@ function ensureProfile() {
       is_returning_user: isReturningUser()
     };
     try {
-      const { error } = await supabase
-        .from("anonymous_users")
-        .upsert(userRow, { onConflict: "anonymous_user_id", ignoreDuplicates: false });
+      const { error } = await safeUpsert("anonymous_users", userRow, { onConflict: "anonymous_user_id", ignoreDuplicates: false });
       if (error) logFail("anonymous_users upsert", error);
     } catch (e) { logFail("anonymous_users upsert", e); }
 
@@ -196,9 +194,7 @@ function ensureProfile() {
       os:                detectOS()
     };
     try {
-      const { error } = await supabase
-        .from("sessions")
-        .upsert(sessRow, { onConflict: "session_id", ignoreDuplicates: true });
+      const { error } = await safeUpsert("sessions", sessRow, { onConflict: "session_id", ignoreDuplicates: true });
       if (error) logFail("sessions upsert", error);
     } catch (e) { logFail("sessions upsert", e); }
 
@@ -245,6 +241,192 @@ function logDebug(stage, payload) {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// Offline write queue
+// ─────────────────────────────────────────────────────────────────
+// Children play these games on phones/tablets that often go offline
+// mid-flight (subway, planes, weak Wi-Fi). When a Supabase write
+// fails because the device is offline OR because the fetch errored,
+// we persist the operation in localStorage and replay it later.
+//
+// Why we replay only on "online" events:
+//  - We don't want to thrash retries while the device is still down.
+//  - Once navigator.onLine flips to true, we flush in FIFO order so
+//    rows arrive in roughly the right time order.
+//
+// Schema of each queued op:
+//   { id, op: "insert"|"update"|"upsert", table, row, match, opts, queued_at }
+//
+// match is used by update: { column: value } that pinpoints the row.
+// ─────────────────────────────────────────────────────────────────
+const QUEUE_KEY = "gulsabi_analytics_queue_v1";
+const QUEUE_MAX = 500;       // hard cap so localStorage can't fill up
+let _flushing = false;
+
+function queueLoad() {
+  try {
+    const raw = localStorage.getItem(QUEUE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+function queueSave(q) {
+  try {
+    if (q.length > QUEUE_MAX) q = q.slice(q.length - QUEUE_MAX);
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+  } catch (e) { /* localStorage full / disabled — fine, just drop */ }
+}
+function queuePush(op) {
+  const q = queueLoad();
+  op.id = uuid();
+  op.queued_at = new Date().toISOString();
+  q.push(op);
+  queueSave(q);
+  logDebug("queued", op);
+}
+
+// Heuristic: was this error caused by being offline / network down?
+// Supabase JS surfaces fetch errors as { message: "Failed to fetch" }
+// or { message: "Network request failed" } in browsers. We also queue
+// when navigator.onLine is false (the most reliable signal).
+function isOfflineError(err) {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return true;
+  if (!err) return false;
+  const m = (err.message || String(err)).toLowerCase();
+  return m.includes("failed to fetch")
+      || m.includes("network request failed")
+      || m.includes("networkerror")
+      || m.includes("load failed")        // iOS Safari offline phrasing
+      || m.includes("typeerror: fetch");
+}
+
+// Wrappers around the supabase client that queue on offline errors.
+async function safeInsert(table, row) {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    queuePush({ op: "insert", table, row });
+    return { error: null, queued: true };
+  }
+  try {
+    const { error } = await supabase.from(table).insert(row);
+    if (error && isOfflineError(error)) {
+      queuePush({ op: "insert", table, row });
+      return { error: null, queued: true };
+    }
+    return { error };
+  } catch (err) {
+    if (isOfflineError(err)) {
+      queuePush({ op: "insert", table, row });
+      return { error: null, queued: true };
+    }
+    return { error: err };
+  }
+}
+
+async function safeUpsert(table, row, opts) {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    queuePush({ op: "upsert", table, row, opts: opts || null });
+    return { error: null, queued: true };
+  }
+  try {
+    const { error } = await supabase.from(table).upsert(row, opts);
+    if (error && isOfflineError(error)) {
+      queuePush({ op: "upsert", table, row, opts: opts || null });
+      return { error: null, queued: true };
+    }
+    return { error };
+  } catch (err) {
+    if (isOfflineError(err)) {
+      queuePush({ op: "upsert", table, row, opts: opts || null });
+      return { error: null, queued: true };
+    }
+    return { error: err };
+  }
+}
+
+async function safeUpdate(table, patch, matchColumn, matchValue) {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    queuePush({ op: "update", table, row: patch, match: { [matchColumn]: matchValue } });
+    return { error: null, queued: true };
+  }
+  try {
+    const { error } = await supabase.from(table).update(patch).eq(matchColumn, matchValue);
+    if (error && isOfflineError(error)) {
+      queuePush({ op: "update", table, row: patch, match: { [matchColumn]: matchValue } });
+      return { error: null, queued: true };
+    }
+    return { error };
+  } catch (err) {
+    if (isOfflineError(err)) {
+      queuePush({ op: "update", table, row: patch, match: { [matchColumn]: matchValue } });
+      return { error: null, queued: true };
+    }
+    return { error: err };
+  }
+}
+
+export async function flushQueue() {
+  if (_flushing) return { flushed: 0, remaining: queueLoad().length };
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return { flushed: 0, remaining: queueLoad().length, offline: true };
+  }
+  _flushing = true;
+  let flushed = 0;
+  try {
+    let q = queueLoad();
+    while (q.length > 0) {
+      const op = q[0];
+      let res;
+      try {
+        if (op.op === "insert") {
+          res = await supabase.from(op.table).insert(op.row);
+        } else if (op.op === "upsert") {
+          res = await supabase.from(op.table).upsert(op.row, op.opts || undefined);
+        } else if (op.op === "update" && op.match) {
+          const col = Object.keys(op.match)[0];
+          res = await supabase.from(op.table).update(op.row).eq(col, op.match[col]);
+        } else {
+          // Unknown op type — drop it
+          q.shift(); queueSave(q); continue;
+        }
+      } catch (err) {
+        res = { error: err };
+      }
+      if (res && res.error) {
+        if (isOfflineError(res.error)) {
+          // Still offline, stop flushing — try again next event
+          break;
+        }
+        // Some other error (RLS, schema, etc.) — log and drop so we
+        // don't loop forever. We'd rather lose one row than block all.
+        logFail("queue replay (" + op.table + ", " + op.op + ")", res.error);
+      }
+      q.shift();
+      queueSave(q);
+      flushed++;
+    }
+  } finally {
+    _flushing = false;
+  }
+  if (flushed > 0) {
+    console.info("[Gulsabi analytics] flushed " + flushed + " queued event(s) to Supabase");
+  }
+  return { flushed, remaining: queueLoad().length };
+}
+
+// Auto-flush whenever we know we're back online or when a fresh
+// page loads (which means we have a fresh JS runtime).
+if (typeof window !== "undefined") {
+  window.addEventListener("online", () => { flushQueue(); });
+  // Best-effort initial flush — runs once analytics.js loads. The
+  // setTimeout pushes it after ensureProfile chains so we don't fight
+  // for the same Supabase requests.
+  setTimeout(() => {
+    if (typeof navigator !== "undefined" && navigator.onLine !== false) flushQueue();
+  }, 2500);
+  // Expose for manual flush / inspection
+  window.GULSABI_FLUSH_QUEUE = flushQueue;
+  window.GULSABI_QUEUE_SIZE  = () => queueLoad().length;
+}
+
+// ─────────────────────────────────────────────────────────────────
 // Core event tracker
 // ─────────────────────────────────────────────────────────────────
 export async function trackEvent(eventName, payload = {}) {
@@ -271,7 +453,7 @@ export async function trackEvent(eventName, payload = {}) {
       })
     };
     logDebug("trackEvent " + eventName, row);
-    const { error } = await supabase.from("game_events").insert(row);
+    const { error } = await safeInsert("game_events", row);
     if (error) logFail("game_events insert (" + eventName + ")", error);
   } catch (err) {
     logFail("trackEvent " + eventName, err);
@@ -434,7 +616,7 @@ export async function startGameSession(gameId, gameName) {
   _activeGameSessions.set(gsid, { gameId, gameName, startedAt: start.getTime(), score: null, level: null, hints: 0, mistakes: 0 });
   try { localStorage.setItem(KEYS.lastGameSession, gsid); } catch (e) {}
   try {
-    const { error } = await supabase.from("game_sessions").insert(meta);
+    const { error } = await safeInsert("game_sessions", meta);
     if (error) logFail("game_sessions insert", error);
   } catch (e) { logFail("game_sessions insert", e); }
   trackEvent("game_start", { game_id: gameId, game_name: gameName, game_session_id: gsid });
@@ -459,7 +641,7 @@ export async function endGameSession(gameSessionId, payload = {}) {
     mistakes_count:   state ? state.mistakes : 0
   };
   try {
-    const { error } = await supabase.from("game_sessions").update(patch).eq("game_session_id", gameSessionId);
+    const { error } = await safeUpdate("game_sessions", patch, "game_session_id", gameSessionId);
     if (error) logFail("game_sessions update", error);
   } catch (e) { logFail("game_sessions update", e); }
   const eventName = patch.completed ? "game_complete"
@@ -533,7 +715,7 @@ async function _pwaInsert(status, when) {
     if (status === "accepted")  row.install_prompt_clicked_at = when || new Date().toISOString();
     if (status === "dismissed") row.install_prompt_clicked_at = when || new Date().toISOString();
     if (status === "installed") row.installed_at              = when || new Date().toISOString();
-    const { error } = await supabase.from("pwa_installs").insert(row);
+    const { error } = await safeInsert("pwa_installs", row);
     if (error) logFail("pwa_installs insert (" + status + ")", error);
   } catch (e) { logFail("pwa_installs insert (" + status + ")", e); }
 }
@@ -550,7 +732,7 @@ export async function trackError(error, context = {}) {
     const { anonId, sessId } = await ensureProfile();
     const msg = (error && error.message) ? String(error.message) : String(error || "unknown");
     const stack = (error && error.stack) ? String(error.stack).slice(0, 2000) : null;
-    const { error: insErr } = await supabase.from("errors").insert({
+    const { error: insErr } = await safeInsert("errors", {
       anonymous_user_id: anonId,
       session_id:        sessId,
       game_id:           context.game_id || null,
@@ -599,11 +781,11 @@ export function setupPageTracking() {
       const startedAt = Number(localStorage.getItem(KEYS.sessionTime)) || Date.now();
       if (sessId) {
         const dur = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
-        supabase.from("sessions").update({
+        safeUpdate("sessions", {
           ended_at:                 new Date().toISOString(),
           session_duration_seconds: dur,
           exit_page:                window.location.pathname
-        }).eq("session_id", sessId);
+        }, "session_id", sessId);
       }
     } catch (e) {}
     _activeGameSessions.forEach((_, gsid) => {
