@@ -4,7 +4,7 @@
 // keys are never referenced or shipped to the client.
 // ─────────────────────────────────────────────────────────────────
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { runDiagnostics } from "./analytics.js";
+import { runDiagnostics, runWriteTest } from "./analytics.js";
 
 const SUPABASE_URL = "https://liqksvypfrnvhbnsroaa.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_0G9K_r3z-fbMx_hkk3IAPg_HHAIM9pO";
@@ -225,6 +225,57 @@ async function paintDiagnostics() {
   }
 }
 document.getElementById("diagRecheckBtn")?.addEventListener("click", paintDiagnostics);
+
+/* ── Anon WRITE test — actually try to INSERT a probe row into each
+   critical table using the anon key. This is the diagnostic that
+   matches what games do; if SELECT is green but writes are red,
+   the games will look fine on the wire but their inserts will be
+   silently dropped by RLS. ──────────────────────────────────────── */
+async function paintWriteTest() {
+  const grid = document.getElementById("diagGrid");
+  const hint = document.getElementById("diagHint");
+  const btn  = document.getElementById("diagWriteTestBtn");
+  if (!grid) return;
+  if (btn) { btn.disabled = true; btn.textContent = "Testing…"; }
+  hint.innerHTML = "Performing anonymous INSERTs into each table…";
+  const results = await runWriteTest();
+  const probeId = results._probe_id;
+  delete results._probe_id;
+  const failures = Object.entries(results).filter(([, v]) => !v.ok);
+
+  grid.innerHTML = "";
+  Object.entries(results).forEach(([tbl, res]) => {
+    const div = document.createElement("div");
+    div.className = "diag-item " + (res.ok ? "ok" : "fail");
+    div.title = res.ok ? "Write OK" : (res.error || "Error");
+    div.innerHTML = '<span class="diag-dot"></span><span>' + tbl + (res.ok ? ' write OK' : ' write ✗') + '</span>';
+    grid.appendChild(div);
+  });
+
+  if (failures.length === 0) {
+    hint.innerHTML = 'Anonymous writes succeeded into all critical tables. Probe rows are tagged <code>' + probeId + '</code> — safe to delete from Supabase later. If real gameplay still isn\'t appearing, the issue is on the device side (cached old service worker, blocked network, or different Supabase project).';
+  } else {
+    const first = failures[0][1].error || "";
+    const lower = first.toLowerCase();
+    let advice = "";
+    if (lower.includes("row-level security") || lower.includes("rls") || lower.includes("violates row-level")) {
+      advice = "RLS is blocking the INSERT for the <strong>anon</strong> role. Re-run <code>supabase/migrations/2026_05_27_analytics.sql</code> — it creates <code>anon_insert_*</code> policies on every table. If you previously created tables manually, drop them first.";
+    } else if (lower.includes("permission") || lower.includes("denied")) {
+      advice = "Permission denied. The anon role needs INSERT grants on these tables — re-running the migration fixes this.";
+    } else if (lower.includes("does not exist") || lower.includes("relation")) {
+      advice = "Tables are missing. Run the migration in Supabase → SQL editor.";
+    } else if (lower.includes("violates not-null") || lower.includes("null value")) {
+      advice = "The DB schema differs from the migration (missing/extra columns). Drop the affected table and re-run the migration.";
+    } else if (lower.includes("invalid api key") || lower.includes("jwt")) {
+      advice = "Anon key is invalid. Verify <code>SUPABASE_ANON_KEY</code> in <code>js/analytics.js</code>.";
+    } else {
+      advice = "First error: " + first;
+    }
+    hint.innerHTML = failures.length + " of " + Object.keys(results).length + ' tables failed to accept a write. ' + advice;
+  }
+  if (btn) { btn.disabled = false; btn.textContent = "Test write"; }
+}
+document.getElementById("diagWriteTestBtn")?.addEventListener("click", paintWriteTest);
 
 /* ── Date filtering ─────────────────────────────────────────── */
 function cutoffFromFilter(value) {

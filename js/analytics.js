@@ -307,6 +307,96 @@ if (typeof window !== "undefined") {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// Write test — actually perform an anonymous INSERT into each
+// critical analytics table so we can confirm that anon-role
+// writes succeed. runDiagnostics() only probes SELECT; this
+// catches RLS misconfigurations on the INSERT side.
+// Each test row is tagged as a diagnostic so it's easy to spot.
+// ─────────────────────────────────────────────────────────────────
+export async function runWriteTest() {
+  const probeId = "diagnostic_" + uuid();
+  const sessId  = uuid();
+  const gsid    = uuid();
+  const nowIso  = new Date().toISOString();
+  const out = {};
+
+  // 1. anonymous_users
+  try {
+    const { error } = await supabase
+      .from("anonymous_users")
+      .upsert({
+        anonymous_user_id: probeId,
+        first_seen_at: nowIso,
+        last_seen_at: nowIso,
+        visit_count: 1,
+        is_returning: false,
+        device_type: "diagnostic",
+        browser:     "diagnostic",
+        os:          "diagnostic"
+      }, { onConflict: "anonymous_user_id" });
+    out.anonymous_users = error ? { ok: false, error: error.message } : { ok: true };
+  } catch (e) { out.anonymous_users = { ok: false, error: e.message || String(e) }; }
+
+  // 2. sessions
+  try {
+    const { error } = await supabase.from("sessions").insert({
+      session_id: sessId,
+      anonymous_user_id: probeId,
+      started_at: nowIso,
+      device_type: "diagnostic",
+      browser: "diagnostic",
+      os: "diagnostic"
+    });
+    out.sessions = error ? { ok: false, error: error.message } : { ok: true };
+  } catch (e) { out.sessions = { ok: false, error: e.message || String(e) }; }
+
+  // 3. game_sessions
+  try {
+    const { error } = await supabase.from("game_sessions").insert({
+      game_session_id: gsid,
+      anonymous_user_id: probeId,
+      session_id: sessId,
+      game_id: "diagnostic",
+      game_name: "Diagnostic Probe",
+      started_at: nowIso
+    });
+    out.game_sessions = error ? { ok: false, error: error.message } : { ok: true };
+  } catch (e) { out.game_sessions = { ok: false, error: e.message || String(e) }; }
+
+  // 4. game_events
+  try {
+    const { error } = await supabase.from("game_events").insert({
+      anonymous_user_id: probeId,
+      session_id: sessId,
+      game_session_id: gsid,
+      event_name: "diagnostic_probe",
+      event_type: "diagnostic",
+      occurred_at: nowIso,
+      metadata: { source: "runWriteTest" }
+    });
+    out.game_events = error ? { ok: false, error: error.message } : { ok: true };
+  } catch (e) { out.game_events = { ok: false, error: e.message || String(e) }; }
+
+  // 5. errors
+  try {
+    const { error } = await supabase.from("errors").insert({
+      anonymous_user_id: probeId,
+      session_id: sessId,
+      error_message: "diagnostic_probe (safe to delete)",
+      occurred_at: nowIso,
+      severity: "info"
+    });
+    out.errors = error ? { ok: false, error: error.message } : { ok: true };
+  } catch (e) { out.errors = { ok: false, error: e.message || String(e) }; }
+
+  out._probe_id = probeId;
+  return out;
+}
+if (typeof window !== "undefined") {
+  window.GULSABI_WRITE_TEST = runWriteTest;
+}
+
+// ─────────────────────────────────────────────────────────────────
 // Game session lifecycle
 // ─────────────────────────────────────────────────────────────────
 const _activeGameSessions = new Map();

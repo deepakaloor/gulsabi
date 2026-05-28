@@ -467,7 +467,10 @@
         <div id="diagPanel" class="diag-panel" hidden>
           <div class="diag-head">
             <span class="diag-title">Connection check</span>
-            <button class="btn ghost" id="diagRecheckBtn">Recheck</button>
+            <div style="display:flex;gap:8px;">
+              <button class="btn ghost" id="diagWriteTestBtn" title="Attempts anon-role INSERTs to verify game events from visitors can actually be written.">Test write</button>
+              <button class="btn ghost" id="diagRecheckBtn">Recheck</button>
+            </div>
           </div>
           <div class="diag-grid" id="diagGrid"></div>
           <p class="diag-hint" id="diagHint"></p>
