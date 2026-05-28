@@ -1260,15 +1260,15 @@ function init(){
   if(s.streak >= 3) setTimeout(() => unlockAch('streak_3'), 1200);
   refreshStartUI();
 
-  // mode buttons
-  document.getElementById('soloBtn').addEventListener('click', () => startGame('solo'));
+  // mode buttons — late-bind through window so the analytics wrapper runs
+  document.getElementById('soloBtn').addEventListener('click', () => (window.startGame || startGame)('solo'));
   document.getElementById('duoBtn').addEventListener('click', () => {
     document.getElementById('ovStart').classList.remove('show');
     document.getElementById('ovDuoSelect').classList.add('show');
   });
   document.getElementById('duoBackBtn').addEventListener('click', showStart);
   document.querySelectorAll('#ovDuoSelect [data-diff]').forEach(btn => {
-    btn.addEventListener('click', () => startGame('duo', { difficulty: btn.dataset.diff }));
+    btn.addEventListener('click', () => (window.startGame || startGame)('duo', { difficulty: btn.dataset.diff }));
   });
 
   // solo flow buttons

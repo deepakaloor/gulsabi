@@ -1139,8 +1139,9 @@ function init(){
   if(s.streak >= 3) setTimeout(() => unlockAch('streak_3_day'), 1200);
   refreshStartUI();
 
-  document.getElementById('startBtn').addEventListener('click', startGame);
-  document.getElementById('restartBtn').addEventListener('click', () => { document.getElementById('ovEnd').classList.remove('show'); refreshStartUI(); startGame(); });
+  // Late-binding: ensure the analytics module's window.startGame wrapper is invoked.
+  document.getElementById('startBtn').addEventListener('click', () => (window.startGame || startGame)());
+  document.getElementById('restartBtn').addEventListener('click', () => { document.getElementById('ovEnd').classList.remove('show'); refreshStartUI(); (window.startGame || startGame)(); });
   document.getElementById('endMenuBtn').addEventListener('click', showStart);
   document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
   document.getElementById('continueBtn').addEventListener('click', doContinue);

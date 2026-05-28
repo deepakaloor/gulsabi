@@ -824,8 +824,10 @@
         function openHelp(){ helpOverlay.style.display = 'flex'; }
         function closeHelp(){ helpOverlay.style.display = 'none'; }
 
-        startBtn.onclick = startGame;
-        restartBtn.onclick = startGame;
+        // Use late-binding so the analytics module's window.startGame
+        // wrapper is the one that runs, not the original captured here.
+        startBtn.onclick   = () => (window.startGame || startGame)();
+        restartBtn.onclick = () => (window.startGame || startGame)();
         soundToggle.onclick = () => audio.toggleMute();
         helpBtn.onclick = () => openHelp();
         helpCloseBtn.onclick = () => closeHelp();
