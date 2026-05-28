@@ -75,53 +75,125 @@ async function handleAuthRedirect() {
 }
 
 /* ── Login / logout ─────────────────────────────────────────────
-   Magic-link only: enter your email, we email you a one-tap login.
-   No password to phish, no password to remember. */
+   Two-step OTP code login: enter your email, we send a 6-digit code,
+   you type it in. Lets you sign in from a device that doesn't have
+   your inbox open. We also accept the magic link from the email if
+   the user happens to click it on the same device (handleAuthRedirect
+   below catches that path). */
 const loginSuccessEl = document.getElementById("loginSuccess");
 const loginErrorEl   = document.getElementById("loginError");
+const step1El        = document.getElementById("step1");
+const step2El        = document.getElementById("step2");
+const emailInputEl   = document.getElementById("email");
+const otpInputEl     = document.getElementById("otpCode");
+const verifyBtn      = document.getElementById("verifyBtn");
+const emailEchoEl    = document.getElementById("emailEcho");
+const resendLink     = document.getElementById("resendLink");
+const changeEmailLink= document.getElementById("changeEmailLink");
 
-loginBtn.addEventListener("click", async () => {
-  const email = document.getElementById("email").value.trim();
-  loginErrorEl.textContent   = "";
+let _otpEmail = ""; // remembered between step 1 and step 2
+
+function showStep1() {
+  step1El.style.display = "block";
+  step2El.style.display = "none";
+  otpInputEl.value = "";
+  loginErrorEl.textContent = "";
   loginSuccessEl.style.display = "none";
+  setTimeout(() => emailInputEl.focus(), 50);
+}
+function showStep2(email) {
+  _otpEmail = email;
+  emailEchoEl.textContent = email;
+  step1El.style.display = "none";
+  step2El.style.display = "block";
+  loginErrorEl.textContent = "";
+  loginSuccessEl.style.display = "none";
+  setTimeout(() => otpInputEl.focus(), 50);
+}
+
+async function sendCode(email) {
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     loginErrorEl.textContent = "Enter a valid email address.";
-    return;
+    return false;
   }
   loginBtn.disabled = true;
-  loginBtn.textContent = "Sending link…";
+  loginBtn.textContent = "Sending code…";
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      // Send the user back to the admin dashboard after they click the link
-      emailRedirectTo: window.location.origin + window.location.pathname,
-      // Don't auto-create new accounts: only existing users (added via
-      // Supabase Authentication → Users → Invite) can sign in. Defense
-      // against random people guessing the admin URL.
-      shouldCreateUser: false
+      // We don't want Supabase to auto-create accounts. Only the
+      // email invited via Supabase Auth → Users can sign in.
+      shouldCreateUser: false,
+      // Magic-link fallback URL — used only if user clicks the link
+      // in the email instead of typing the code.
+      emailRedirectTo: window.location.origin + window.location.pathname
     }
   });
   loginBtn.disabled = false;
-  loginBtn.textContent = "Send login link";
+  loginBtn.textContent = "Send code";
   if (error) {
-    // We deliberately don't leak whether the email exists.
     const msg = (error.message || "").toLowerCase();
     if (msg.includes("signups not allowed") || msg.includes("not allowed") || msg.includes("not found")) {
       loginErrorEl.textContent = "This email is not authorized for the dashboard.";
     } else if (msg.includes("rate")) {
       loginErrorEl.textContent = "Too many requests. Please wait a minute and try again.";
     } else {
-      loginErrorEl.textContent = "Couldn't send link. " + error.message;
+      loginErrorEl.textContent = "Couldn't send code. " + error.message;
+    }
+    return false;
+  }
+  return true;
+}
+
+loginBtn.addEventListener("click", async () => {
+  const email = emailInputEl.value.trim();
+  if (await sendCode(email)) showStep2(email);
+});
+emailInputEl.addEventListener("keydown", e => { if (e.key === "Enter") loginBtn.click(); });
+
+verifyBtn.addEventListener("click", async () => {
+  const code = (otpInputEl.value || "").trim();
+  if (!/^\d{6}$/.test(code)) {
+    loginErrorEl.textContent = "Enter the 6-digit code from your email.";
+    return;
+  }
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = "Verifying…";
+  loginErrorEl.textContent = "";
+  // type: "email" verifies OTP codes sent via signInWithOtp
+  const { error } = await supabase.auth.verifyOtp({ email: _otpEmail, token: code, type: "email" });
+  verifyBtn.disabled = false;
+  verifyBtn.textContent = "Verify & sign in";
+  if (error) {
+    const m = (error.message || "").toLowerCase();
+    if (m.includes("expired") || m.includes("invalid")) {
+      loginErrorEl.textContent = "That code is invalid or expired. Click \"Send another code\" to try again.";
+    } else {
+      loginErrorEl.textContent = "Verification failed. " + error.message;
     }
     return;
   }
-  loginSuccessEl.style.display = "block";
-  loginSuccessEl.innerHTML = "Check <strong>" + email.replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;') + "</strong> for your login link. It expires in an hour — click it on this device to come back signed in.";
+  // Success — show the app
+  showApp();
 });
-// Submit on Enter from the email field
-document.getElementById("email").addEventListener("keydown", e => {
-  if (e.key === "Enter") loginBtn.click();
+otpInputEl.addEventListener("keydown", e => { if (e.key === "Enter") verifyBtn.click(); });
+// Auto-submit when 6 digits are entered (mostly for autofill from iOS SMS-style UI)
+otpInputEl.addEventListener("input", () => {
+  const code = (otpInputEl.value || "").replace(/\D/g, "").slice(0, 6);
+  if (code !== otpInputEl.value) otpInputEl.value = code;
+  if (code.length === 6) verifyBtn.click();
 });
+
+resendLink.addEventListener("click", async e => {
+  e.preventDefault();
+  loginErrorEl.textContent = "";
+  if (await sendCode(_otpEmail)) {
+    loginSuccessEl.style.display = "block";
+    loginSuccessEl.textContent = "A new code is on its way.";
+    setTimeout(() => { loginSuccessEl.style.display = "none"; }, 4000);
+  }
+});
+changeEmailLink.addEventListener("click", e => { e.preventDefault(); showStep1(); });
 logoutBtn.addEventListener("click", async () => {
   await supabase.auth.signOut();
   loginBox.style.display = "flex";

@@ -11,7 +11,7 @@
    any game. The library is shared across games 2–5 (~177 images),
    so caching it once unlocks all of them.
    ───────────────────────────────────────────────────────────────── */
-const CACHE_VERSION = 'gulsabi-v11';
+const CACHE_VERSION = 'gulsabi-v12';
 const CORE_CACHE    = `${CACHE_VERSION}-core`;
 const ASSET_CACHE   = `${CACHE_VERSION}-assets`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;

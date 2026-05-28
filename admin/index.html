@@ -406,11 +406,28 @@
       <div class="login-head">
         <div class="avatar"><img src="games/game2/gulsabi-normal.png" alt="Gulsabi"></div>
         <h2>Gulsabi Admin</h2>
-        <p id="loginSubtitle">Sign in with your email — we&rsquo;ll send a one-time login link.</p>
+        <p id="loginSubtitle">Sign in with your email &mdash; we&rsquo;ll send a 6-digit code.</p>
       </div>
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="you@example.com" autocomplete="username" inputmode="email">
-      <button id="loginBtn">Send login link</button>
+      <!-- Step 1: enter email -->
+      <div id="step1">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="username" inputmode="email">
+        <button id="loginBtn">Send code</button>
+      </div>
+      <!-- Step 2: enter the 6-digit code from the email -->
+      <div id="step2" style="display:none;">
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px;line-height:1.45;">
+          We sent a 6-digit code to <strong id="emailEcho"></strong>. Enter it below to sign in.
+        </p>
+        <label for="otpCode">6-digit code</label>
+        <input type="text" id="otpCode" placeholder="000000" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" style="letter-spacing:0.25em;text-align:center;font-size:1.05rem;">
+        <button id="verifyBtn">Verify &amp; sign in</button>
+        <div style="text-align:center;margin-top:14px;font-size:0.8rem;">
+          <a href="#" id="resendLink" style="color:var(--text-muted);text-decoration:underline;">Send another code</a>
+          <span style="color:var(--border);margin:0 8px;">&middot;</span>
+          <a href="#" id="changeEmailLink" style="color:var(--text-muted);text-decoration:underline;">Use a different email</a>
+        </div>
+      </div>
       <div id="loginError"></div>
       <p id="loginSuccess" style="display:none;font-size:0.82rem;color:var(--success);margin-top:12px;text-align:center;line-height:1.45;"></p>
     </div>
