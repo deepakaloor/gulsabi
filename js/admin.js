@@ -438,16 +438,24 @@ function computeGameReport() {
   const f = filtered();
   // Group by game_id
   const games = {};
-  f.gs.forEach(s => {
-    const g = s.game_id || "unknown";
-    if (!games[g]) games[g] = {
-      game: gameDisplayName(g, s.game_name),
-      game_id: g,
+  // Seed all 5 known games so each row appears in the report even
+  // before any sessions have been recorded against it.
+  function blankGameEntry(gid, gname) {
+    return {
+      game: gameDisplayName(gid, gname),
+      game_id: gid,
       uniqueUsers: new Set(),
       plays: 0, completions: 0, exits: 0, retries: 0, failed: 0,
       scores: [], times: [], levels: [],
-      attempts: new Map() // userId -> count
+      attempts: new Map()
     };
+  }
+  Object.entries(GAME_NAMES).forEach(([gid, gname]) => {
+    games[gid] = blankGameEntry(gid, gname);
+  });
+  f.gs.forEach(s => {
+    const g = s.game_id || "unknown";
+    if (!games[g]) games[g] = blankGameEntry(g, s.game_name);
     games[g].plays++;
     if (s.anonymous_user_id) {
       games[g].uniqueUsers.add(s.anonymous_user_id);
@@ -576,8 +584,9 @@ function renderGames() {
   // Comparison table
   const tbody = document.getElementById("gamesTable");
   tbody.innerHTML = "";
-  if (!computedGameReport.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="11">No game activity yet.</td></tr>';
+  const anyPlays = computedGameReport.some(g => g.plays > 0);
+  if (!computedGameReport.length || !anyPlays) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="11">All 5 games registered. No gameplay recorded yet — play any game on a phone/desktop to populate this table.</td></tr>';
   } else {
     computedGameReport.forEach(g => {
       const tr = document.createElement("tr");

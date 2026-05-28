@@ -600,7 +600,7 @@
         </div>
 
         <!-- Featured tile (one of the games picked randomly each visit) -->
-        <a class="featured" id="featuredTile" href="games/game4/index.html">
+        <a class="featured" id="featuredTile" href="games/game4/index.html" data-game-card-id="game4">
             <span class="featured-media"><img src="assets/game4.jpg" alt="Memory Match" id="featuredImg" loading="eager" decoding="async"></span>
             <div class="feat-overlay">
                 <span class="feat-tag">Featured</span>
@@ -726,15 +726,18 @@
         /* Rotate featured tile across visits — picks one of the 5 games at random */
         (function() {
             const games = [
-                { id: 1, img: 'assets/game1.jpg', title: 'Sky Adventure',       sub: 'Fly through the sky, dodge obstacles, grab power-ups.', href: 'games/game1/index.html' },
-                { id: 2, img: 'assets/game2.jpg', title: 'Cannon Color Range', sub: 'Spot the color and fire the matching cannon in time.',  href: 'games/game2/index.html' },
-                { id: 3, img: 'assets/game3.jpg', title: 'Odd One Out',         sub: 'Find the one card that doesn\'t belong.',               href: 'games/game3/index.html' },
-                { id: 4, img: 'assets/game4.jpg', title: 'Memory Match',       sub: 'Flip cards and find pairs. Solo or 2-player.',          href: 'games/game4/index.html' },
-                { id: 5, img: 'assets/game5.jpg', title: 'Quiz Time',           sub: 'Identify objects, colors, and fun-fact questions.',     href: 'games/game5/index.html' }
+                { id: 1, gameId: 'game1', img: 'assets/game1.jpg', title: 'Sky Adventure',       sub: 'Fly through the sky, dodge obstacles, grab power-ups.', href: 'games/game1/index.html' },
+                { id: 2, gameId: 'game2', img: 'assets/game2.jpg', title: 'Cannon Color Range', sub: 'Spot the color and fire the matching cannon in time.',  href: 'games/game2/index.html' },
+                { id: 3, gameId: 'game3', img: 'assets/game3.jpg', title: 'Odd One Out',         sub: 'Find the one card that doesn\'t belong.',               href: 'games/game3/index.html' },
+                { id: 4, gameId: 'game4', img: 'assets/game4.jpg', title: 'Memory Match',       sub: 'Flip cards and find pairs. Solo or 2-player.',          href: 'games/game4/index.html' },
+                { id: 5, gameId: 'game5', img: 'assets/game5.jpg', title: 'Quiz Time',           sub: 'Identify objects, colors, and fun-fact questions.',     href: 'games/game5/index.html' }
             ];
             const pick = games[Math.floor(Math.random() * games.length)];
             const tile = document.getElementById('featuredTile');
             tile.href = pick.href;
+            // Keep the analytics data attribute in sync with whichever game is
+            // randomly featured — otherwise game_card_view always counts as game4.
+            tile.setAttribute('data-game-card-id', pick.gameId);
             document.getElementById('featuredImg').src = pick.img;
             document.getElementById('featuredImg').alt = pick.title;
             document.getElementById('featuredTitle').textContent = pick.title;
