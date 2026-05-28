@@ -320,24 +320,35 @@ export async function runWriteTest() {
   const nowIso  = new Date().toISOString();
   const out = {};
 
-  // 1. anonymous_users
+  // Helper: log every step loudly so console proves the test ran
+  const log = (tbl, res) => {
+    if (res.ok) {
+      console.info("[Gulsabi write-test] " + tbl + " OK");
+    } else {
+      console.warn("[Gulsabi write-test] " + tbl + " FAIL — " + res.error);
+    }
+  };
+
+  // 1. anonymous_users — schema: anonymous_user_id, first_seen_at,
+  //    last_seen_at, device_type, browser, os, is_returning_user
   try {
     const { error } = await supabase
       .from("anonymous_users")
       .upsert({
         anonymous_user_id: probeId,
         first_seen_at: nowIso,
-        last_seen_at: nowIso,
-        visit_count: 1,
-        is_returning: false,
-        device_type: "diagnostic",
-        browser:     "diagnostic",
-        os:          "diagnostic"
+        last_seen_at:  nowIso,
+        device_type:   "diagnostic",
+        browser:       "diagnostic",
+        os:            "diagnostic",
+        is_returning_user: false
       }, { onConflict: "anonymous_user_id" });
     out.anonymous_users = error ? { ok: false, error: error.message } : { ok: true };
   } catch (e) { out.anonymous_users = { ok: false, error: e.message || String(e) }; }
+  log("anonymous_users", out.anonymous_users);
 
-  // 2. sessions
+  // 2. sessions — schema: session_id, anonymous_user_id, started_at,
+  //    device_type, browser, os
   try {
     const { error } = await supabase.from("sessions").insert({
       session_id: sessId,
@@ -349,8 +360,10 @@ export async function runWriteTest() {
     });
     out.sessions = error ? { ok: false, error: error.message } : { ok: true };
   } catch (e) { out.sessions = { ok: false, error: e.message || String(e) }; }
+  log("sessions", out.sessions);
 
-  // 3. game_sessions
+  // 3. game_sessions — schema: game_session_id, anonymous_user_id,
+  //    session_id, game_id, game_name, started_at
   try {
     const { error } = await supabase.from("game_sessions").insert({
       game_session_id: gsid,
@@ -362,32 +375,37 @@ export async function runWriteTest() {
     });
     out.game_sessions = error ? { ok: false, error: error.message } : { ok: true };
   } catch (e) { out.game_sessions = { ok: false, error: e.message || String(e) }; }
+  log("game_sessions", out.game_sessions);
 
-  // 4. game_events
+  // 4. game_events — schema requires event_id (NOT NULL UNIQUE),
+  //    event_name (NOT NULL), event_time (NOT occurred_at!)
   try {
     const { error } = await supabase.from("game_events").insert({
+      event_id:          uuid(),
+      event_name:        "diagnostic_probe",
       anonymous_user_id: probeId,
-      session_id: sessId,
-      game_session_id: gsid,
-      event_name: "diagnostic_probe",
-      event_type: "diagnostic",
-      occurred_at: nowIso,
-      metadata: { source: "runWriteTest" }
+      session_id:        sessId,
+      game_session_id:   gsid,
+      game_id:           "diagnostic",
+      event_time:        nowIso,
+      metadata:          { source: "runWriteTest" }
     });
     out.game_events = error ? { ok: false, error: error.message } : { ok: true };
   } catch (e) { out.game_events = { ok: false, error: e.message || String(e) }; }
+  log("game_events", out.game_events);
 
-  // 5. errors
+  // 5. errors — schema: error_message, error_type, page_url (no occurred_at, no severity)
   try {
     const { error } = await supabase.from("errors").insert({
       anonymous_user_id: probeId,
       session_id: sessId,
       error_message: "diagnostic_probe (safe to delete)",
-      occurred_at: nowIso,
-      severity: "info"
+      error_type: "diagnostic",
+      page_url: (typeof window !== "undefined" ? window.location.href : null)
     });
     out.errors = error ? { ok: false, error: error.message } : { ok: true };
   } catch (e) { out.errors = { ok: false, error: e.message || String(e) }; }
+  log("errors", out.errors);
 
   out._probe_id = probeId;
   return out;

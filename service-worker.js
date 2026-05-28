@@ -5,7 +5,7 @@
    calls clients.claim() so every open tab immediately uses the new
    SW without a manual reload.
    ───────────────────────────────────────────────────────────────── */
-const CACHE_VERSION = 'gulsabi-v6';
+const CACHE_VERSION = 'gulsabi-v7';
 const CORE_CACHE    = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

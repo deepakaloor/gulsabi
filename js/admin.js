@@ -248,7 +248,8 @@ async function paintWriteTest() {
     const div = document.createElement("div");
     div.className = "diag-item " + (res.ok ? "ok" : "fail");
     div.title = res.ok ? "Write OK" : (res.error || "Error");
-    div.innerHTML = '<span class="diag-dot"></span><span>' + tbl + (res.ok ? ' write OK' : ' write ✗') + '</span>';
+    const detail = res.ok ? '' : ' <span style="font-size:0.72rem;opacity:0.85;display:block;margin-top:2px;word-break:break-word;">' + (res.error || '').replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;') + '</span>';
+    div.innerHTML = '<span class="diag-dot"></span><span>' + tbl + (res.ok ? ' write OK' : ' write ✗') + detail + '</span>';
     grid.appendChild(div);
   });
 
