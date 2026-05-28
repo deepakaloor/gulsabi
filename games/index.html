@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Games | Gulsabi Kids</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json?v=3">
+    <!-- One canonical icon used for browser tab, Add-to-Home-Screen, and PWA install
+         — same file, same look everywhere. -->
+    <link rel="icon"             type="image/png" href="/images/gulsabi-app-icon.png?v=3">
+    <link rel="shortcut icon"    type="image/png" href="/images/gulsabi-app-icon.png?v=3">
+    <link rel="apple-touch-icon"                  href="/images/gulsabi-app-icon.png?v=3">
+    <link rel="apple-touch-startup-image"         href="/images/gulsabi-loading.jpg?v=3">
+    <meta name="theme-color" content="#FF4F4F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gulsabi">
+    <style>
+        :root {
+            --gulsabi-yellow: #FFD600;
+            --hero-blue:      #00A3E0;
+            --cape-red:       #FF4F4F;
+            --pure-white:     #ffffff;
+            --cream:          #FFFCF6;
+            --soft-grey:      #f4f6f9;
+            --text-dark:      #1f2937;
+            --text-muted:     #6b7280;
+            --mint:           #34c759;
+
+            --safe-top:    env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --app-bar-h:   64px;
+            --tab-bar-h:   72px;
+
+            --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 400;
+            overflow-x: hidden;
+            background:
+                radial-gradient(ellipse at top right, rgba(255,79,79,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom left, rgba(0,163,224,0.05) 0%, transparent 50%),
+                var(--cream);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            min-width: 0;
+            padding-top: calc(var(--app-bar-h) + var(--safe-top));
+            padding-bottom: calc(var(--tab-bar-h) + var(--safe-bottom) + 16px);
+        }
+        a { text-decoration: none; color: inherit; }
+        img, video, iframe { display: block; max-width: 100%; }
+
+        /* ── App Bar ──────────────────────────────────────── */
+        .app-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: calc(var(--app-bar-h) + var(--safe-top));
+            padding-top: var(--safe-top);
+            background: rgba(255,252,246,0.92);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border-bottom: 1px solid rgba(31,41,55,0.06);
+            z-index: 100;
+            display: flex; align-items: center;
+            padding-left: clamp(16px, 4vw, 28px);
+            padding-right: clamp(16px, 4vw, 28px);
+        }
+        .app-bar-brand { display: flex; align-items: center; }
+        .app-bar-brand img { height: 40px; width: auto; }
+        .app-bar-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+        .icon-btn {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: rgba(31,41,55,0.05);
+            border: 0;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .icon-btn:hover { background: rgba(31,41,55,0.1); }
+        .icon-btn:active { transform: scale(0.94); }
+
+        /* ── Page Container ──────────────────────────────── */
+        .app {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: clamp(20px, 4vw, 36px) clamp(16px, 4vw, 28px);
+        }
+
+        /* ── Greeting ─────────────────────────────────────── */
+        .greeting {
+            margin-bottom: clamp(20px, 4vw, 32px);
+        }
+        .greeting .hello {
+            font-size: 0.8rem; font-weight: 600;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--cape-red);
+            margin-bottom: 6px;
+            opacity: 0;
+            animation: fadeUp 0.7s 0.05s var(--ease-out-quint) forwards;
+        }
+        .greeting h1 {
+            font-size: clamp(1.7rem, 5vw, 2.6rem);
+            font-weight: 600;
+            line-height: 1.1;
+            letter-spacing: -0.025em;
+            color: var(--text-dark);
+            opacity: 0;
+            animation: fadeUp 0.7s 0.15s var(--ease-out-quint) forwards;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Featured (large hero tile) ───────────────────── */
+        .featured {
+            display: block;
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            /* Force a paint/transform containing block so the child's
+               scale() is clipped by the rounded border. Without this,
+               Safari + some Chrome builds let the image escape the
+               rounded corners on hover zoom. */
+            isolation: isolate;
+            transform: translateZ(0);
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+            margin-bottom: clamp(20px, 4vw, 32px);
+            aspect-ratio: 16/9;
+            background: var(--text-dark);
+            opacity: 0;
+            animation: fadeUp 0.7s 0.25s var(--ease-out-quint) forwards;
+        }
+        /* Inner wrapper that holds the actual <img>. Putting the zoom
+           on this wrapper guarantees the parent's border-radius clip
+           wins, since the wrapper is positioned to fill the tile and
+           the image inside it stays at 100%/100%. */
+        .featured-media {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            transition: transform 0.6s var(--ease-out-quint);
+            will-change: transform;
+        }
+        .featured-media img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .featured:hover .featured-media { transform: scale(1.04); }
+        .featured .feat-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 60%);
+            display: flex; flex-direction: column;
+            justify-content: flex-end;
+            padding: clamp(20px, 4vw, 32px);
+        }
+        .featured .feat-tag {
+            display: inline-block;
+            width: max-content;
+            background: var(--gulsabi-yellow);
+            color: var(--text-dark);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .featured .feat-title {
+            color: white;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 600;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+        .featured .feat-sub {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.95rem;
+            font-weight: 400;
+            max-width: 460px;
+        }
+        .featured .feat-play {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: rgba(255,79,79,0.94);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 12px 32px rgba(255,79,79,0.4);
+            transition: transform 0.25s ease;
+            backdrop-filter: blur(4px);
+        }
+        .featured:hover .feat-play { transform: translate(-50%, -50%) scale(1.1); }
+        .featured .feat-play::before {
+            content: '';
+            width: 0; height: 0;
+            border-left: 16px solid white;
+            border-top: 11px solid transparent;
+            border-bottom: 11px solid transparent;
+            margin-left: 4px;
+        }
+
+        /* ── Section Heading ─────────────────────────────── */
+        .section-row {
+            display: flex; align-items: baseline; justify-content: space-between;
+            margin-bottom: clamp(14px, 3vw, 22px);
+        }
+        .section-row h2 {
+            font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--text-dark);
+        }
+        .section-row .count {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ── App Tile Grid ───────────────────────────────── */
+        .tile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(12px, 3vw, 18px);
+            margin-bottom: clamp(28px, 5vw, 44px);
+        }
+        @media (min-width: 760px) {
+            .tile-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        .app-tile {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            isolation: isolate;
+            transform: translateZ(0);
+            border: 1px solid rgba(31,41,55,0.06);
+            transition: transform 0.3s var(--ease-out-quint), box-shadow 0.3s var(--ease-out-quint);
+            display: flex; flex-direction: column;
+            position: relative;
+            opacity: 0;
+            animation: tileIn 0.6s var(--ease-out-quint) forwards;
+        }
+        .app-tile:nth-child(1) { animation-delay: 0.35s; }
+        .app-tile:nth-child(2) { animation-delay: 0.42s; }
+        .app-tile:nth-child(3) { animation-delay: 0.49s; }
+        .app-tile:nth-child(4) { animation-delay: 0.56s; }
+        .app-tile:nth-child(5) { animation-delay: 0.63s; }
+        @keyframes tileIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .app-tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 44px rgba(31,41,55,0.10);
+        }
+        .app-tile:active { transform: translateY(-2px) scale(0.98); transition-duration: 0.1s; }
+        .tile-thumb {
+            position: relative;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+        }
+        .tile-thumb img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s var(--ease-out-quint);
+        }
+        .app-tile:hover .tile-thumb img { transform: scale(1.06); }
+        .tile-body {
+            padding: 14px clamp(14px, 3vw, 18px) 16px;
+            display: flex; flex-direction: column;
+            flex: 1;
+        }
+        .tile-body h3 {
+            font-size: clamp(0.98rem, 2.2vw, 1.1rem);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+        .tile-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .tile-meta {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            margin-top: auto;
+        }
+        .badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 100px;
+            display: inline-flex; align-items: center; gap: 4px;
+            letter-spacing: 0.2px;
+        }
+        .badge.age   { background: rgba(0,163,224,0.10); color: var(--hero-blue); }
+        .badge.solo  { background: rgba(31,41,55,0.06); color: var(--text-dark); }
+        .badge.duo   { background: rgba(255,79,79,0.10); color: var(--cape-red); }
+        .tile-cta {
+            position: absolute;
+            top: 12px; right: 12px;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(6px);
+            color: var(--text-dark);
+            font-size: 0.72rem; font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 100px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(31,41,55,0.06);
+            box-shadow: 0 6px 14px rgba(31,41,55,0.08);
+        }
+
+        /* ── Bottom Tab Bar ──────────────────────────────── */
+        .tab-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding-bottom: var(--safe-bottom);
+            background: rgba(255,252,246,0.95);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border-top: 1px solid rgba(31,41,55,0.08);
+            z-index: 100;
+        }
+        .tab-bar-inner {
+            height: var(--tab-bar-h);
+            max-width: 600px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .tab {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 3px;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            transition: color 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .tab .tab-icon {
+            font-size: 1.25rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tab .tab-icon.tab-icon-img {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: var(--cream);
+            border: 1.5px solid rgba(31,41,55,0.08);
+        }
+        .tab .tab-icon.tab-icon-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .tab.active .tab-icon.tab-icon-img { border-color: var(--cape-red); }
+        .tab:active .tab-icon { transform: scale(0.9); }
+        .tab.active { color: var(--cape-red); }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            width: 22px; height: 3px;
+            border-radius: 100px;
+            background: var(--cape-red);
+        }
+        .tab:hover { color: var(--text-dark); }
+
+        /* ── Install prompt (subtle, only when not installed) ── */
+        .install-banner {
+            display: none;
+            background: var(--text-dark);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 24px rgba(31,41,55,0.16);
+        }
+        .install-banner.show { display: flex; }
+        .install-banner .ib-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: var(--gulsabi-yellow);
+            color: var(--text-dark);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .install-banner .ib-text { flex: 1; }
+        .install-banner .ib-text strong { display: block; font-size: 0.95rem; font-weight: 600; margin-bottom: 1px; }
+        .install-banner .ib-text span { font-size: 0.8rem; opacity: 0.75; }
+        .install-banner .ib-btn {
+            background: var(--gulsabi-yellow);
+            color: var(--text-dark);
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            border: 0;
+            border-radius: 100px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .install-banner .ib-close {
+            background: transparent;
+            border: 0;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 1rem;
+        }
+
+        /* ── Modal popup (same minimal style) ────────────── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(31,41,55,0.6);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 9999; padding: 24px;
+        }
+        .modal-content {
+            background: white;
+            padding: clamp(28px, 5vw, 48px);
+            border-radius: 24px;
+            max-width: 420px; width: 100%;
+            text-align: center;
+            box-shadow: 0 28px 64px rgba(0,0,0,0.3);
+            animation: popIn 0.5s var(--ease-out-quint);
+        }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-content h2 {
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            font-weight: 600;
+            color: var(--cape-red);
+            margin-bottom: 8px;
+        }
+        .modal-content p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+        }
+        .modal-socials {
+            display: flex; justify-content: center; gap: 14px;
+            margin-bottom: 22px;
+        }
+        .modal-socials a {
+            width: 60px; height: 60px;
+            border-radius: 18px;
+            background: var(--soft-grey);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .modal-socials a img { width: 36px; height: 36px; }
+        .modal-socials a:hover { transform: translateY(-3px); background: rgba(0,163,224,0.08); }
+        .modal-close-btn {
+            background: var(--text-dark);
+            color: white;
+            padding: 11px 24px;
+            border: 0; border-radius: 100px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 500;
+            font-size: 0.92rem;
+            cursor: pointer;
+        }
+        .modal-close-btn:hover { background: var(--cape-red); }
+
+        /* When running as installed PWA, hide install banner */
+        @media (display-mode: standalone) {
+            .install-banner { display: none !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* Tighten tile spacing on small phones */
+        @media (max-width: 380px) {
+            .app { padding: 14px 12px; }
+            .tile-grid { gap: 10px; }
+            .tile-body { padding: 12px 12px 14px; }
+            .tile-body h3 { font-size: 0.96rem; }
+            .tile-desc { font-size: 0.78rem; }
+            .badge { font-size: 0.66rem; padding: 2px 8px; }
+            .greeting h1 { font-size: 1.5rem; }
+            .featured .feat-overlay { padding: 16px 18px; }
+            .featured .feat-title { font-size: 1.2rem; }
+            .featured .feat-sub { font-size: 0.85rem; }
+            .icon-btn { width: 44px; height: 44px; } /* min-recommended tap target */
+            .tab { min-height: 44px; }
+        }
+
+        /* ── Splash screen (shown on first paint, fades when app is ready) ── */
+        #appSplash {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #FFFCF6 url("/images/gulsabi-loading.jpg?v=2") center/cover no-repeat;
+            transition: opacity 0.5s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        #appSplash.hide { opacity: 0; pointer-events: none; }
+        #appSplash .splash-progress {
+            margin-bottom: clamp(36px, 8vh, 80px);
+            width: 110px; height: 3px;
+            background: rgba(31,41,55,0.12);
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        #appSplash .splash-progress::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: var(--text-dark, #1f2937);
+            border-radius: 100px;
+            transform-origin: left center;
+            animation: splashPulse 1.4s ease-in-out infinite;
+        }
+        @keyframes splashPulse {
+            0%, 100% { transform: scaleX(0.18); opacity: 0.65; }
+            50%      { transform: scaleX(1);    opacity: 1; }
+        }
+        /* Fullscreen helper: when launched as standalone/fullscreen PWA,
+           extend background to safe areas. */
+        @media (display-mode: standalone), (display-mode: fullscreen) {
+            html, body { background: var(--cream); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash (shown until the app is ready; especially useful in PWA standalone mode) -->
+    <div id="appSplash" aria-hidden="true"><div class="splash-progress"></div></div>
+
+    <!-- App Bar (sticky top) -->
+    <header class="app-bar">
+        <a href="/" class="app-bar-brand" aria-label="Gulsabi Kids home">
+            <img src="images/gulsabi-logo.png" alt="Gulsabi Kids">
+        </a>
+        <div class="app-bar-actions">
+            <button class="icon-btn" onclick="showPopup()" aria-label="Connect"><span>&#9889;</span></button>
+            <a class="icon-btn" href="/about/" aria-label="About"><span>?</span></a>
+        </div>
+    </header>
+
+    <!-- App body -->
+    <main class="app">
+
+        <!-- Install banner (hidden in standalone) -->
+        <div class="install-banner" id="installBanner">
+            <div class="ib-icon">&#10515;</div>
+            <div class="ib-text">
+                <strong>Install Gulsabi Kids</strong>
+                <span>Add to your home screen for an app-like experience.</span>
+            </div>
+            <button class="ib-btn" id="installBtn">Install</button>
+            <button class="ib-close" id="installClose" aria-label="Dismiss">&#10005;</button>
+        </div>
+
+        <!-- Greeting -->
+        <div class="greeting">
+            <div class="hello" id="helloEyebrow">Today's pick</div>
+            <h1 id="greetingTitle">Ready to play?</h1>
+        </div>
+
+        <!-- Featured tile (one of the games picked randomly each visit) -->
+        <a class="featured" id="featuredTile" href="games/game4/index.html" data-game-card-id="game4">
+            <span class="featured-media"><img src="assets/game4.jpg" alt="Memory Match" id="featuredImg" loading="eager" decoding="async"></span>
+            <div class="feat-overlay">
+                <span class="feat-tag">Featured</span>
+                <div class="feat-title" id="featuredTitle">Memory Match</div>
+                <div class="feat-sub" id="featuredSub">Flip cards and find pairs. Solo or 2-player.</div>
+            </div>
+            <span class="feat-play" aria-hidden="true"></span>
+        </a>
+
+        <!-- All Games -->
+        <div class="section-row">
+            <h2>All Games</h2>
+            <span class="count">5 games</span>
+        </div>
+        <div class="tile-grid">
+            <a class="app-tile" href="games/game1/index.html" data-game-card-id="game1">
+                <div class="tile-thumb"><img src="assets/game1.jpg" alt="Sky Adventure" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+                <div class="tile-body">
+                    <h3>Sky Adventure</h3>
+                    <p class="tile-desc">Fly through the sky, dodge obstacles, grab power-ups.</p>
+                    <div class="tile-meta">
+                        <span class="badge age">Ages 5+</span>
+                        <span class="badge solo">Solo</span>
+                    </div>
+                </div>
+            </a>
+            <a class="app-tile" href="games/game2/index.html" data-game-card-id="game2">
+                <div class="tile-thumb"><img src="assets/game2.jpg" alt="Cannon Color Range" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+                <div class="tile-body">
+                    <h3>Cannon Color Range</h3>
+                    <p class="tile-desc">Spot the color and fire the matching cannon in time.</p>
+                    <div class="tile-meta">
+                        <span class="badge age">Ages 3+</span>
+                        <span class="badge solo">Solo</span>
+                    </div>
+                </div>
+            </a>
+            <a class="app-tile" href="games/game3/index.html" data-game-card-id="game3">
+                <div class="tile-thumb"><img src="assets/game3.jpg" alt="Odd One Out" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+                <div class="tile-body">
+                    <h3>Odd One Out</h3>
+                    <p class="tile-desc">Find the one card that's different from all the rest.</p>
+                    <div class="tile-meta">
+                        <span class="badge age">Ages 4+</span>
+                        <span class="badge solo">Solo</span>
+                    </div>
+                </div>
+            </a>
+            <a class="app-tile" href="games/game4/index.html" data-game-card-id="game4">
+                <div class="tile-thumb"><img src="assets/game4.jpg" alt="Memory Match" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+                <div class="tile-body">
+                    <h3>Memory Match</h3>
+                    <p class="tile-desc">Flip cards and find matching pairs. Solo or 2-player.</p>
+                    <div class="tile-meta">
+                        <span class="badge age">Ages 4+</span>
+                        <span class="badge duo">2 Players</span>
+                    </div>
+                </div>
+            </a>
+            <a class="app-tile" href="games/game5/index.html" data-game-card-id="game5">
+                <div class="tile-thumb"><img src="assets/game5.jpg" alt="Quiz Time" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+                <div class="tile-body">
+                    <h3>Quiz Time</h3>
+                    <p class="tile-desc">Identify objects, colors, and fun-fact questions.</p>
+                    <div class="tile-meta">
+                        <span class="badge age">Ages 5+</span>
+                        <span class="badge solo">Solo</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="tab-bar">
+        <div class="tab-bar-inner">
+            <a class="tab" href="/">
+                <span class="tab-icon">&#127968;</span>
+                <span>Home</span>
+            </a>
+            <a class="tab active" href="/games/">
+                <span class="tab-icon">&#127918;</span>
+                <span>Games</span>
+            </a>
+            <a class="tab" href="https://www.youtube.com/@GulsabiKids" target="_blank" rel="noopener">
+                <span class="tab-icon">&#9654;</span>
+                <span>YouTube</span>
+            </a>
+            <a class="tab" href="/about/">
+                <span class="tab-icon tab-icon-img"><img src="games/game2/gulsabi-normal.png" alt="" loading="lazy"></span>
+                <span>About</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Popup -->
+    <div class="modal-overlay" id="gulsabiPopup" onclick="hidePopup()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>Gul Gul Gulsabi!</h2>
+            <p>Ready to join the &ldquo;Why&rdquo; Generation? Connect with us.</p>
+            <div class="modal-socials">
+                <a href="https://www.youtube.com/@GulsabiKids" target="_blank" rel="noopener" aria-label="YouTube"><img src="assets/icons/youtube-icon.png" alt="YouTube"></a>
+                <a href="https://www.instagram.com/gulsabikids" target="_blank" rel="noopener" aria-label="Instagram"><img src="assets/icons/instagram-icon.png" alt="Instagram"></a>
+                <a href="https://fb.com/gulsabikids" target="_blank" rel="noopener" aria-label="Facebook"><img src="assets/icons/facebook-icon.png" alt="Facebook"></a>
+            </div>
+            <button class="modal-close-btn" onclick="hidePopup()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        /* Daily greeting based on time */
+        (function() {
+            const h = new Date().getHours();
+            const hello = h < 5  ? 'Good night'
+                      : h < 12 ? 'Good morning'
+                      : h < 17 ? 'Good afternoon'
+                      : h < 21 ? 'Good evening'
+                      : 'Good night';
+            document.getElementById('helloEyebrow').textContent = hello;
+            document.getElementById('greetingTitle').textContent = 'What shall we play today?';
+        })();
+
+        /* Rotate featured tile across visits — picks one of the 5 games at random */
+        (function() {
+            const games = [
+                { id: 1, gameId: 'game1', img: 'assets/game1.jpg', title: 'Sky Adventure',       sub: 'Fly through the sky, dodge obstacles, grab power-ups.', href: 'games/game1/index.html' },
+                { id: 2, gameId: 'game2', img: 'assets/game2.jpg', title: 'Cannon Color Range', sub: 'Spot the color and fire the matching cannon in time.',  href: 'games/game2/index.html' },
+                { id: 3, gameId: 'game3', img: 'assets/game3.jpg', title: 'Odd One Out',         sub: 'Find the one card that doesn\'t belong.',               href: 'games/game3/index.html' },
+                { id: 4, gameId: 'game4', img: 'assets/game4.jpg', title: 'Memory Match',       sub: 'Flip cards and find pairs. Solo or 2-player.',          href: 'games/game4/index.html' },
+                { id: 5, gameId: 'game5', img: 'assets/game5.jpg', title: 'Quiz Time',           sub: 'Identify objects, colors, and fun-fact questions.',     href: 'games/game5/index.html' }
+            ];
+            const pick = games[Math.floor(Math.random() * games.length)];
+            const tile = document.getElementById('featuredTile');
+            tile.href = pick.href;
+            // Keep the analytics data attribute in sync with whichever game is
+            // randomly featured — otherwise game_card_view always counts as game4.
+            tile.setAttribute('data-game-card-id', pick.gameId);
+            document.getElementById('featuredImg').src = pick.img;
+            document.getElementById('featuredImg').alt = pick.title;
+            document.getElementById('featuredTitle').textContent = pick.title;
+            document.getElementById('featuredSub').textContent = pick.sub;
+        })();
+
+        /* PWA install prompt */
+        let deferredPrompt = null;
+        const banner = document.getElementById('installBanner');
+        const installBtn = document.getElementById('installBtn');
+        const installClose = document.getElementById('installClose');
+        const dismissed = localStorage.getItem('gulsabi_install_dismissed');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!dismissed && !window.matchMedia('(display-mode: standalone)').matches) {
+                banner.classList.add('show');
+            }
+        });
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') banner.classList.remove('show');
+            deferredPrompt = null;
+        });
+        installClose.addEventListener('click', () => {
+            banner.classList.remove('show');
+            localStorage.setItem('gulsabi_install_dismissed', '1');
+        });
+
+        /* Popup */
+        function showPopup() { document.getElementById('gulsabiPopup').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+        function hidePopup() { document.getElementById('gulsabiPopup').style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+        /* Splash: minimum 1.4s of brand exposure so the loading screen
+           is actually visible (especially when launched as installed
+           PWA where the page is often cached and "load" fires fast).
+           Caps at 4.5s as a safety net. */
+        (function hideSplash() {
+            const splash = document.getElementById('appSplash');
+            if (!splash) return;
+            let hidden = false;
+            const showStart = performance.now();
+            const MIN_MS = 1400;
+            const MAX_MS = 4500;
+            const drop = () => {
+                if (hidden) return; hidden = true;
+                splash.classList.add('hide');
+                setTimeout(() => splash.remove(), 600);
+            };
+            const dropWhenReady = () => {
+                const elapsed = performance.now() - showStart;
+                const wait = Math.max(0, MIN_MS - elapsed);
+                setTimeout(drop, wait);
+            };
+            if (document.readyState === 'complete') dropWhenReady();
+            else window.addEventListener('load', dropWhenReady, { once: true });
+            // Safety net so a slow load never traps the user
+            setTimeout(drop, MAX_MS);
+        })();
+
+        /* Service worker: register, detect updates, auto-skipWaiting + reload
+           so the installed Gulsabi app always loads the latest code on open. */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const reg = await navigator.serviceWorker.register('/service-worker.js');
+
+                    // When a new SW is found, ask it to take over as soon as installed
+                    reg.addEventListener('updatefound', () => {
+                        const sw = reg.installing;
+                        if (!sw) return;
+                        sw.addEventListener('statechange', () => {
+                            if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version is ready — skip waiting and reload below
+                                sw.postMessage({ type: 'SKIP_WAITING' });
+                            }
+                        });
+                    });
+
+                    // When the controller actually changes (new SW took over), reload
+                    let reloaded = false;
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (reloaded) return; reloaded = true;
+                        window.location.reload();
+                    });
+
+                    // Proactively check for updates on every app open / focus
+                    const poke = () => reg.update().catch(() => {});
+                    poke();
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.visibilityState === 'visible') poke();
+                    });
+                } catch (e) { /* SW registration failed — fine, just no offline */ }
+            });
+        }
+    </script>
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>

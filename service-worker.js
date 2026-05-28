@@ -11,18 +11,30 @@
    any game. The library is shared across games 2–5 (~177 images),
    so caching it once unlocks all of them.
    ───────────────────────────────────────────────────────────────── */
-const CACHE_VERSION = 'gulsabi-v10';
+const CACHE_VERSION = 'gulsabi-v11';
 const CORE_CACHE    = `${CACHE_VERSION}-core`;
 const ASSET_CACHE   = `${CACHE_VERSION}-assets`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 /* CRITICAL_SHELL — must be available offline for the app to boot.
-   These are awaited on install; if any one fails, install fails. */
+   These are awaited on install; if any one fails, install fails.
+   We cache BOTH the clean URLs (preferred) AND the legacy .html paths
+   (which now serve redirect shims) so older PWA installs that still
+   reference /games.html continue to work after this update lands. */
 const CRITICAL_SHELL = [
   './',
   'index.html',
+  // Clean URLs (folder/index.html resolved by GitHub Pages)
+  'about/',
+  'about/index.html',
+  'games/',
+  'games/index.html',
+  'admin/',
+  'admin/index.html',
+  // Legacy .html — now redirect shims
   'about.html',
   'games.html',
+  'admin.html',
   'manifest.json',
   'js/main.js',
   'js/analytics.js',
@@ -348,8 +360,10 @@ self.addEventListener('fetch', event => {
       } catch (e) {
         const cached = await caches.match(req);
         if (cached) return cached;
-        return (await caches.match('games.html'))
+        return (await caches.match('games/'))
+            || (await caches.match('games/index.html'))
             || (await caches.match('index.html'))
+            || (await caches.match('games.html'))
             || new Response('Offline', { status: 503 });
       }
     })());

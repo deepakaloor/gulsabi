@@ -2,7 +2,7 @@
   "name": "Gulsabi Kids",
   "short_name": "Gulsabi",
   "description": "Curiosity-powered learning games for kids. Play offline anytime.",
-  "start_url": "/games.html?source=pwa",
+  "start_url": "/games/?source=pwa",
   "scope": "/",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone", "minimal-ui"],
@@ -10,7 +10,7 @@
   "background_color": "#FFFCF6",
   "theme_color": "#FF4F4F",
   "lang": "en",
-  "id": "/games.html?source=pwa",
+  "id": "/games/?source=pwa",
   "icons": [
     {
       "src": "/images/gulsabi-app-icon.png?v=3",
