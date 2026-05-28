@@ -406,32 +406,29 @@
       <div class="login-head">
         <div class="avatar"><img src="games/game2/gulsabi-normal.png" alt="Gulsabi"></div>
         <h2>Gulsabi Admin</h2>
-        <p id="loginSubtitle">Sign in with your email &mdash; we&rsquo;ll send a 6-digit code.</p>
+        <p id="loginSubtitle">Sign in with your Google account.</p>
       </div>
-      <!-- Step 1: enter email -->
-      <div id="step1">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="you@example.com" autocomplete="username" inputmode="email">
-        <button id="loginBtn">Send code</button>
-      </div>
-      <!-- Step 2: enter the 6-digit code from the email -->
-      <div id="step2" style="display:none;">
-        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px;line-height:1.45;">
-          We sent a 6-digit code to <strong id="emailEcho"></strong>. Enter it below to sign in.
-        </p>
-        <label for="otpCode">6-digit code</label>
-        <input type="text" id="otpCode" placeholder="000000" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" style="letter-spacing:0.25em;text-align:center;font-size:1.05rem;">
-        <button id="verifyBtn">Verify &amp; sign in</button>
-        <div style="text-align:center;margin-top:14px;font-size:0.8rem;">
-          <a href="#" id="resendLink" style="color:var(--text-muted);text-decoration:underline;">Send another code</a>
-          <span style="color:var(--border);margin:0 8px;">&middot;</span>
-          <a href="#" id="changeEmailLink" style="color:var(--text-muted);text-decoration:underline;">Use a different email</a>
-        </div>
-      </div>
+      <button id="googleBtn" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;background:#fff;color:#1f1f1f;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.95rem;font-weight:500;cursor:pointer;font-family:inherit;transition:background 0.15s ease,border-color 0.15s ease;">
+        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.79 2.72v2.26h2.9c1.7-1.57 2.68-3.87 2.68-6.62z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.46-.8 5.95-2.18l-2.9-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.97 10.72A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z"/>
+          <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58A9 9 0 0 0 9 0 9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
       <div id="loginError"></div>
       <p id="loginSuccess" style="display:none;font-size:0.82rem;color:var(--success);margin-top:12px;text-align:center;line-height:1.45;"></p>
+      <p style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:18px;line-height:1.5;">
+        Access is restricted. Only authorized admin accounts can sign in.
+      </p>
     </div>
   </div>
+  <style>
+    #googleBtn:hover { background: #fafafb; border-color: var(--border-hover); }
+    #googleBtn:active { background: #f0f0f3; }
+    #googleBtn:disabled { opacity: 0.55; cursor: default; }
+  </style>
 
   <!-- APP (sidebar + content) -->
   <div id="app">

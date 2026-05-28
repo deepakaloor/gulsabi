@@ -29,11 +29,11 @@ function gameDisplayName(gameId, gameName) {
 /* ── DOM refs ───────────────────────────────────────────────── */
 const loginBox  = document.getElementById("loginBox");
 const app       = document.getElementById("app");
-const loginBtn  = document.getElementById("loginBtn");
+const googleBtn = document.getElementById("googleBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const refreshBtn = document.getElementById("refreshBtn");
 const dateRange = document.getElementById("dateRange");
-let recoveryBox = null; // legacy slot — no longer used now that we're magic-link only
+// (legacy password-recovery slot removed — Google OAuth handles auth)
 
 /* ── Module-level state ─────────────────────────────────────── */
 let rawAnonUsers   = [];
@@ -54,146 +54,82 @@ function destroyChart(key) {
   if (_charts[key]) { _charts[key].destroy(); delete _charts[key]; }
 }
 
-/* ── Auth redirect handler (magic-link callback) ─────────────────
-   Supabase emails a magic link that lands here as
-     /admin.html#access_token=…&refresh_token=…&type=magiclink
-   We unpack the tokens, set the session, and clean the URL. */
-async function handleAuthRedirect() {
-  const hash = window.location.hash;
-  if (!hash) return false;
-  const params = new URLSearchParams(hash.substring(1));
-  const accessToken  = params.get("access_token");
-  const refreshToken = params.get("refresh_token") || "";
-  const type         = params.get("type");
-  if (!accessToken) return false;
-  if (type === "magiclink" || type === "email" || type === "signup" || type === "recovery") {
-    await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-    history.replaceState(null, "", window.location.pathname);
-    return true;
-  }
-  return false;
-}
-
-/* ── Login / logout ─────────────────────────────────────────────
-   Two-step OTP code login: enter your email, we send a 6-digit code,
-   you type it in. Lets you sign in from a device that doesn't have
-   your inbox open. We also accept the magic link from the email if
-   the user happens to click it on the same device (handleAuthRedirect
-   below catches that path). */
+/* ── Login: Google OAuth ─────────────────────────────────────────
+   The Supabase JS client auto-detects the OAuth callback hash
+   (#access_token=...) once the page loads. We use onAuthStateChange
+   to react to SIGNED_IN events and then verify the signed-in user
+   is actually an admin (defense in depth on top of the RLS policy
+   that already filters analytics rows by admin_emails). */
 const loginSuccessEl = document.getElementById("loginSuccess");
 const loginErrorEl   = document.getElementById("loginError");
-const step1El        = document.getElementById("step1");
-const step2El        = document.getElementById("step2");
-const emailInputEl   = document.getElementById("email");
-const otpInputEl     = document.getElementById("otpCode");
-const verifyBtn      = document.getElementById("verifyBtn");
-const emailEchoEl    = document.getElementById("emailEcho");
-const resendLink     = document.getElementById("resendLink");
-const changeEmailLink= document.getElementById("changeEmailLink");
 
-let _otpEmail = ""; // remembered between step 1 and step 2
-
-function showStep1() {
-  step1El.style.display = "block";
-  step2El.style.display = "none";
-  otpInputEl.value = "";
-  loginErrorEl.textContent = "";
+googleBtn.addEventListener("click", async () => {
+  loginErrorEl.textContent   = "";
   loginSuccessEl.style.display = "none";
-  setTimeout(() => emailInputEl.focus(), 50);
-}
-function showStep2(email) {
-  _otpEmail = email;
-  emailEchoEl.textContent = email;
-  step1El.style.display = "none";
-  step2El.style.display = "block";
-  loginErrorEl.textContent = "";
-  loginSuccessEl.style.display = "none";
-  setTimeout(() => otpInputEl.focus(), 50);
-}
-
-async function sendCode(email) {
-  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    loginErrorEl.textContent = "Enter a valid email address.";
-    return false;
-  }
-  loginBtn.disabled = true;
-  loginBtn.textContent = "Sending code…";
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
+  googleBtn.disabled = true;
+  const label = googleBtn.querySelector("span");
+  const original = label ? label.textContent : "Continue with Google";
+  if (label) label.textContent = "Redirecting to Google...";
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
     options: {
-      // We don't want Supabase to auto-create accounts. Only the
-      // email invited via Supabase Auth → Users can sign in.
-      shouldCreateUser: false,
-      // Magic-link fallback URL — used only if user clicks the link
-      // in the email instead of typing the code.
-      emailRedirectTo: window.location.origin + window.location.pathname
+      // Return to /admin/ after Google sends the user back
+      redirectTo: window.location.origin + window.location.pathname,
+      // Force account picker each time so the user can choose between
+      // multiple Google accounts (handy on shared computers)
+      queryParams: { prompt: "select_account" }
     }
   });
-  loginBtn.disabled = false;
-  loginBtn.textContent = "Send code";
   if (error) {
-    const msg = (error.message || "").toLowerCase();
-    if (msg.includes("signups not allowed") || msg.includes("not allowed") || msg.includes("not found")) {
-      loginErrorEl.textContent = "This email is not authorized for the dashboard.";
-    } else if (msg.includes("rate")) {
-      loginErrorEl.textContent = "Too many requests. Please wait a minute and try again.";
-    } else {
-      loginErrorEl.textContent = "Couldn't send code. " + error.message;
-    }
-    return false;
+    googleBtn.disabled = false;
+    if (label) label.textContent = original;
+    loginErrorEl.textContent = "Couldn't start Google sign-in: " + error.message;
   }
-  return true;
+  // On success the browser is navigating away to accounts.google.com,
+  // so there's nothing more to do here.
+});
+
+/* Verify a signed-in user is actually an admin. Calls the public
+   is_admin() Postgres function which returns true iff the user's
+   email is in public.admin_emails. */
+async function userIsAdmin() {
+  try {
+    const { data, error } = await supabase.rpc("is_admin");
+    if (!error && typeof data === "boolean") return data;
+    // Fallback: probe admin_emails directly (RLS filters to own row)
+    const { data: rows, error: rowsErr } = await supabase
+      .from("admin_emails").select("email").limit(1);
+    if (rowsErr) return false;
+    return Array.isArray(rows) && rows.length > 0;
+  } catch (e) { return false; }
 }
 
-loginBtn.addEventListener("click", async () => {
-  const email = emailInputEl.value.trim();
-  if (await sendCode(email)) showStep2(email);
-});
-emailInputEl.addEventListener("keydown", e => { if (e.key === "Enter") loginBtn.click(); });
-
-verifyBtn.addEventListener("click", async () => {
-  const code = (otpInputEl.value || "").trim();
-  if (!/^\d{6}$/.test(code)) {
-    loginErrorEl.textContent = "Enter the 6-digit code from your email.";
-    return;
-  }
-  verifyBtn.disabled = true;
-  verifyBtn.textContent = "Verifying…";
-  loginErrorEl.textContent = "";
-  // type: "email" verifies OTP codes sent via signInWithOtp
-  const { error } = await supabase.auth.verifyOtp({ email: _otpEmail, token: code, type: "email" });
-  verifyBtn.disabled = false;
-  verifyBtn.textContent = "Verify & sign in";
-  if (error) {
-    const m = (error.message || "").toLowerCase();
-    if (m.includes("expired") || m.includes("invalid")) {
-      loginErrorEl.textContent = "That code is invalid or expired. Click \"Send another code\" to try again.";
+/* Auth state listener — fires on SIGNED_IN (manual + OAuth callback),
+   SIGNED_OUT, TOKEN_REFRESHED, etc. */
+supabase.auth.onAuthStateChange(async (event, session) => {
+  if (event === "SIGNED_IN" && session) {
+    // Clean the OAuth hash out of the address bar
+    if (window.location.hash.includes("access_token")) {
+      history.replaceState(null, "", window.location.pathname);
+    }
+    if (await userIsAdmin()) {
+      showApp();
     } else {
-      loginErrorEl.textContent = "Verification failed. " + error.message;
+      // Not on the allowlist — sign them out and tell them why
+      const wrongEmail = (session.user && session.user.email) || "this Google account";
+      await supabase.auth.signOut();
+      const escaped = String(wrongEmail).replace(/[<&]/g, c => c === "<" ? "&lt;" : "&amp;");
+      loginErrorEl.innerHTML = "<strong>" + escaped + "</strong> is not authorized for the dashboard. Ask the project owner to add you to admin_emails, then try again.";
+      loginBox.style.display = "flex";
+      app.style.display = "none";
     }
     return;
   }
-  // Success — show the app
-  showApp();
-});
-otpInputEl.addEventListener("keydown", e => { if (e.key === "Enter") verifyBtn.click(); });
-// Auto-submit when 6 digits are entered (mostly for autofill from iOS SMS-style UI)
-otpInputEl.addEventListener("input", () => {
-  const code = (otpInputEl.value || "").replace(/\D/g, "").slice(0, 6);
-  if (code !== otpInputEl.value) otpInputEl.value = code;
-  if (code.length === 6) verifyBtn.click();
-});
-
-resendLink.addEventListener("click", async e => {
-  e.preventDefault();
-  loginErrorEl.textContent = "";
-  if (await sendCode(_otpEmail)) {
-    loginSuccessEl.style.display = "block";
-    loginSuccessEl.textContent = "A new code is on its way.";
-    setTimeout(() => { loginSuccessEl.style.display = "none"; }, 4000);
+  if (event === "SIGNED_OUT") {
+    loginBox.style.display = "flex";
+    app.style.display = "none";
   }
 });
-changeEmailLink.addEventListener("click", e => { e.preventDefault(); showStep1(); });
 logoutBtn.addEventListener("click", async () => {
   await supabase.auth.signOut();
   loginBox.style.display = "flex";
@@ -205,16 +141,27 @@ dateRange.addEventListener("change", () => { dateFilter = dateRange.value; rende
 
 function showApp() {
   loginBox.style.display = "none";
-  if (recoveryBox) recoveryBox.style.display = "none";
   app.style.display = "block";
   loadAll();
 }
 
 async function checkSession() {
-  if (await handleAuthRedirect()) return;
+  // The onAuthStateChange listener will fire SIGNED_IN if there's a
+  // hash in the URL (OAuth callback) or if a session is restored
+  // from storage. We just need to render the right initial state.
   const { data: { session } } = await supabase.auth.getSession();
-  if (session) showApp();
-  else { loginBox.style.display = "flex"; app.style.display = "none"; }
+  if (session) {
+    // Confirm the restored session is an admin (in case the
+    // admin_emails table changed since last login)
+    if (await userIsAdmin()) {
+      showApp();
+    } else {
+      await supabase.auth.signOut();
+      loginBox.style.display = "flex"; app.style.display = "none";
+    }
+  } else {
+    loginBox.style.display = "flex"; app.style.display = "none";
+  }
 }
 
 /* ── Sidebar nav ────────────────────────────────────────────── */
