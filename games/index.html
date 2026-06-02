@@ -4,11 +4,31 @@
   <base href="/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Games | Gulsabi Kids</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Gulsabi Games - Free Browser Games for Kids 3-7 | Gulsabi World</title>
+    <meta name="description" content="Play Gulsabi's free browser games for kids aged 3 to 7. Five bright, ad-free games - Sky Adventure, Cannon Color Range, Odd One Out, Memory Match and Quiz Time - that grow focus, memory, colour skills and curiosity. No downloads.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://gulsabi.com/games">
+    <meta name="keywords" content="Gulsabi games, free kids games, browser games for kids, educational games ages 3-7, memory game, colour matching game, quiz for kids, Pixnut">
+    <meta name="author" content="Pixnut">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Gulsabi World">
+    <meta property="og:title" content="Gulsabi Games - free browser games for curious kids">
+    <meta property="og:description" content="Five bright, ad-free games for kids aged 3 to 7. Play right in the browser, no downloads needed.">
+    <meta property="og:url" content="https://gulsabi.com/games">
+    <meta property="og:image" content="https://gulsabi.com/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gulsabi Games - free browser games for curious kids">
+    <meta name="twitter:description" content="Five bright, ad-free games for kids aged 3 to 7. Play right in the browser, no downloads needed.">
+    <meta name="twitter:image" content="https://gulsabi.com/og.png">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json?v=3">
     <!-- One canonical icon used for browser tab, Add-to-Home-Screen, and PWA install
-         — same file, same look everywhere. -->
+         - same file, same look everywhere. -->
     <link rel="icon"             type="image/png" href="/images/gulsabi-app-icon.png?v=3">
     <link rel="shortcut icon"    type="image/png" href="/images/gulsabi-app-icon.png?v=3">
     <link rel="apple-touch-icon"                  href="/images/gulsabi-app-icon.png?v=3">
@@ -335,6 +355,48 @@
             box-shadow: 0 6px 14px rgba(31,41,55,0.08);
         }
 
+        /* tap-the-thumbnail play affordance */
+        .tile-thumb .thumb-play {
+            position: absolute; right: 10px; bottom: 10px;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,79,79,0.95);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 20px rgba(255,79,79,0.42);
+            transition: transform 0.25s var(--ease-out-quint);
+        }
+        .app-tile:hover .tile-thumb .thumb-play { transform: scale(1.12); }
+        .tile-thumb .thumb-play::before {
+            content: ''; width: 0; height: 0;
+            border-left: 12px solid #fff;
+            border-top: 8px solid transparent; border-bottom: 8px solid transparent;
+            margin-left: 3px;
+        }
+
+        /* dual action buttons (Play + Explore) on every tile */
+        .tile-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .btn-play, .btn-explore {
+            flex: 1; min-height: 40px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            border-radius: 100px;
+            font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.86rem;
+            cursor: pointer; border: 1px solid transparent;
+            transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-play { background: var(--cape-red); color: #fff; box-shadow: 0 8px 18px rgba(255,79,79,0.28); }
+        .btn-play:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(255,79,79,0.36); }
+        .btn-play .pico { font-size: 0.72rem; line-height: 1; }
+        .btn-explore { background: rgba(31,41,55,0.05); color: var(--text-dark); border-color: rgba(31,41,55,0.08); }
+        .btn-explore:hover { background: rgba(31,41,55,0.10); transform: translateY(-1px); }
+        .btn-play:active, .btn-explore:active { transform: translateY(0) scale(0.97); }
+
+        /* featured: overlay lets clicks fall through to the play link, except
+           on its own action buttons */
+        .feat-overlay { pointer-events: none; }
+        .feat-overlay .feat-actions, .feat-overlay .feat-btn { pointer-events: auto; }
+        .featured .feat-play { pointer-events: none; }
+        .feat-actions { display: flex; gap: 10px; margin-top: 14px; max-width: 360px; }
+        .feat-btn { flex: 1; }
+
         /* ── Bottom Tab Bar ──────────────────────────────── */
         .tab-bar {
             position: fixed;
@@ -521,6 +583,9 @@
             .featured .feat-sub { font-size: 0.85rem; }
             .icon-btn { width: 44px; height: 44px; } /* min-recommended tap target */
             .tab { min-height: 44px; }
+            .tile-actions { gap: 6px; }
+            .btn-play, .btn-explore { font-size: 0.78rem; min-height: 38px; gap: 4px; }
+            .tile-thumb .thumb-play { width: 36px; height: 36px; }
         }
 
         /* ── Splash screen (shown on first paint, fades when app is ready) ── */
@@ -530,10 +595,14 @@
             z-index: 99999;
             background: #FFFCF6 url("/images/gulsabi-loading.jpg?v=2") center/cover no-repeat;
             transition: opacity 0.5s ease;
-            display: flex;
+            /* Hidden in the browser; only shown when launched as an installed app. */
+            display: none;
             align-items: flex-end;
             justify-content: center;
             padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        @media (display-mode: standalone), (display-mode: fullscreen) {
+            #appSplash { display: flex; }
         }
         #appSplash.hide { opacity: 0; pointer-events: none; }
         #appSplash .splash-progress {
@@ -563,20 +632,149 @@
             html, body { background: var(--cream); }
         }
     </style>
+
+<style id="gw-nav">
+  .gw-bar{position:fixed;inset:16px 0 auto 0;z-index:9999;display:flex;justify-content:center;pointer-events:none;}
+  .gw-inner{pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:16px;width:calc(100% - 32px);max-width:1152px;height:64px;padding:0 18px 0 24px;border-radius:9999px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.65);box-shadow:0 8px 32px rgba(31,41,55,.08);-webkit-backdrop-filter:saturate(150%) blur(16px);backdrop-filter:saturate(150%) blur(16px);transition:background .3s,box-shadow .3s,height .3s,border-color .3s;}
+  .gw-bar.scrolled .gw-inner{height:56px;background:rgba(255,255,255,.78);-webkit-backdrop-filter:saturate(160%) blur(20px);backdrop-filter:saturate(160%) blur(20px);}
+  .gw-logo{display:flex;align-items:center;}
+  .gw-logo img{height:32px;width:auto;display:block;}
+  .gw-links{display:flex;align-items:center;gap:4px;padding:0;margin:0;list-style:none;}
+  .gw-link{font:600 .875rem/1 'Nunito',sans-serif;color:rgba(31,41,55,.8);text-decoration:none;padding:8px 16px;border-radius:9999px;transition:background .2s,color .2s;}
+  .gw-link:hover{background:rgba(255,255,255,.5);color:#1f2937;}
+  .gw-link.active{background:rgba(0,163,224,.12);color:#00A3E0;font-weight:700;}
+  .neon-ai{display:inline-block;font-weight:700;color:#FF4F4F;transform:rotate(-6deg);margin-right:2px;}
+  .gw-right{display:flex;align-items:center;gap:8px;}
+  .gw-cta{font:700 .875rem/1 'Nunito',sans-serif;color:#fff !important;background:#FF4F4F;text-decoration:none;height:40px;display:inline-flex;align-items:center;padding:0 20px;border-radius:9999px;transition:.2s;box-shadow:0 8px 32px rgba(31,41,55,.08);}
+  .gw-cta:hover{background:#e63b3b;transform:translateY(-1px);}
+  .gw-burger{display:none;width:44px;height:44px;border:0;border-radius:9999px;background:rgba(255,255,255,.6);align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+  .gw-burger svg{width:22px;height:22px;}
+  .gw-mobile{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:9998;width:calc(100% - 32px);max-width:1152px;border-radius:24px;background:rgba(255,255,255,.88);-webkit-backdrop-filter:saturate(160%) blur(20px);backdrop-filter:saturate(160%) blur(20px);box-shadow:0 20px 60px rgba(31,41,55,.12);padding:0 12px;max-height:0;overflow:hidden;opacity:0;transition:max-height .3s,padding .3s,opacity .3s;}
+  .gw-mobile.open{max-height:26rem;padding:12px;opacity:1;}
+  .gw-mobile a{display:block;padding:12px 16px;border-radius:16px;font:600 1rem/1 'Nunito',sans-serif;color:#1f2937;text-decoration:none;}
+  .gw-mobile a:hover{background:rgba(255,255,255,.6);}
+  .gw-mobile a.active{background:rgba(0,163,224,.12);color:#00A3E0;font-weight:700;}
+  .gw-mobile .gw-cta{display:flex;justify-content:center;width:100%;margin-top:8px;}
+  @media(max-width:768px){.gw-links,.gw-right>.gw-cta{display:none;}.gw-burger{display:inline-flex;}}
+  /* Desktop browser: the games hub is embedded in the website, so it wears the
+     website top nav; the native app chrome (app-bar + tab-bar) stays hidden. */
+  .app-bar{display:none;}
+  .tab-bar{display:none !important;}
+  body{padding-top:96px !important;}
+  /* App interface: on phones (any browser) AND when installed as a PWA, drop
+     the website nav and show the native app chrome - top app-bar + bottom tab
+     bar - so the games section is its own self-contained app module. */
+  @media (max-width:768px), (display-mode: standalone), (display-mode: fullscreen){
+    .gw-bar,.gw-mobile{display:none !important;}
+    .app-bar{display:flex !important;}
+    .tab-bar{display:block !important;}
+    body{padding-top:calc(var(--app-bar-h) + var(--safe-top)) !important;}
+  }
+</style>
+
+<!-- Structured data: the games collection (for SEO + AI answer engines) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://gulsabi.com/games#page",
+      "url": "https://gulsabi.com/games",
+      "name": "Gulsabi Games",
+      "description": "Five free, ad-free browser games for kids aged 3 to 7, built to grow focus, memory, colour skills and curiosity.",
+      "isPartOf": { "@type": "WebSite", "name": "Gulsabi World", "url": "https://gulsabi.com" },
+      "publisher": { "@type": "Organization", "name": "Pixnut", "url": "https://pixnut.com/" },
+      "mainEntity": { "@id": "https://gulsabi.com/games#gamelist" }
+    },
+    {
+      "@type": "ItemList",
+      "@id": "https://gulsabi.com/games#gamelist",
+      "name": "All Gulsabi games",
+      "numberOfItems": 5,
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "item": {
+          "@type": "VideoGame", "name": "Sky Adventure",
+          "description": "A tap-to-fly arcade game for ages 5+. Dodge asteroids and aliens, grab power-ups, and grow quick reflexes and hand-eye coordination.",
+          "url": "https://gulsabi.com/games/explore.html?game=game1",
+          "image": "https://gulsabi.com/assets/game1.jpg",
+          "genre": "Arcade", "gamePlatform": "Web browser", "operatingSystem": "Any (web browser)",
+          "playMode": "SinglePlayer", "isAccessibleForFree": true,
+          "audience": { "@type": "PeopleAudience", "suggestedMinAge": 5 },
+          "publisher": { "@type": "Organization", "name": "Pixnut", "url": "https://pixnut.com/" } } },
+        { "@type": "ListItem", "position": 2, "item": {
+          "@type": "VideoGame", "name": "Cannon Color Range",
+          "description": "A colour-recognition game for ages 3+. Match the colour and fire the cannon before time runs out.",
+          "url": "https://gulsabi.com/games/explore.html?game=game2",
+          "image": "https://gulsabi.com/assets/game2.jpg",
+          "genre": "Educational", "gamePlatform": "Web browser", "operatingSystem": "Any (web browser)",
+          "playMode": "SinglePlayer", "isAccessibleForFree": true,
+          "audience": { "@type": "PeopleAudience", "suggestedMinAge": 3 },
+          "publisher": { "@type": "Organization", "name": "Pixnut", "url": "https://pixnut.com/" } } },
+        { "@type": "ListItem", "position": 3, "item": {
+          "@type": "VideoGame", "name": "Odd One Out",
+          "description": "An observation puzzle for ages 4+. Spot the one picture that does not belong before the timer runs down.",
+          "url": "https://gulsabi.com/games/explore.html?game=game3",
+          "image": "https://gulsabi.com/assets/game3.jpg",
+          "genre": "Puzzle", "gamePlatform": "Web browser", "operatingSystem": "Any (web browser)",
+          "playMode": "SinglePlayer", "isAccessibleForFree": true,
+          "audience": { "@type": "PeopleAudience", "suggestedMinAge": 4 },
+          "publisher": { "@type": "Organization", "name": "Pixnut", "url": "https://pixnut.com/" } } },
+        { "@type": "ListItem", "position": 4, "item": {
+          "@type": "VideoGame", "name": "Memory Match",
+          "description": "A memory game for ages 4+. Flip cards to find pairs, solo across ten levels or head-to-head in 2-player mode.",
+          "url": "https://gulsabi.com/games/explore.html?game=game4",
+          "image": "https://gulsabi.com/assets/game4.jpg",
+          "genre": "Educational", "gamePlatform": "Web browser", "operatingSystem": "Any (web browser)",
+          "playMode": ["SinglePlayer", "CoOp"], "isAccessibleForFree": true,
+          "audience": { "@type": "PeopleAudience", "suggestedMinAge": 4 },
+          "publisher": { "@type": "Organization", "name": "Pixnut", "url": "https://pixnut.com/" } } },
+        { "@type": "ListItem", "position": 5, "item": {
+          "@type": "VideoGame", "name": "Quiz Time",
+          "description": "A friendly quiz for ages 5+. Name objects, pick colours and learn fun facts to grow knowledge and confidence.",
+          "url": "https://gulsabi.com/games/explore.html?game=game5",
+          "image": "https://gulsabi.com/assets/game5.jpg",
+          "genre": "Educational", "gamePlatform": "Web browser", "operatingSystem": "Any (web browser)",
+          "playMode": "SinglePlayer", "isAccessibleForFree": true,
+          "audience": { "@type": "PeopleAudience", "suggestedMinAge": 5 },
+          "publisher": { "@type": "Organization", "name": "Pixnut", "url": "https://pixnut.com/" } } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://gulsabi.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Games", "item": "https://gulsabi.com/games" }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
+<header class="gw-bar" id="gwBar"><div class="gw-inner">
+  <a class="gw-logo" href="/#spark"><img src="/images/gulsabi-logo.png" alt="Gulsabi World"></a>
+  <ul class="gw-links"><li><a class="gw-link" href="/#spark">Home</a></li><li><a class="gw-link" href="/about">About</a></li><li><a class="gw-link" href="/videos">Watch</a></li><li><a class="gw-link" href="/companion"><span class="neon-ai">AI</span> Companion</a></li><li><a class="gw-link active" aria-current="page" href="/games" target="_blank" rel="noopener">Games</a></li></ul>
+  <div class="gw-right">
+    <a class="gw-cta" href="/#companion">Connect Gulsabi Fam</a>
+    <button class="gw-burger" id="gwBurger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="#1f2937" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</div></header>
+<div class="gw-mobile" id="gwMobile"><a href="/#spark">Home</a><a href="/about">About</a><a href="/videos">Watch</a><a href="/companion"><span class="neon-ai">AI</span> Companion</a><a class="active" aria-current="page" href="/games" target="_blank" rel="noopener">Games</a><a class="gw-cta" href="/#companion">Connect Gulsabi Fam</a></div>
+<script>(function(){var b=document.getElementById('gwBar'),u=document.getElementById('gwBurger'),m=document.getElementById('gwMobile');function s(){b.classList.toggle('scrolled',window.scrollY>50);}s();window.addEventListener('scroll',s,{passive:true});if(u)u.addEventListener('click',function(){m.classList.toggle('open');});})();</script>
+
+
 
     <!-- Splash (shown until the app is ready; especially useful in PWA standalone mode) -->
     <div id="appSplash" aria-hidden="true"><div class="splash-progress"></div></div>
 
-    <!-- App Bar (sticky top) -->
+    <!-- App Bar (sticky top) - the native-app header shown on phones and when
+         installed as a PWA. -->
     <header class="app-bar">
-        <a href="/" class="app-bar-brand" aria-label="Gulsabi Kids home">
-            <img src="images/gulsabi-logo.png" alt="Gulsabi Kids">
-        </a>
+        <a class="app-bar-brand" href="games/" aria-label="Gulsabi Games home"><img src="/images/gulsabi-logo.png" alt="Gulsabi"></a>
         <div class="app-bar-actions">
             <button class="icon-btn" onclick="showPopup()" aria-label="Connect"><span>&#9889;</span></button>
-            <a class="icon-btn" href="/about/" aria-label="About"><span>?</span></a>
+            <a class="icon-btn" href="/about" aria-label="About"><span>?</span></a>
         </div>
     </header>
 
@@ -601,15 +799,19 @@
         </div>
 
         <!-- Featured tile (one of the games picked randomly each visit) -->
-        <a class="featured" id="featuredTile" href="games/game4/index.html" data-game-card-id="game4">
-            <span class="featured-media"><img src="assets/game4.jpg" alt="Memory Match" id="featuredImg" loading="eager" decoding="async"></span>
+        <div class="featured" id="featuredTile" data-game-card-id="game4">
+            <a class="featured-media" id="featuredPlayMedia" href="games/game4/index.html" aria-label="Play featured game"><img src="assets/game4.jpg" alt="Memory Match" id="featuredImg" loading="eager" decoding="async"></a>
+            <span class="feat-play" aria-hidden="true"></span>
             <div class="feat-overlay">
                 <span class="feat-tag">Featured</span>
                 <div class="feat-title" id="featuredTitle">Memory Match</div>
                 <div class="feat-sub" id="featuredSub">Flip cards and find pairs. Solo or 2-player.</div>
+                <div class="feat-actions">
+                    <a class="btn-play feat-btn" id="featuredPlay" href="games/game4/index.html" data-game-card-id="game4"><span class="pico">&#9654;</span> Play now</a>
+                    <a class="btn-explore feat-btn" id="featuredExplore" href="games/explore.html?game=game4">Explore</a>
+                </div>
             </div>
-            <span class="feat-play" aria-hidden="true"></span>
-        </a>
+        </div>
 
         <!-- All Games -->
         <div class="section-row">
@@ -617,8 +819,8 @@
             <span class="count">5 games</span>
         </div>
         <div class="tile-grid">
-            <a class="app-tile" href="games/game1/index.html" data-game-card-id="game1">
-                <div class="tile-thumb"><img src="assets/game1.jpg" alt="Sky Adventure" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+            <article class="app-tile" data-game-card-id="game1">
+                <a class="tile-thumb" href="games/game1/index.html" aria-label="Play Sky Adventure"><img src="assets/game1.jpg" alt="Sky Adventure" loading="lazy" decoding="async"><span class="thumb-play" aria-hidden="true"></span></a>
                 <div class="tile-body">
                     <h3>Sky Adventure</h3>
                     <p class="tile-desc">Fly through the sky, dodge obstacles, grab power-ups.</p>
@@ -626,10 +828,14 @@
                         <span class="badge age">Ages 5+</span>
                         <span class="badge solo">Solo</span>
                     </div>
+                    <div class="tile-actions">
+                        <a class="btn-play" href="games/game1/index.html"><span class="pico">&#9654;</span> Play</a>
+                        <a class="btn-explore" href="games/explore.html?game=game1">Explore</a>
+                    </div>
                 </div>
-            </a>
-            <a class="app-tile" href="games/game2/index.html" data-game-card-id="game2">
-                <div class="tile-thumb"><img src="assets/game2.jpg" alt="Cannon Color Range" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+            </article>
+            <article class="app-tile" data-game-card-id="game2">
+                <a class="tile-thumb" href="games/game2/index.html" aria-label="Play Cannon Color Range"><img src="assets/game2.jpg" alt="Cannon Color Range" loading="lazy" decoding="async"><span class="thumb-play" aria-hidden="true"></span></a>
                 <div class="tile-body">
                     <h3>Cannon Color Range</h3>
                     <p class="tile-desc">Spot the color and fire the matching cannon in time.</p>
@@ -637,10 +843,14 @@
                         <span class="badge age">Ages 3+</span>
                         <span class="badge solo">Solo</span>
                     </div>
+                    <div class="tile-actions">
+                        <a class="btn-play" href="games/game2/index.html"><span class="pico">&#9654;</span> Play</a>
+                        <a class="btn-explore" href="games/explore.html?game=game2">Explore</a>
+                    </div>
                 </div>
-            </a>
-            <a class="app-tile" href="games/game3/index.html" data-game-card-id="game3">
-                <div class="tile-thumb"><img src="assets/game3.jpg" alt="Odd One Out" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+            </article>
+            <article class="app-tile" data-game-card-id="game3">
+                <a class="tile-thumb" href="games/game3/index.html" aria-label="Play Odd One Out"><img src="assets/game3.jpg" alt="Odd One Out" loading="lazy" decoding="async"><span class="thumb-play" aria-hidden="true"></span></a>
                 <div class="tile-body">
                     <h3>Odd One Out</h3>
                     <p class="tile-desc">Find the one card that's different from all the rest.</p>
@@ -648,10 +858,14 @@
                         <span class="badge age">Ages 4+</span>
                         <span class="badge solo">Solo</span>
                     </div>
+                    <div class="tile-actions">
+                        <a class="btn-play" href="games/game3/index.html"><span class="pico">&#9654;</span> Play</a>
+                        <a class="btn-explore" href="games/explore.html?game=game3">Explore</a>
+                    </div>
                 </div>
-            </a>
-            <a class="app-tile" href="games/game4/index.html" data-game-card-id="game4">
-                <div class="tile-thumb"><img src="assets/game4.jpg" alt="Memory Match" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+            </article>
+            <article class="app-tile" data-game-card-id="game4">
+                <a class="tile-thumb" href="games/game4/index.html" aria-label="Play Memory Match"><img src="assets/game4.jpg" alt="Memory Match" loading="lazy" decoding="async"><span class="thumb-play" aria-hidden="true"></span></a>
                 <div class="tile-body">
                     <h3>Memory Match</h3>
                     <p class="tile-desc">Flip cards and find matching pairs. Solo or 2-player.</p>
@@ -659,10 +873,14 @@
                         <span class="badge age">Ages 4+</span>
                         <span class="badge duo">2 Players</span>
                     </div>
+                    <div class="tile-actions">
+                        <a class="btn-play" href="games/game4/index.html"><span class="pico">&#9654;</span> Play</a>
+                        <a class="btn-explore" href="games/explore.html?game=game4">Explore</a>
+                    </div>
                 </div>
-            </a>
-            <a class="app-tile" href="games/game5/index.html" data-game-card-id="game5">
-                <div class="tile-thumb"><img src="assets/game5.jpg" alt="Quiz Time" loading="lazy" decoding="async"><span class="tile-cta">Play</span></div>
+            </article>
+            <article class="app-tile" data-game-card-id="game5">
+                <a class="tile-thumb" href="games/game5/index.html" aria-label="Play Quiz Time"><img src="assets/game5.jpg" alt="Quiz Time" loading="lazy" decoding="async"><span class="thumb-play" aria-hidden="true"></span></a>
                 <div class="tile-body">
                     <h3>Quiz Time</h3>
                     <p class="tile-desc">Identify objects, colors, and fun-fact questions.</p>
@@ -670,8 +888,12 @@
                         <span class="badge age">Ages 5+</span>
                         <span class="badge solo">Solo</span>
                     </div>
+                    <div class="tile-actions">
+                        <a class="btn-play" href="games/game5/index.html"><span class="pico">&#9654;</span> Play</a>
+                        <a class="btn-explore" href="games/explore.html?game=game5">Explore</a>
+                    </div>
                 </div>
-            </a>
+            </article>
         </div>
     </main>
 
@@ -682,16 +904,16 @@
                 <span class="tab-icon">&#127968;</span>
                 <span>Home</span>
             </a>
+            <a class="tab" href="/videos">
+                <span class="tab-icon">&#9654;</span>
+                <span>Watch</span>
+            </a>
             <a class="tab active" href="/games/">
                 <span class="tab-icon">&#127918;</span>
                 <span>Games</span>
             </a>
-            <a class="tab" href="https://www.youtube.com/@GulsabiKids" target="_blank" rel="noopener">
-                <span class="tab-icon">&#9654;</span>
-                <span>YouTube</span>
-            </a>
-            <a class="tab" href="/about/">
-                <span class="tab-icon tab-icon-img"><img src="games/game2/gulsabi-normal.png" alt="" loading="lazy"></span>
+            <a class="tab" href="/about">
+                <span class="tab-icon">&#9432;</span>
                 <span>About</span>
             </a>
         </div>
@@ -724,7 +946,7 @@
             document.getElementById('greetingTitle').textContent = 'What shall we play today?';
         })();
 
-        /* Rotate featured tile across visits — picks one of the 5 games at random */
+        /* Rotate featured tile across visits - picks one of the 5 games at random */
         (function() {
             const games = [
                 { id: 1, gameId: 'game1', img: 'assets/game1.jpg', title: 'Sky Adventure',       sub: 'Fly through the sky, dodge obstacles, grab power-ups.', href: 'games/game1/index.html' },
@@ -735,10 +957,16 @@
             ];
             const pick = games[Math.floor(Math.random() * games.length)];
             const tile = document.getElementById('featuredTile');
-            tile.href = pick.href;
             // Keep the analytics data attribute in sync with whichever game is
-            // randomly featured — otherwise game_card_view always counts as game4.
+            // randomly featured - otherwise game_card_view always counts as game4.
             tile.setAttribute('data-game-card-id', pick.gameId);
+            const playMedia = document.getElementById('featuredPlayMedia');
+            const playBtn = document.getElementById('featuredPlay');
+            const exploreBtn = document.getElementById('featuredExplore');
+            playMedia.href = pick.href;
+            playBtn.href = pick.href;
+            playBtn.setAttribute('data-game-card-id', pick.gameId);
+            exploreBtn.href = 'games/explore.html?game=' + pick.gameId;
             document.getElementById('featuredImg').src = pick.img;
             document.getElementById('featuredImg').alt = pick.title;
             document.getElementById('featuredTitle').textContent = pick.title;
@@ -806,7 +1034,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
                 try {
-                    const reg = await navigator.serviceWorker.register('/service-worker.js');
+                    const reg = await navigator.serviceWorker.register('/games/service-worker.js', { scope: '/games/' });
 
                     // When a new SW is found, ask it to take over as soon as installed
                     reg.addEventListener('updatefound', () => {
@@ -814,7 +1042,7 @@
                         if (!sw) return;
                         sw.addEventListener('statechange', () => {
                             if (sw.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New version is ready — skip waiting and reload below
+                                // New version is ready - skip waiting and reload below
                                 sw.postMessage({ type: 'SKIP_WAITING' });
                             }
                         });
@@ -833,7 +1061,7 @@
                     document.addEventListener('visibilitychange', () => {
                         if (document.visibilityState === 'visible') poke();
                     });
-                } catch (e) { /* SW registration failed — fine, just no offline */ }
+                } catch (e) { /* SW registration failed - fine, just no offline */ }
             });
         }
     </script>

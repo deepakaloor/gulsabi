@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a4a4a"/>
+      <stop offset="0.55" stop-color="#0e3b4a"/>
+      <stop offset="1" stop-color="#08312f"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="50%" cy="8%" r="55%">
+      <stop offset="0" stop-color="#bfffe6" stop-opacity="0.55"/>
+      <stop offset="0.4" stop-color="#5fe7c6" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#5fe7c6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="clearing" cx="50%" cy="62%" r="45%">
+      <stop offset="0" stop-color="#27e0b8" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#27e0b8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="shaft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cffff0" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#cffff0" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <rect width="1600" height="1000" fill="url(#sun)"/>
+
+  <!-- light shafts -->
+  <g opacity="0.7">
+    <polygon points="540,0 700,0 540,1000 300,1000" fill="url(#shaft)"/>
+    <polygon points="980,0 1120,0 1320,1000 1080,1000" fill="url(#shaft)" opacity="0.7"/>
+  </g>
+
+  <!-- far canopy -->
+  <path d="M0,360 C220,280 360,420 560,400 C760,380 880,300 1080,340 C1280,380 1420,320 1600,360 L1600,1000 L0,1000 Z" fill="#13564a" opacity="0.55"/>
+  <!-- mid pines -->
+  <g fill="#0f463d">
+    <path d="M180,640 l90,-220 l90,220 Z"/>
+    <path d="M170,700 l100,-220 l100,220 Z"/>
+    <path d="M1300,650 l85,-210 l85,210 Z"/>
+    <path d="M1360,700 l95,-220 l95,220 Z"/>
+  </g>
+  <!-- rolling ground -->
+  <path d="M0,560 C260,500 420,600 660,580 C900,560 1060,480 1320,520 C1460,540 1540,560 1600,560 L1600,1000 L0,1000 Z" fill="#0b3b34"/>
+  <ellipse cx="800" cy="620" rx="760" ry="240" fill="url(#clearing)"/>
+  <!-- near foliage -->
+  <path d="M0,760 C220,690 360,800 600,780 C840,760 980,700 1240,740 C1420,768 1520,790 1600,780 L1600,1000 L0,1000 Z" fill="#072a26"/>
+  <!-- glowing mushrooms / lanterns -->
+  <g>
+    <circle cx="360" cy="800" r="9" fill="#7fffd9" opacity="0.85"/>
+    <circle cx="1180" cy="820" r="8" fill="#9affe2" opacity="0.8"/>
+    <circle cx="740" cy="860" r="7" fill="#bfffe6" opacity="0.75"/>
+  </g>
+</svg>

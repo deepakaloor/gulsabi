@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Explore Gulsabi Games | Gulsabi World</title>
+    <meta name="description" id="metaDesc" content="Discover what makes each Gulsabi game special: the story behind it, the skills it grows and the ages it suits. Free, ad-free games for kids aged 3 to 7.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" id="exCanonical" href="https://gulsabi.com/games/explore.html">
+    <meta name="author" content="Pixnut">
+    <!-- Open Graph (updated per game by the page script) -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Gulsabi World">
+    <meta property="og:title" id="ogTitle" content="Explore Gulsabi Games">
+    <meta property="og:description" id="ogDesc" content="The story behind each game and the skills it grows.">
+    <meta property="og:url" id="ogUrl" content="https://gulsabi.com/games/explore.html">
+    <meta property="og:image" id="ogImage" content="https://gulsabi.com/og.png">
+    <meta property="og:locale" content="en_US">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="twTitle" content="Explore Gulsabi Games">
+    <meta name="twitter:description" id="twDesc" content="The story behind each game and the skills it grows.">
+    <meta name="twitter:image" id="twImage" content="https://gulsabi.com/og.png">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon"             type="image/png" href="/images/gulsabi-app-icon.png?v=3">
+    <link rel="shortcut icon"    type="image/png" href="/images/gulsabi-app-icon.png?v=3">
+    <link rel="apple-touch-icon"                  href="/images/gulsabi-app-icon.png?v=3">
+    <link rel="apple-touch-startup-image"         href="/images/gulsabi-loading.jpg?v=3">
+    <meta name="theme-color" content="#FF4F4F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gulsabi">
+    <style>
+        :root {
+            --gulsabi-yellow: #FFD600;
+            --hero-blue:      #00A3E0;
+            --cape-red:       #FF4F4F;
+            --pure-white:     #ffffff;
+            --cream:          #FFFCF6;
+            --soft-grey:      #f4f6f9;
+            --text-dark:      #1f2937;
+            --text-muted:     #6b7280;
+            --mint:           #34c759;
+
+            --safe-top:    env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --app-bar-h:   64px;
+            --tab-bar-h:   72px;
+
+            --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 400;
+            overflow-x: hidden;
+            background:
+                radial-gradient(ellipse at top right, rgba(255,79,79,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom left, rgba(0,163,224,0.05) 0%, transparent 50%),
+                var(--cream);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            min-width: 0;
+            padding-top: calc(var(--app-bar-h) + var(--safe-top));
+            padding-bottom: calc(var(--tab-bar-h) + var(--safe-bottom) + 16px);
+        }
+        a { text-decoration: none; color: inherit; }
+        img, video, iframe { display: block; max-width: 100%; }
+
+        /* ── App Bar ──────────────────────────────────────── */
+        .app-bar {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: calc(var(--app-bar-h) + var(--safe-top));
+            padding-top: var(--safe-top);
+            background: rgba(255,252,246,0.92);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border-bottom: 1px solid rgba(31,41,55,0.06);
+            z-index: 100; display: flex; align-items: center;
+            padding-left: clamp(16px, 4vw, 28px);
+            padding-right: clamp(16px, 4vw, 28px);
+        }
+        .app-bar-brand { display: flex; align-items: center; }
+        .app-bar-brand img { height: 40px; width: auto; }
+        .app-bar-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+        .icon-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(31,41,55,0.05); border: 0;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1rem; color: var(--text-dark);
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .icon-btn:hover { background: rgba(31,41,55,0.1); }
+        .icon-btn:active { transform: scale(0.94); }
+
+        /* ── Page Container ──────────────────────────────── */
+        .app {
+            max-width: 980px; margin: 0 auto;
+            padding: clamp(20px, 4vw, 36px) clamp(16px, 4vw, 28px);
+        }
+
+        /* back / breadcrumb */
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.9rem; font-weight: 600; color: var(--text-muted);
+            margin-bottom: clamp(16px, 3vw, 24px);
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+        .back-link:hover { color: var(--cape-red); transform: translateX(-2px); }
+
+        /* ── Explore hero ─────────────────────────────────── */
+        .ex-hero {
+            display: grid; grid-template-columns: 1fr; gap: clamp(20px, 4vw, 36px);
+            align-items: center;
+        }
+        @media (min-width: 760px) {
+            .ex-hero { grid-template-columns: 0.9fr 1.1fr; }
+        }
+        .ex-art {
+            position: relative; border-radius: 26px; overflow: hidden;
+            aspect-ratio: 4/3; background: var(--text-dark);
+            box-shadow: 0 24px 60px rgba(31,41,55,0.16);
+            opacity: 0; animation: fadeUp 0.7s 0.05s var(--ease-out-quint) forwards;
+        }
+        .ex-art img { width: 100%; height: 100%; object-fit: cover; }
+        .ex-art .ex-art-glow {
+            position: absolute; inset: 0;
+            background: linear-gradient(0deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 55%);
+        }
+        .ex-intro { opacity: 0; animation: fadeUp 0.7s 0.16s var(--ease-out-quint) forwards; }
+        .ex-eyebrow {
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--cape-red); margin-bottom: 8px;
+        }
+        .ex-title {
+            font-size: clamp(1.9rem, 5vw, 2.8rem); font-weight: 600;
+            line-height: 1.08; letter-spacing: -0.025em; color: var(--text-dark);
+            margin-bottom: 14px;
+        }
+        .ex-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .badge {
+            font-size: 0.78rem; font-weight: 600; padding: 5px 12px;
+            border-radius: 100px; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .badge.age  { background: rgba(0,163,224,0.10); color: var(--hero-blue); }
+        .badge.solo { background: rgba(31,41,55,0.06); color: var(--text-dark); }
+        .badge.duo  { background: rgba(255,79,79,0.10); color: var(--cape-red); }
+        .ex-story p {
+            font-size: 1.02rem; color: var(--text-muted); line-height: 1.65;
+            margin-bottom: 12px; max-width: 56ch;
+        }
+        .ex-story p:last-child { margin-bottom: 0; }
+
+        /* big play button */
+        .ex-play {
+            margin-top: 22px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--cape-red); color: #fff;
+            font-family: 'Fredoka', sans-serif; font-weight: 700;
+            font-size: 1.1rem; padding: 16px 36px; border-radius: 100px;
+            box-shadow: 0 14px 32px rgba(255,79,79,0.36);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .ex-play:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(255,79,79,0.44); }
+        .ex-play:active { transform: translateY(0) scale(0.98); }
+        .ex-play .pico {
+            width: 0; height: 0;
+            border-left: 14px solid #fff;
+            border-top: 9px solid transparent; border-bottom: 9px solid transparent;
+        }
+
+        /* ── Skills section ──────────────────────────────── */
+        .ex-section { margin-top: clamp(40px, 7vw, 64px); }
+        .ex-section > h2 {
+            font-size: clamp(1.3rem, 3vw, 1.7rem); font-weight: 600;
+            letter-spacing: -0.02em; margin-bottom: 4px;
+        }
+        .ex-section > .sub {
+            font-size: 0.95rem; color: var(--text-muted);
+            margin-bottom: clamp(16px, 3vw, 24px);
+        }
+        .skills-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: clamp(12px, 3vw, 16px);
+        }
+        @media (min-width: 760px) { .skills-grid { grid-template-columns: repeat(4, 1fr); } }
+        .skill-card {
+            background: #fff; border: 1px solid rgba(31,41,55,0.06);
+            border-radius: 18px; padding: clamp(16px, 3vw, 20px);
+            transition: transform 0.3s var(--ease-out-quint), box-shadow 0.3s var(--ease-out-quint);
+        }
+        .skill-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(31,41,55,0.08); }
+        .skill-icon {
+            width: 44px; height: 44px; border-radius: 13px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,163,224,0.10); color: var(--hero-blue);
+            margin-bottom: 12px;
+        }
+        .skill-card:nth-child(2n) .skill-icon { background: rgba(255,79,79,0.10); color: var(--cape-red); }
+        .skill-card:nth-child(3n) .skill-icon { background: rgba(255,214,0,0.18); color: #b8860b; }
+        .skill-card:nth-child(4n) .skill-icon { background: rgba(52,199,89,0.12); color: #1f9d4d; }
+        .skill-icon svg { width: 24px; height: 24px; }
+        .skill-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.01em; }
+        .skill-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.45; }
+
+        /* ── More games carousel ─────────────────────────── */
+        .carousel {
+            display: flex; gap: 14px; overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 4px 0 14px;
+            -ms-overflow-style: none; scrollbar-width: none;
+        }
+        .carousel::-webkit-scrollbar { display: none; }
+        .car-card {
+            flex: 0 0 auto; width: 200px; scroll-snap-align: start;
+            background: #fff; border: 1px solid rgba(31,41,55,0.06);
+            border-radius: 18px; overflow: hidden; isolation: isolate;
+            transition: transform 0.3s var(--ease-out-quint), box-shadow 0.3s var(--ease-out-quint);
+        }
+        @media (max-width: 420px) { .car-card { width: 168px; } }
+        .car-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(31,41,55,0.10); }
+        .car-thumb { aspect-ratio: 4/3; overflow: hidden; }
+        .car-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s var(--ease-out-quint); }
+        .car-card:hover .car-thumb img { transform: scale(1.06); }
+        .car-body { padding: 12px 14px 14px; }
+        .car-body h3 { font-size: 0.98rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; }
+        .car-actions { display: flex; gap: 7px; }
+        .car-actions a {
+            flex: 1; text-align: center; min-height: 34px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+            border-radius: 100px; font-weight: 600; font-size: 0.78rem;
+            transition: background 0.2s ease, transform 0.15s ease;
+        }
+        .car-actions .c-play { background: var(--cape-red); color: #fff; }
+        .car-actions .c-play:hover { transform: translateY(-1px); }
+        .car-actions .c-explore { background: rgba(31,41,55,0.05); color: var(--text-dark); border: 1px solid rgba(31,41,55,0.08); }
+        .car-actions .c-explore:hover { background: rgba(31,41,55,0.10); }
+
+        /* ── Home button ─────────────────────────────────── */
+        .ex-footer-actions { margin-top: clamp(36px, 6vw, 52px); display: flex; justify-content: center; }
+        .btn-home {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--text-dark); color: #fff;
+            font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 1rem;
+            padding: 13px 30px; border-radius: 100px;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .btn-home:hover { background: var(--cape-red); transform: translateY(-2px); }
+        .btn-home svg { width: 18px; height: 18px; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Bottom Tab Bar ──────────────────────────────── */
+        .tab-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            padding-bottom: var(--safe-bottom);
+            background: rgba(255,252,246,0.95);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border-top: 1px solid rgba(31,41,55,0.08); z-index: 100;
+        }
+        .tab-bar-inner { height: var(--tab-bar-h); max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+        .tab {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 3px; color: var(--text-muted); font-size: 0.7rem; font-weight: 500;
+            transition: color 0.2s ease; cursor: pointer; position: relative;
+        }
+        .tab .tab-icon { font-size: 1.25rem; line-height: 1; transition: transform 0.2s ease; }
+        .tab:active .tab-icon { transform: scale(0.9); }
+        .tab.active { color: var(--cape-red); }
+        .tab.active::after { content: ''; position: absolute; top: 8px; width: 22px; height: 3px; border-radius: 100px; background: var(--cape-red); }
+        .tab:hover { color: var(--text-dark); }
+
+        /* ── Modal popup ─────────────────────────────────── */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(31,41,55,0.6); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 24px; }
+        .modal-content { background: white; padding: clamp(28px, 5vw, 48px); border-radius: 24px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 28px 64px rgba(0,0,0,0.3); animation: popIn 0.5s var(--ease-out-quint); }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-content h2 { font-size: clamp(1.4rem, 3vw, 1.8rem); font-weight: 600; color: var(--cape-red); margin-bottom: 8px; }
+        .modal-content p { font-size: 1rem; color: var(--text-muted); margin-bottom: 22px; }
+        .modal-socials { display: flex; justify-content: center; gap: 14px; margin-bottom: 22px; }
+        .modal-socials a { width: 60px; height: 60px; border-radius: 18px; background: var(--soft-grey); display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease, background 0.2s ease; }
+        .modal-socials a img { width: 36px; height: 36px; }
+        .modal-socials a:hover { transform: translateY(-3px); background: rgba(0,163,224,0.08); }
+        .modal-close-btn { background: var(--text-dark); color: white; padding: 11px 24px; border: 0; border-radius: 100px; font-family: 'Fredoka', sans-serif; font-weight: 500; font-size: 0.92rem; cursor: pointer; }
+        .modal-close-btn:hover { background: var(--cape-red); }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ── Splash (only when launched as installed app) ── */
+        #appSplash {
+            position: fixed; inset: 0; z-index: 99999;
+            background: #FFFCF6 url("/images/gulsabi-loading.jpg?v=2") center/cover no-repeat;
+            transition: opacity 0.5s ease; display: none;
+            align-items: flex-end; justify-content: center;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        @media (display-mode: standalone), (display-mode: fullscreen) { #appSplash { display: flex; } html, body { background: var(--cream); } }
+        #appSplash.hide { opacity: 0; pointer-events: none; }
+        #appSplash .splash-progress { margin-bottom: clamp(36px, 8vh, 80px); width: 110px; height: 3px; background: rgba(31,41,55,0.12); border-radius: 100px; overflow: hidden; position: relative; }
+        #appSplash .splash-progress::before { content: ""; position: absolute; inset: 0; background: var(--text-dark); border-radius: 100px; transform-origin: left center; animation: splashPulse 1.4s ease-in-out infinite; }
+        @keyframes splashPulse { 0%, 100% { transform: scaleX(0.18); opacity: 0.65; } 50% { transform: scaleX(1); opacity: 1; } }
+    </style>
+
+<style id="gw-nav">
+  .gw-bar{position:fixed;inset:16px 0 auto 0;z-index:9999;display:flex;justify-content:center;pointer-events:none;}
+  .gw-inner{pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:16px;width:calc(100% - 32px);max-width:1152px;height:64px;padding:0 18px 0 24px;border-radius:9999px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.65);box-shadow:0 8px 32px rgba(31,41,55,.08);-webkit-backdrop-filter:saturate(150%) blur(16px);backdrop-filter:saturate(150%) blur(16px);transition:background .3s,box-shadow .3s,height .3s,border-color .3s;}
+  .gw-bar.scrolled .gw-inner{height:56px;background:rgba(255,255,255,.78);-webkit-backdrop-filter:saturate(160%) blur(20px);backdrop-filter:saturate(160%) blur(20px);}
+  .gw-logo{display:flex;align-items:center;}
+  .gw-logo img{height:32px;width:auto;display:block;}
+  .gw-links{display:flex;align-items:center;gap:4px;padding:0;margin:0;list-style:none;}
+  .gw-link{font:600 .875rem/1 'Nunito',sans-serif;color:rgba(31,41,55,.8);text-decoration:none;padding:8px 16px;border-radius:9999px;transition:background .2s,color .2s;}
+  .gw-link:hover{background:rgba(255,255,255,.5);color:#1f2937;}
+  .gw-link.active{background:rgba(0,163,224,.12);color:#00A3E0;font-weight:700;}
+  .neon-ai{display:inline-block;font-weight:700;color:#FF4F4F;transform:rotate(-6deg);margin-right:2px;}
+  .gw-right{display:flex;align-items:center;gap:8px;}
+  .gw-cta{font:700 .875rem/1 'Nunito',sans-serif;color:#fff !important;background:#FF4F4F;text-decoration:none;height:40px;display:inline-flex;align-items:center;padding:0 20px;border-radius:9999px;transition:.2s;box-shadow:0 8px 32px rgba(31,41,55,.08);}
+  .gw-cta:hover{background:#e63b3b;transform:translateY(-1px);}
+  .gw-burger{display:none;width:44px;height:44px;border:0;border-radius:9999px;background:rgba(255,255,255,.6);align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+  .gw-burger svg{width:22px;height:22px;}
+  .gw-mobile{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:9998;width:calc(100% - 32px);max-width:1152px;border-radius:24px;background:rgba(255,255,255,.88);-webkit-backdrop-filter:saturate(160%) blur(20px);backdrop-filter:saturate(160%) blur(20px);box-shadow:0 20px 60px rgba(31,41,55,.12);padding:0 12px;max-height:0;overflow:hidden;opacity:0;transition:max-height .3s,padding .3s,opacity .3s;}
+  .gw-mobile.open{max-height:26rem;padding:12px;opacity:1;}
+  .gw-mobile a{display:block;padding:12px 16px;border-radius:16px;font:600 1rem/1 'Nunito',sans-serif;color:#1f2937;text-decoration:none;}
+  .gw-mobile a:hover{background:rgba(255,255,255,.6);}
+  .gw-mobile a.active{background:rgba(0,163,224,.12);color:#00A3E0;font-weight:700;}
+  .gw-mobile .gw-cta{display:flex;justify-content:center;width:100%;margin-top:8px;}
+  @media(max-width:768px){.gw-links,.gw-right>.gw-cta{display:none;}.gw-burger{display:inline-flex;}}
+  /* Desktop browser: website nav on top; native app chrome hidden. */
+  .app-bar{display:none;}
+  .tab-bar{display:none !important;}
+  body{padding-top:96px !important;}
+  /* App interface: phones (any browser) AND installed PWA show the native app
+     chrome and hide the website nav, so it stays its own app module. */
+  @media (max-width:768px), (display-mode: standalone), (display-mode: fullscreen){
+    .gw-bar,.gw-mobile{display:none !important;}
+    .app-bar{display:flex !important;}
+    .tab-bar{display:block !important;}
+    body{padding-top:calc(var(--app-bar-h) + var(--safe-top)) !important;}
+  }
+</style>
+</head>
+<body>
+<header class="gw-bar" id="gwBar"><div class="gw-inner">
+  <a class="gw-logo" href="/#spark"><img src="/images/gulsabi-logo.png" alt="Gulsabi World"></a>
+  <ul class="gw-links"><li><a class="gw-link" href="/#spark">Home</a></li><li><a class="gw-link" href="/about">About</a></li><li><a class="gw-link" href="/videos">Watch</a></li><li><a class="gw-link" href="/companion"><span class="neon-ai">AI</span> Companion</a></li><li><a class="gw-link active" aria-current="page" href="/games" target="_blank" rel="noopener">Games</a></li></ul>
+  <div class="gw-right">
+    <a class="gw-cta" href="/#companion">Connect Gulsabi Fam</a>
+    <button class="gw-burger" id="gwBurger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="#1f2937" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</div></header>
+<div class="gw-mobile" id="gwMobile"><a href="/#spark">Home</a><a href="/about">About</a><a href="/videos">Watch</a><a href="/companion"><span class="neon-ai">AI</span> Companion</a><a class="active" aria-current="page" href="/games" target="_blank" rel="noopener">Games</a><a class="gw-cta" href="/#companion">Connect Gulsabi Fam</a></div>
+<script>(function(){var b=document.getElementById('gwBar'),u=document.getElementById('gwBurger'),m=document.getElementById('gwMobile');function s(){b.classList.toggle('scrolled',window.scrollY>50);}s();window.addEventListener('scroll',s,{passive:true});if(u)u.addEventListener('click',function(){m.classList.toggle('open');});})();</script>
+
+    <!-- Splash (installed-app only) -->
+    <div id="appSplash" aria-hidden="true"><div class="splash-progress"></div></div>
+
+    <!-- App Bar -->
+    <header class="app-bar">
+        <a class="app-bar-brand" href="games/" aria-label="Gulsabi Games home"><img src="/images/gulsabi-logo.png" alt="Gulsabi"></a>
+        <div class="app-bar-actions">
+            <button class="icon-btn" onclick="showPopup()" aria-label="Connect"><span>&#9889;</span></button>
+            <a class="icon-btn" href="games/" aria-label="All games"><span>&#127918;</span></a>
+        </div>
+    </header>
+
+    <!-- App body -->
+    <main class="app">
+        <a class="back-link" href="games/"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg> All games</a>
+
+        <!-- No-JavaScript / crawler fallback: real, indexable content for every
+             game so the page is never empty for bots that don't run scripts. -->
+        <noscript>
+            <h1>Explore Gulsabi Games</h1>
+            <p>Free, ad-free browser games for curious kids aged 3 to 7, made by Pixnut. Each game grows a real skill - focus, memory, colour recognition, observation or general knowledge - while kids have fun.</p>
+            <h2>Sky Adventure (ages 5+, solo)</h2>
+            <p>A tap-to-fly arcade game. Dodge asteroids and aliens, grab power-ups, and grow quick reflexes, hand-eye coordination and focus. <a href="games/game1/index.html">Play Sky Adventure</a>.</p>
+            <h2>Cannon Color Range (ages 3+, solo)</h2>
+            <p>Match the colour and fire the cannon before time runs out. Builds colour recognition, quick decisions and visual matching. <a href="games/game2/index.html">Play Cannon Color Range</a>.</p>
+            <h2>Odd One Out (ages 4+, solo)</h2>
+            <p>Spot the one picture that does not belong. Sharpens observation, attention to detail and logical thinking. <a href="games/game3/index.html">Play Odd One Out</a>.</p>
+            <h2>Memory Match (ages 4+, solo &amp; 2 players)</h2>
+            <p>Flip cards and find matching pairs, solo across ten levels or in 2-player mode. Grows memory, recall and concentration. <a href="games/game4/index.html">Play Memory Match</a>.</p>
+            <h2>Quiz Time (ages 5+, solo)</h2>
+            <p>Answer friendly questions about objects, colours and the world. Grows knowledge, vocabulary and confidence. <a href="games/game5/index.html">Play Quiz Time</a>.</p>
+            <p><a href="games/">Back to all games</a></p>
+        </noscript>
+
+        <!-- hero: art + intro -->
+        <section class="ex-hero">
+            <div class="ex-art">
+                <img id="exImg" src="" alt="" decoding="async">
+                <span class="ex-art-glow" aria-hidden="true"></span>
+            </div>
+            <div class="ex-intro">
+                <div class="ex-eyebrow" id="exEyebrow">Game</div>
+                <h1 class="ex-title" id="exTitle">Loading…</h1>
+                <div class="ex-badges" id="exBadges"></div>
+                <div class="ex-story" id="exStory"></div>
+                <a class="ex-play" id="exPlay" href="#"><span class="pico" aria-hidden="true"></span> Play now</a>
+            </div>
+        </section>
+
+        <!-- skills -->
+        <section class="ex-section">
+            <h2>What this game grows</h2>
+            <p class="sub">Little skills that get a workout every time your child plays.</p>
+            <div class="skills-grid" id="exSkills"></div>
+        </section>
+
+        <!-- more games carousel -->
+        <section class="ex-section">
+            <h2>More games to explore</h2>
+            <p class="sub">Swipe across and pick the next adventure.</p>
+            <div class="carousel" id="exCarousel"></div>
+        </section>
+
+        <!-- home -->
+        <div class="ex-footer-actions">
+            <a class="btn-home" href="games/">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h14V9.5"/></svg>
+                Home
+            </a>
+        </div>
+    </main>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="tab-bar">
+        <div class="tab-bar-inner">
+            <a class="tab" href="/"><span class="tab-icon">&#127968;</span><span>Home</span></a>
+            <a class="tab" href="/videos"><span class="tab-icon">&#9654;</span><span>Watch</span></a>
+            <a class="tab active" href="games/"><span class="tab-icon">&#127918;</span><span>Games</span></a>
+            <a class="tab" href="/about"><span class="tab-icon">&#9432;</span><span>About</span></a>
+        </div>
+    </nav>
+
+    <!-- Popup -->
+    <div class="modal-overlay" id="gulsabiPopup" onclick="hidePopup()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>Gul Gul Gulsabi!</h2>
+            <p>Ready to join the &ldquo;Why&rdquo; Generation? Connect with us.</p>
+            <div class="modal-socials">
+                <a href="https://www.youtube.com/@GulsabiKids" target="_blank" rel="noopener" aria-label="YouTube"><img src="assets/icons/youtube-icon.png" alt="YouTube"></a>
+                <a href="https://www.instagram.com/gulsabikids" target="_blank" rel="noopener" aria-label="Instagram"><img src="assets/icons/instagram-icon.png" alt="Instagram"></a>
+                <a href="https://fb.com/gulsabikids" target="_blank" rel="noopener" aria-label="Facebook"><img src="assets/icons/facebook-icon.png" alt="Facebook"></a>
+            </div>
+            <button class="modal-close-btn" onclick="hidePopup()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        /* ── Skill icons (stroke SVGs, inherit currentColor) ── */
+        const ICONS = {
+            bolt:   '<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/>',
+            target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+            eye:    '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+            heart:  '<path d="M12 20.5C6 16.5 3 13 3 9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 9 2.5c0 3.5-3 7-9 11z"/>',
+            palette:'<path d="M12 3a9 9 0 1 0 0 18 1.6 1.6 0 0 0 1.6-1.6c0-.9.7-1.6 1.6-1.6H17a4 4 0 0 0 4-4c0-5-4-8.8-9-8.8z"/><circle cx="7.5" cy="12" r="1.1"/><circle cx="12" cy="8" r="1.1"/><circle cx="16" cy="12" r="1.1"/>',
+            bulb:   '<path d="M9.5 18h5m-4 3h3M12 3a6 6 0 0 0-3.8 10.6c.6.5.8 1.1.8 1.9V16h6v-.5c0-.8.2-1.4.8-1.9A6 6 0 0 0 12 3z"/>',
+            grid:   '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+            users:  '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.6a3 3 0 0 1 0 5.8M20.5 20a5.5 5.5 0 0 0-3.5-5.1"/>',
+            puzzle: '<path d="M10 4a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v3h-3a2 2 0 1 0-4 0H7v-3a2 2 0 1 1 0-4V4z"/>'
+        };
+        const svg = (k) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[k] || ICONS.bulb) + '</svg>';
+
+        /* ── Per-game content ── */
+        const GAMES = {
+            game1: {
+                title: 'Sky Adventure', img: '/assets/game1.jpg', href: 'games/game1/index.html',
+                eyebrow: 'Flying arcade',
+                badges: [['age','Ages 5+'],['solo','Solo']],
+                story: [
+                    'High above the clouds, Gulsabi straps on a rocket jetpack and blasts off into wild alien skies. One tap lifts him up; let go and gravity tugs him back down. Asteroids tumble past and cheeky aliens zip by, so timing is everything.',
+                    'Grab the unicorn shield, ride the jetpack, scoop up coins and keep your combo alive. Every level paints the sky a brand-new colour and speeds things up just a little.'
+                ],
+                skills: [
+                    ['bolt','Quick reflexes','Reacting in a blink to dodge what is coming.'],
+                    ['target','Hand-eye coordination','Tapping at exactly the right moment.'],
+                    ['eye','Focus & timing','Staying locked in as the pace picks up.'],
+                    ['heart','Never give up','Dusting off to beat the last best score.']
+                ]
+            },
+            game2: {
+                title: 'Cannon Color Range', img: '/assets/game2.jpg', href: 'games/game2/index.html',
+                eyebrow: 'Colour matching',
+                badges: [['age','Ages 3+'],['solo','Solo']],
+                story: [
+                    'A parade of colourful things floats across the screen: a blue bird, a red apple, a green leaf. Gulsabi mans the colour cannon and has to load the matching shade before the timer runs out.',
+                    'Get it right and Gulsabi beams; pick the wrong colour and he gives a cheeky "oops". The longer you last, the faster the colours come, so quick eyes win the day.'
+                ],
+                skills: [
+                    ['palette','Colour recognition','Naming and matching eight different colours.'],
+                    ['target','Quick decisions','Choosing the right answer under a friendly timer.'],
+                    ['eye','Visual matching','Linking each object to the colour it belongs to.'],
+                    ['bolt','Reaction speed','Acting fast as the rounds speed up.']
+                ]
+            },
+            game3: {
+                title: 'Odd One Out', img: '/assets/game3.jpg', href: 'games/game3/index.html',
+                eyebrow: 'Spot the difference',
+                badges: [['age','Ages 4+'],['solo','Solo']],
+                story: [
+                    'One of these is not like the others! Gulsabi pops on a detective hat and lays out a grid of look-alike pictures, with a single sneaky odd one hiding in the bunch.',
+                    'Look closely, trust your eyes and tap the one that does not belong before the clock ticks down. Each round gets a little trickier and a lot more fun.'
+                ],
+                skills: [
+                    ['eye','Sharp observation','Scanning a whole group to find what stands out.'],
+                    ['puzzle','Attention to detail','Noticing the tiny differences others miss.'],
+                    ['grid','Pattern spotting','Seeing what belongs together and what does not.'],
+                    ['bulb','Logical thinking','Reasoning out the odd one with confidence.']
+                ]
+            },
+            game4: {
+                title: 'Memory Match', img: '/assets/game4.jpg', href: 'games/game4/index.html',
+                eyebrow: 'Memory game',
+                badges: [['age','Ages 4+'],['duo','Solo & 2 Players']],
+                story: [
+                    'Flip, remember, match! Gulsabi turns every card face-down and hides matching pairs across the board. Flip two at a time and use your memory to recall where each picture is hiding.',
+                    'Play solo across ten growing levels, or grab a friend for couch two-player mode and take turns. Every pair you find is a tiny memory win.'
+                ],
+                skills: [
+                    ['grid','Memory & recall','Remembering where each picture is hidden.'],
+                    ['eye','Concentration','Keeping track over many flips in a row.'],
+                    ['puzzle','Spatial memory','Mapping pictures to spots on the board.'],
+                    ['users','Turn-taking','Sharing, waiting and cheering in 2-player mode.']
+                ]
+            },
+            game5: {
+                title: 'Quiz Time', img: '/assets/game5.jpg', href: 'games/game5/index.html',
+                eyebrow: 'Curious quiz',
+                badges: [['age','Ages 5+'],['solo','Solo']],
+                story: [
+                    'Brain power, activate! Gulsabi fires off all kinds of curious questions: name the object, pick the colour, guess the fun fact. Every answer is a little "aha!" moment.',
+                    'There are no scary buzzers here, just friendly questions that grow a child’s world one curious thought at a time. Answer, learn, and feel that spark of "I knew it!"'
+                ],
+                skills: [
+                    ['bulb','General knowledge','Learning fun facts about the world around us.'],
+                    ['target','Recall','Bringing back what you already know.'],
+                    ['eye','Words & objects','Connecting names, pictures and ideas.'],
+                    ['heart','Confidence','Feeling proud with every right answer.']
+                ]
+            }
+        };
+        const ORDER = ['game1','game2','game3','game4','game5'];
+
+        /* Per-game SEO / structured-data facts */
+        const SEO = {
+            game1: { desc: 'Fly Gulsabi through alien skies in this tap-to-fly arcade game for ages 5+. Dodge asteroids, grab power-ups, and grow quick reflexes, focus and hand-eye coordination.', genre: 'Arcade', minAge: 5, playMode: 'SinglePlayer' },
+            game2: { desc: 'Match the colour and fire the cannon before time runs out. A bright colour-recognition game for ages 3+ that builds quick thinking and visual matching.', genre: 'Educational', minAge: 3, playMode: 'SinglePlayer' },
+            game3: { desc: 'Spot the odd one out in a grid of look-alikes. An observation puzzle for ages 4+ that sharpens attention to detail and logical thinking.', genre: 'Puzzle', minAge: 4, playMode: 'SinglePlayer' },
+            game4: { desc: 'Flip cards and find matching pairs - solo across ten levels or head-to-head in 2-player mode. A memory game for ages 4+ that grows recall and concentration.', genre: 'Educational', minAge: 4, playMode: ['SinglePlayer', 'CoOp'] },
+            game5: { desc: 'Answer fun, friendly questions about objects, colours and the world. A curious quiz for ages 5+ that grows knowledge, vocabulary and confidence.', genre: 'Educational', minAge: 5, playMode: 'SinglePlayer' }
+        };
+
+        /* ── Render the page from ?game= ── */
+        (function render() {
+            const params = new URLSearchParams(location.search);
+            let id = params.get('game');
+            if (!GAMES[id]) id = 'game1';
+            const g = GAMES[id];
+
+            document.title = g.title + ' | Gulsabi Kids';
+            document.getElementById('exEyebrow').textContent = g.eyebrow;
+            document.getElementById('exTitle').textContent = g.title;
+            const img = document.getElementById('exImg');
+            img.src = g.img; img.alt = g.title;
+
+            document.getElementById('exBadges').innerHTML =
+                g.badges.map(([cls, txt]) => '<span class="badge ' + cls + '">' + txt + '</span>').join('');
+
+            document.getElementById('exStory').innerHTML =
+                g.story.map(p => '<p>' + p + '</p>').join('');
+
+            const play = document.getElementById('exPlay');
+            play.href = g.href;
+            play.setAttribute('data-game-card-id', id);
+
+            document.getElementById('exSkills').innerHTML = g.skills.map(([icon, name, desc]) =>
+                '<div class="skill-card"><div class="skill-icon">' + svg(icon) + '</div>' +
+                '<h3>' + name + '</h3><p>' + desc + '</p></div>'
+            ).join('');
+
+            // carousel: every other game
+            document.getElementById('exCarousel').innerHTML = ORDER.filter(k => k !== id).map(k => {
+                const o = GAMES[k];
+                return '<article class="car-card" data-game-card-id="' + k + '">' +
+                    '<a class="car-thumb" href="games/explore.html?game=' + k + '" aria-label="Explore ' + o.title + '"><img src="' + o.img + '" alt="' + o.title + '" loading="lazy" decoding="async"></a>' +
+                    '<div class="car-body"><h3>' + o.title + '</h3>' +
+                    '<div class="car-actions">' +
+                    '<a class="c-play" href="' + o.href + '">Play</a>' +
+                    '<a class="c-explore" href="games/explore.html?game=' + k + '">Explore</a>' +
+                    '</div></div></article>';
+            }).join('');
+
+            /* ── SEO / AIO: update meta tags + inject structured data ── */
+            const seo = SEO[id];
+            const pageUrl = 'https://gulsabi.com/games/explore.html?game=' + id;
+            const imgUrl = 'https://gulsabi.com' + g.img;
+            const ogTitle = g.title + ' - Gulsabi Games';
+            const set = (sel, attr, val) => { const el = document.querySelector(sel); if (el) el.setAttribute(attr, val); };
+            set('#metaDesc', 'content', seo.desc);
+            set('#exCanonical', 'href', pageUrl);
+            set('#ogTitle', 'content', ogTitle);
+            set('#ogDesc', 'content', seo.desc);
+            set('#ogUrl', 'content', pageUrl);
+            set('#ogImage', 'content', imgUrl);
+            set('#twTitle', 'content', ogTitle);
+            set('#twDesc', 'content', seo.desc);
+            set('#twImage', 'content', imgUrl);
+
+            const ld = {
+                "@context": "https://schema.org",
+                "@graph": [
+                    {
+                        "@type": "VideoGame",
+                        "name": g.title,
+                        "description": seo.desc,
+                        "url": pageUrl,
+                        "image": imgUrl,
+                        "genre": seo.genre,
+                        "gamePlatform": "Web browser",
+                        "operatingSystem": "Any (web browser)",
+                        "applicationCategory": "GameApplication",
+                        "playMode": seo.playMode,
+                        "isAccessibleForFree": true,
+                        "inLanguage": "en",
+                        "audience": { "@type": "PeopleAudience", "suggestedMinAge": seo.minAge },
+                        "publisher": { "@type": "Organization", "name": "Pixnut", "url": "https://pixnut.com/" }
+                    },
+                    {
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://gulsabi.com/" },
+                            { "@type": "ListItem", "position": 2, "name": "Games", "item": "https://gulsabi.com/games" },
+                            { "@type": "ListItem", "position": 3, "name": g.title, "item": pageUrl }
+                        ]
+                    }
+                ]
+            };
+            const s = document.createElement('script');
+            s.type = 'application/ld+json';
+            s.textContent = JSON.stringify(ld);
+            document.head.appendChild(s);
+        })();
+
+        /* Popup */
+        function showPopup() { document.getElementById('gulsabiPopup').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+        function hidePopup() { document.getElementById('gulsabiPopup').style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+        /* Splash (installed app) */
+        (function hideSplash() {
+            const splash = document.getElementById('appSplash');
+            if (!splash) return;
+            let hidden = false;
+            const showStart = performance.now();
+            const MIN_MS = 1000, MAX_MS = 4500;
+            const drop = () => { if (hidden) return; hidden = true; splash.classList.add('hide'); setTimeout(() => splash.remove(), 600); };
+            const dropWhenReady = () => setTimeout(drop, Math.max(0, MIN_MS - (performance.now() - showStart)));
+            if (document.readyState === 'complete') dropWhenReady();
+            else window.addEventListener('load', dropWhenReady, { once: true });
+            setTimeout(drop, MAX_MS);
+        })();
+
+        /* Service worker (same scope as the hub) */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const reg = await navigator.serviceWorker.register('/games/service-worker.js', { scope: '/games/' });
+                    let reloaded = false;
+                    navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded) return; reloaded = true; window.location.reload(); });
+                    reg.update().catch(() => {});
+                    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+                } catch (e) { /* no offline - fine */ }
+            });
+        }
+    </script>
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>

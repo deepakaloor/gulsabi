@@ -1,0 +1,24 @@
+User-Agent: *
+Allow: /
+Disallow: /admin
+
+User-Agent: GPTBot
+User-Agent: OAI-SearchBot
+User-Agent: ChatGPT-User
+User-Agent: ClaudeBot
+User-Agent: Claude-Web
+User-Agent: anthropic-ai
+User-Agent: PerplexityBot
+User-Agent: Perplexity-User
+User-Agent: Google-Extended
+User-Agent: Googlebot
+User-Agent: Bingbot
+User-Agent: Applebot
+User-Agent: Applebot-Extended
+User-Agent: Amazonbot
+User-Agent: CCBot
+Allow: /
+Disallow: /admin
+
+Host: https://gulsabi.com
+Sitemap: https://gulsabi.com/sitemap.xml
