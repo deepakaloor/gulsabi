@@ -291,6 +291,9 @@
         .modal-socials a:hover { transform: translateY(-3px); background: rgba(0,163,224,0.08); }
         .modal-close-btn { background: var(--text-dark); color: white; padding: 11px 24px; border: 0; border-radius: 100px; font-family: 'Fredoka', sans-serif; font-weight: 500; font-size: 0.92rem; cursor: pointer; }
         .modal-close-btn:hover { background: var(--cape-red); }
+        .modal-visit-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: var(--cape-red); color: #fff; padding: 13px 24px; margin-bottom: 12px; border: 0; border-radius: 100px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 0.95rem; text-decoration: none; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease; }
+        .modal-visit-btn:hover { transform: translateY(-2px); background: #e63b3b; }
+        .modal-visit-btn svg { width: 18px; height: 18px; }
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -465,6 +468,10 @@
                 <a href="https://www.instagram.com/gulsabikids" target="_blank" rel="noopener" aria-label="Instagram"><img src="assets/icons/instagram-icon.png" alt="Instagram"></a>
                 <a href="https://fb.com/gulsabikids" target="_blank" rel="noopener" aria-label="Facebook"><img src="assets/icons/facebook-icon.png" alt="Facebook"></a>
             </div>
+            <a class="modal-visit-btn" href="https://gulsabi.com/" target="_blank" rel="noopener" onclick="hidePopup()">
+                Visit Gulsabi World
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
             <button class="modal-close-btn" onclick="hidePopup()">Close</button>
         </div>
     </div>
