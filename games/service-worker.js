@@ -2,7 +2,7 @@
    or caches the marketing pages (/, /videos, /companion, /about). Network-first
    for fresh content, with a cache fallback so the installed games app works
    offline. */
-const CACHE = "gulsabi-games-v1";
+const CACHE = "gulsabi-games-v2";
 
 self.addEventListener("install", () => self.skipWaiting());
 
