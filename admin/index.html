@@ -450,6 +450,7 @@
       <div class="nav-item" data-page="engagement"><span class="dot"></span>Engagement Time</div>
       <div class="nav-item" data-page="errors"><span class="dot"></span>Technical Errors</div>
       <div class="nav-item" data-page="exports"><span class="dot"></span>Export Reports</div>
+      <div class="nav-item" data-page="subscribers"><span class="dot"></span>Subscribers</div>
       <div class="nav-item" data-page="privacy"><span class="dot"></span>Privacy &amp; Consent</div>
       <div class="footer">
         <button id="logoutBtn">Sign out</button>
@@ -625,6 +626,23 @@
         </div>
         <p style="font-size:0.78rem; color:var(--text-muted); margin-top:18px;">
           Exports are admin-only and contain anonymous analytics data. No child personal data is included.
+        </p>
+      </section>
+
+      <!-- SUBSCRIBERS -->
+      <section class="page" data-page="subscribers">
+        <div class="section-row">
+          <div class="section-h">Email signups <span id="subsCount" class="meta"></span></div>
+          <button class="btn primary" id="subsExportBtn">Download CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Email</th><th>Source</th><th>Page</th></tr></thead>
+            <tbody id="subsTable"><tr class="empty-row"><td colspan="4">No signups yet.</td></tr></tbody>
+          </table>
+        </div>
+        <p style="font-size:0.78rem; color:var(--text-muted); margin-top:14px;">
+          Newsletter / waitlist signups from the site. Admin-only (RLS). Open the CSV in Excel.
         </p>
       </section>
 

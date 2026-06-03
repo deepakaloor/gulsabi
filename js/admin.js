@@ -42,6 +42,7 @@ let rawGameSessions = [];
 let rawEvents      = [];
 let rawPwaInstalls = [];
 let rawErrors      = [];
+let rawSubscribers = [];
 
 // Derived state for exports / quick re-renders
 let dateFilter = "7";
@@ -214,6 +215,7 @@ const PAGE_INFO = {
   engagement: { title: "Engagement Time",     sub: "Session and play durations" },
   errors:     { title: "Technical Errors",    sub: "Frontend errors by game/browser" },
   exports:    { title: "Export Reports",      sub: "Download analytics data" },
+  subscribers:{ title: "Subscribers",         sub: "Newsletter / waitlist email signups" },
   privacy:    { title: "Privacy & Consent",   sub: "What we collect, what we don’t" }
 };
 navItems.forEach(n => n.addEventListener("click", () => switchPage(n.dataset.page)));
@@ -232,13 +234,14 @@ async function loadAll() {
   // Run diagnostics in parallel — non-blocking, just reports table reachability
   paintDiagnostics();
   try {
-    const [u, s, gs, e, p, er] = await Promise.all([
+    const [u, s, gs, e, p, er, sub] = await Promise.all([
       supabase.from("anonymous_users").select("*").limit(20000),
       supabase.from("sessions").select("*").limit(20000),
       supabase.from("game_sessions").select("*").limit(20000),
       supabase.from("game_events").select("*").order("event_time", { ascending: false }).limit(20000),
       supabase.from("pwa_installs").select("*").limit(10000),
-      supabase.from("errors").select("*").order("created_at", { ascending: false }).limit(2000)
+      supabase.from("errors").select("*").order("created_at", { ascending: false }).limit(2000),
+      supabase.from("subscribers").select("*").order("created_at", { ascending: false }).limit(20000)
     ]);
     rawAnonUsers    = (u.data  || []);
     rawSessions     = (s.data  || []);
@@ -246,6 +249,7 @@ async function loadAll() {
     rawEvents       = (e.data  || []);
     rawPwaInstalls  = (p.data  || []);
     rawErrors       = (er.data || []);
+    rawSubscribers  = (sub.data || []);
   } catch (err) {
     console.warn("Load error", err);
   }
@@ -582,6 +586,29 @@ function renderPage(key) {
   if (key === "scores")     renderScores();
   if (key === "engagement") renderEngagement();
   if (key === "errors")     renderErrors();
+  if (key === "subscribers") renderSubscribers();
+}
+
+function renderSubscribers() {
+  const tbody = document.getElementById("subsTable");
+  const count = document.getElementById("subsCount");
+  if (!tbody) return;
+  const rows = rawSubscribers || [];
+  if (count) count.textContent = rows.length + (rows.length === 1 ? " signup" : " signups");
+  if (!rows.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No signups yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const d = r.created_at ? new Date(r.created_at).toLocaleString() : "";
+    return "<tr><td>" + esc(d) + "</td><td>" + esc(r.email) + "</td><td>" + esc(r.source) + "</td><td>" + esc(r.page) + "</td></tr>";
+  }).join("");
+}
+
+function exportSubscribersCsv() {
+  const rows = [["Date", "Email", "Source", "Page"]];
+  (rawSubscribers || []).forEach(r => rows.push([r.created_at || "", r.email || "", r.source || "", r.page || ""]));
+  downloadCsv("Gulsabi_Subscribers_" + getTodayString() + ".csv", rows);
 }
 
 function renderOverview() {
@@ -1169,5 +1196,6 @@ document.getElementById("expSessionsBtn") ?.addEventListener("click", exportSess
 document.getElementById("expGrowthBtn")   ?.addEventListener("click", exportDailyGrowth);
 document.getElementById("expSourcesBtn")  ?.addEventListener("click", exportSourcesCsv);
 document.getElementById("expInvestorBtn") ?.addEventListener("click", exportInvestorPDF);
+document.getElementById("subsExportBtn")  ?.addEventListener("click", exportSubscribersCsv);
 
 checkSession();
