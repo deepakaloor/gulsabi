@@ -347,6 +347,11 @@
     .tab-bar{display:block !important;}
     body{padding-top:calc(var(--app-bar-h) + var(--safe-top)) !important;}
   }
+  /* Installed app (standalone): drop the bottom tab bar (Home / Watch / About). */
+  @media (display-mode: standalone), (display-mode: fullscreen){
+    .tab-bar{display:none !important;}
+    body{padding-bottom:calc(var(--safe-bottom) + 16px) !important;}
+  }
 </style>
 </head>
 <body>
