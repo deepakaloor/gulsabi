@@ -828,6 +828,7 @@ function startPractice(mode){
   trackGameEvent("practice_started", { mode:"practice", piece:mode });
   document.getElementById("practiceTitle").textContent = mode==="mixed" ? "Mission: Mixed" : "Mission: " + mode[0].toUpperCase()+mode.slice(1);
   showScreen("screen-practice");
+  setTimeout(() => chessSay("mission_" + mode), 200); // teach how to play this piece's mission
   newPracticeRound();
   updatePracticeHud();
 }

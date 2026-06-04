@@ -38,7 +38,14 @@
     { id: "bot_nice_01", filename: "bot-nice-01.mp3", text: "Nice move!", category: "bot" },
     { id: "win_01", filename: "win-01.mp3", text: "Wow! You won the chess quest!", category: "result" },
     { id: "lose_01", filename: "lose-01.mp3", text: "Good try. Let's play again!", category: "result" },
-    { id: "draw_01", filename: "draw-01.mp3", text: "That was a close game!", category: "result" }
+    { id: "draw_01", filename: "draw-01.mp3", text: "That was a close game!", category: "result" },
+    { id: "mission_pawn", filename: "mission-pawn.mp3", text: "Pawns move one step forward. Tap a gem the pawn can reach!", category: "mission" },
+    { id: "mission_rook", filename: "mission-rook.mp3", text: "Rooks move in straight lines. Tap a gem the rook can reach!", category: "mission" },
+    { id: "mission_bishop", filename: "mission-bishop.mp3", text: "Bishops move diagonally. Tap a gem the bishop can reach!", category: "mission" },
+    { id: "mission_knight", filename: "mission-knight.mp3", text: "Knights jump in an L shape. Tap a gem the knight can reach!", category: "mission" },
+    { id: "mission_queen", filename: "mission-queen.mp3", text: "The queen moves straight or diagonally. Tap a gem she can reach!", category: "mission" },
+    { id: "mission_king", filename: "mission-king.mp3", text: "The king moves one square any way. Tap a gem the king can reach!", category: "mission" },
+    { id: "mission_mixed", filename: "mission-mixed.mp3", text: "A surprise piece each round! Tap a gem it can reach.", category: "mission" }
   ];
 
   var byId = {}, byCat = {};
