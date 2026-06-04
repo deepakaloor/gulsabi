@@ -331,10 +331,10 @@ body{background:#4FC3F7;display:flex;flex-direction:column;align-items:stretch;j
 <script>
 /* ═════════════════════════════════════════════════
    GULSABI ODD ONE OUT — 10 levels, 71 rounds
-   Three round modes mixed by difficulty:
-     A) color-odd     — varied objects of color X + 1 of color Y
-     B) same-object   — 9 identical clones + 1 same object in another color
-     C) same-color    — 9 identical clones + 1 different object in same color
+   Three round modes mixed by difficulty (each = identical clones + 1 intruder):
+     A) double-odd    — N identical clones + 1 object differing in BOTH color & shape
+     B) same-object   — N identical clones + 1 same object in another color
+     C) same-color    — N identical clones + 1 different object in same color
    ═════════════════════════════════════════════════ */
 
 const ASSET_PATH = '../game2/assets/';
@@ -642,17 +642,17 @@ const CROSS_COLOR_OBJECTS = Object.keys(OBJECTS_BY_NAME)
 
 /* ── ROUND-MODE PICKER ──
    Distributes round flavours by level difficulty.
-   - 'color-odd'   : 9 random objects of color X + 1 of color Y  (the original mode)
-   - 'same-object' : 9 identical clones (e.g. green-leaf) + 1 same object in another color
-   - 'same-color'  : 9 identical clones (e.g. blue-butterfly) + 1 different object in same color
-   Mode-B and Mode-C are visually striking and easy to learn,
-   so easy levels lean on them; hard levels lean on the trickier color-odd. */
+   - 'color-odd'   : N clones + 1 object differing in BOTH color & shape  (easiest)
+   - 'same-object' : N identical clones (e.g. green-leaf) + 1 same object in another color
+   - 'same-color'  : N identical clones (e.g. blue-butterfly) + 1 different object in same color
+   The double-odd 'color-odd' has the most obvious intruder, so easy levels lean on
+   it; the single-difference modes are subtler, so hard levels lean on them. */
 function pickRoundMode(diff){
   const weights = (
-    diff === 'easy'   ? { 'same-color': 4, 'same-object': 4, 'color-odd': 2 } :
-    diff === 'medium' ? { 'same-color': 2, 'same-object': 3, 'color-odd': 4 } :
-    diff === 'hard'   ? { 'same-color': 1, 'same-object': 2, 'color-odd': 6 } :
-                        { 'same-color': 2, 'same-object': 3, 'color-odd': 4 }  // 'mixed' or unknown
+    diff === 'easy'   ? { 'color-odd': 5, 'same-object': 3, 'same-color': 2 } :
+    diff === 'medium' ? { 'color-odd': 3, 'same-object': 4, 'same-color': 3 } :
+    diff === 'hard'   ? { 'color-odd': 1, 'same-object': 4, 'same-color': 5 } :
+                        { 'color-odd': 3, 'same-object': 4, 'same-color': 3 }  // 'mixed' or unknown
   );
   let total = 0;
   for(const k in weights) total += weights[k];
@@ -661,27 +661,28 @@ function pickRoundMode(diff){
   return 'color-odd';
 }
 
-/* MODE A — "color outlier" round
-   N-1 cards are random objects from a single base color, +1 from a contrasting odd color.
-   Critical invariant: every base card MUST share the same color so the prompt "find the
-   odd color" stays unambiguous. If the base color's pool is smaller than N-1, we repeat
-   images from within that same color rather than supplementing with another color
-   (which would create a 3-color grid and defeat the puzzle). */
+/* MODE A — "double-odd" round (the EASIEST, clearest flavour)
+   N-1 IDENTICAL clones of one object/colour + 1 intruder that differs by BOTH
+   colour AND shape — e.g. 15× red-apple + 1× blue-truck.
+   This is a true "odd one out": a uniform majority with a single, obvious intruder.
+   (Previously this mode showed N *different* objects that merely shared a colour,
+   which broke the premise — with every card different, "find the odd one" was
+   ambiguous, and at hard levels the lone odd-coloured card was near-impossible
+   to spot among 24 varied images.) */
 function buildColorOddRound(cfg){
   const N = cfg.cards;
   const [oddColor, baseColor] = pickContrastPair(cfg.diff);
 
-  const pool = ITEMS_BY_COLOR[baseColor];
-  const shuffled = shuffle([...pool]);
-  const baseCards = [];
-  for(let i = 0; i < N - 1; i++){
-    // Cycle through the shuffled pool, repeating if needed to fill the grid
-    baseCards.push(shuffled[i % shuffled.length]);
-  }
+  // base = ONE object of the base colour, cloned across the grid
+  const baseFile = pick(ITEMS_BY_COLOR[baseColor]);
+  const baseName = baseNameOf(baseFile);
+  // odd = a DIFFERENT object in the odd colour (differs in both colour and shape)
+  const oddPool = ITEMS_BY_COLOR[oddColor].filter(f => baseNameOf(f) !== baseName);
+  const oddFile = pick(oddPool.length ? oddPool : ITEMS_BY_COLOR[oddColor]);
 
-  const oddCard = pick(ITEMS_BY_COLOR[oddColor]);
-  const out = baseCards.map(src => ({ src, isOdd: false }));
-  out.push({ src: oddCard, isOdd: true });
+  const out = [];
+  for(let i = 0; i < N - 1; i++) out.push({ src: baseFile, isOdd: false });
+  out.push({ src: oddFile, isOdd: true });
   return shuffle(out);
 }
 
