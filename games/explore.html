@@ -338,13 +338,15 @@
   .gw-mobile a.active{background:rgba(0,163,224,.12);color:#00A3E0;font-weight:700;}
   .gw-mobile .gw-cta{display:flex;justify-content:center;width:100%;margin-top:8px;}
   @media(max-width:768px){.gw-links,.gw-right>.gw-cta{display:none;}.gw-burger{display:inline-flex;}}
-  /* Desktop browser: website nav on top; native app chrome hidden. */
+  /* In a BROWSER (not installed) - any size, including mobile - the games hub
+     wears the same website top nav as every other page (collapses to a burger on
+     phones). The native app chrome (app-bar + tab-bar) stays hidden. */
   .app-bar{display:none;}
   .tab-bar{display:none !important;}
   body{padding-top:96px !important;}
-  /* App interface: phones (any browser) AND installed PWA show the native app
-     chrome and hide the website nav, so it stays its own app module. */
-  @media (max-width:768px), (display-mode: standalone), (display-mode: fullscreen){
+  /* App interface: ONLY when installed as a PWA (standalone / fullscreen /
+     minimal-ui) do we hide the website nav and switch to the native app chrome. */
+  @media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui){
     .gw-bar,.gw-mobile{display:none !important;}
     .app-bar{display:flex !important;}
     .tab-bar{display:block !important;}

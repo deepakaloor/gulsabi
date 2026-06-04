@@ -668,15 +668,17 @@
   .gw-mobile a.active{background:rgba(0,163,224,.12);color:#00A3E0;font-weight:700;}
   .gw-mobile .gw-cta{display:flex;justify-content:center;width:100%;margin-top:8px;}
   @media(max-width:768px){.gw-links,.gw-right>.gw-cta{display:none;}.gw-burger{display:inline-flex;}}
-  /* Desktop browser: the games hub is embedded in the website, so it wears the
-     website top nav; the native app chrome (app-bar + tab-bar) stays hidden. */
+  /* In a BROWSER (not installed) - any size, including mobile - the games hub is
+     part of the website, so it wears the same website top nav as every other page
+     (the .gw-bar collapses to its own burger menu on phones). The native app
+     chrome (app-bar + tab-bar) stays hidden. */
   .app-bar{display:none;}
   .tab-bar{display:none !important;}
   body{padding-top:96px !important;}
-  /* App interface: on phones (any browser) AND when installed as a PWA, drop
-     the website nav and show the native app chrome - top app-bar + bottom tab
-     bar - so the games section is its own self-contained app module. */
-  @media (max-width:768px), (display-mode: standalone), (display-mode: fullscreen){
+  /* App interface: ONLY when installed as a PWA (standalone / fullscreen /
+     minimal-ui) do we drop the website nav and switch to the native app chrome -
+     a self-contained games app with its own top app-bar. */
+  @media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui){
     .gw-bar,.gw-mobile{display:none !important;}
     .app-bar{display:flex !important;}
     .tab-bar{display:block !important;}
