@@ -122,6 +122,8 @@
   /* mission gems */
   .sq .gem{position:absolute;z-index:3;font-size:min(7.5vw,36px);line-height:1;pointer-events:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4));animation:gemBob 1.3s ease-in-out infinite;}
   @keyframes gemBob{0%,100%{transform:translateY(0) scale(1) rotate(-4deg);}50%{transform:translateY(-5px) scale(1.1) rotate(4deg);}}
+  /* capture-mission target ring (neutral — marks which pieces are tappable, not which is reachable) */
+  .sq .foe{position:absolute;inset:6%;border:4px dashed rgba(255,255,255,.9);border-radius:13px;z-index:1;pointer-events:none;animation:pulse 1.2s ease-in-out infinite;box-shadow:0 0 10px rgba(255,255,255,.4);}
   .pp-btn .pp-emoji{font-size:48px;height:56px;line-height:56px;}
   h1{font-size:clamp(1.8rem,7vw,2.8rem);margin:.1em 0 .05em;font-weight:700;text-shadow:0 3px 14px rgba(0,0,0,.35);}
   .subtitle{color:rgba(255,255,255,.82);font-size:clamp(.95rem,3.6vw,1.15rem);margin:0 auto 4px;max-width:30ch;}
@@ -355,7 +357,7 @@
     <h2 class="section-title" id="practiceTitle">Mission</h2>
     <div class="coach"><img id="practiceCoach" src="/assets/chess/gulsabi-super-thinking.png" alt="Gulsabi setting a chess mission"><div class="bubble" id="practiceText">Which gem can the piece reach? Tap it!</div></div>
     <div class="hud">
-      <span class="pill">Gems <b id="prCorrect">0</b>/5</span>
+      <span class="pill">Round <b id="prCorrect">1</b>/5</span>
       <span class="pill">Streak <b id="prStars">0</b></span>
       <span class="pill">Misses <b id="prMiss">0</b></span>
     </div>
@@ -689,6 +691,7 @@ function renderBoard(elId, board, state){
     const key = r+","+c;
     if(key in moveMap){ const mk = document.createElement("div"); mk.className = moveMap[key] ? "ring" : "dot"; sq.appendChild(mk); }
     if((hl.gems||[]).some(g=>g[0]===r&&g[1]===c)){ const gm = document.createElement("div"); gm.className = "gem"; gm.textContent = "💎"; sq.appendChild(gm); }
+    if((hl.foes||[]).some(g=>g[0]===r&&g[1]===c)){ const fr = document.createElement("div"); fr.className = "foe"; sq.appendChild(fr); }
     if(state.onTap) sq.addEventListener("click", () => state.onTap(r,c));
     el.appendChild(sq);
   }
@@ -848,9 +851,24 @@ function completeLesson(lessonId){
    flashes where the piece can really go, then lets them try again. Collect 5 gems
    to win. "Mixed" randomises the piece each round — the real knowledge test. */
 let practiceState = null;
-const MISSION_GOAL = 5;
+const MISSION_ROUNDS = 5;
 const TYPE_CODE = { pawn:"p", rook:"r", bishop:"b", knight:"n", queen:"q", king:"k" };
 const PIECE_NAMES = ["pawn","rook","bishop","knight","queen","king"];
+const ENEMY_TYPES = ["p","n","b","r","q"];
+const cap1 = (s) => s[0].toUpperCase() + s.slice(1);
+function randSquare(){ return [Math.floor(Math.random()*8), Math.floor(Math.random()*8)]; }
+function rpick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function legalFrom(type, at){ const b = Array.from({length:8},()=>Array(8).fill(null)); b[at[0]][at[1]] = {t:type, c:"w"}; return getLegalMoves(b, at[0], at[1]); }
+// Every square where an enemy WOULD be capturable by this piece (handles pawn diagonals).
+function capturableSquares(type, at){
+  const out = [];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    if(r===at[0] && c===at[1]) continue;
+    const b = Array.from({length:8},()=>Array(8).fill(null)); b[at[0]][at[1]] = {t:type, c:"w"}; b[r][c] = {t:"p", c:"b"};
+    if(getLegalMoves(b, at[0], at[1]).some(m => m[0]===r && m[1]===c)) out.push([r,c]);
+  }
+  return out;
+}
 
 function openPracticeSelect(){
   preloadModeAssets("practice");
@@ -859,96 +877,142 @@ function openPracticeSelect(){
   const pick = document.getElementById("practicePick"); pick.innerHTML = "";
   PIECE_NAMES.forEach(name => {
     const b = document.createElement("button"); b.className = "pp-btn";
-    b.innerHTML = `<img src="${getPieceImage('white',name)}" alt="White chess ${name} piece"><div class="pp-name">${name[0].toUpperCase()+name.slice(1)}</div>`;
+    b.innerHTML = `<img src="${getPieceImage('white',name)}" alt="White chess ${name} piece"><div class="pp-name">${cap1(name)}</div>`;
     b.onclick = () => startPractice(name); pick.appendChild(b);
   });
-  // Mixed: a random piece every round — tests all the moves
   const mx = document.createElement("button"); mx.className = "pp-btn";
   mx.innerHTML = `<div class="pp-emoji">🎲</div><div class="pp-name">Mixed</div>`;
   mx.onclick = () => startPractice("mixed"); pick.appendChild(mx);
   showScreen("screen-practice-select");
 }
 function startPractice(mode){
-  practiceState = { mode, collected:0, streak:0, misses:0, board:null, gems:[], at:null, pieceType:null, busy:false };
+  practiceState = { mode, round:0, gems:0, streak:0, misses:0, busy:false, cur:null, typeBag:[] };
   trackGameEvent("practice_started", { mode:"practice", piece:mode });
-  document.getElementById("practiceTitle").textContent = mode==="mixed" ? "Mission: Mixed" : "Mission: " + mode[0].toUpperCase()+mode.slice(1);
+  document.getElementById("practiceTitle").textContent = mode==="mixed" ? "Mission: Mixed" : "Mission: " + cap1(mode);
   showScreen("screen-practice");
-  setTimeout(() => chessSay("mission_" + mode), 200); // teach how to play this piece's mission
+  setTimeout(() => chessSay("mission_" + mode), 200);
   newPracticeRound();
   updatePracticeHud();
 }
-function randSquare(){ return [Math.floor(Math.random()*8), Math.floor(Math.random()*8)]; }
+function nextMissionType(){
+  // shuffled bag so all three types appear across the 5 rounds
+  if(practiceState.typeBag.length === 0) practiceState.typeBag = ["reach","collectAll","capture"].sort(() => Math.random()-0.5);
+  return practiceState.typeBag.pop();
+}
 function newPracticeRound(){
   practiceState.busy = false;
-  const type = practiceState.mode === "mixed" ? TYPE_CODE[PIECE_NAMES[Math.floor(Math.random()*6)]] : TYPE_CODE[practiceState.mode];
-  let at, moves, tries = 0;
+  const pieceType = practiceState.mode === "mixed" ? TYPE_CODE[rpick(PIECE_NAMES)] : TYPE_CODE[practiceState.mode];
+  let type = nextMissionType();
+  const nm = TYPE_NAME[pieceType];
+
+  // find a placement with enough moves for the chosen challenge
+  let at, legal, tries = 0;
   do {
-    at = (type==="p") ? [ 2+Math.floor(Math.random()*4), Math.floor(Math.random()*8) ] : randSquare();
-    const b = Array.from({length:8},()=>Array(8).fill(null)); b[at[0]][at[1]] = {t:type, c:"w"};
-    moves = getLegalMoves(b, at[0], at[1]); tries++;
-  } while(moves.length === 0 && tries < 50);
-  const board = Array.from({length:8},()=>Array(8).fill(null)); board[at[0]][at[1]] = {t:type, c:"w"};
-  const legalKeys = new Set(moves.map(m => m[0]+","+m[1]));
-  const reachable = moves[Math.floor(Math.random()*moves.length)];
-  const decoys = []; let guard = 0;
-  while(decoys.length < 3 && guard < 300){
-    guard++; const [r,c] = randSquare(); const k = r+","+c;
-    if((r===at[0]&&c===at[1]) || legalKeys.has(k) || decoys.some(d=>d[0]===r&&d[1]===c)) continue;
-    decoys.push([r,c]);
+    at = (pieceType==="p") ? [ 2+Math.floor(Math.random()*4), Math.floor(Math.random()*8) ] : randSquare();
+    legal = legalFrom(pieceType, at); tries++;
+  } while(tries < 80 && legal.length < (type==="collectAll" ? 2 : 1));
+  if(type === "collectAll" && legal.length < 2) type = "reach"; // e.g. a pawn has just one move — fall back
+  const legalKeys = new Set(legal.map(m => m[0]+","+m[1]));
+  const board = Array.from({length:8},()=>Array(8).fill(null)); board[at[0]][at[1]] = {t:pieceType, c:"w"};
+
+  const grabIllegal = (n, blocked) => { const out=[]; let g=0; while(out.length<n && g<500){ g++; const s=randSquare(); const k=s[0]+","+s[1];
+    if((s[0]===at[0]&&s[1]===at[1]) || legalKeys.has(k) || blocked.has(k) || out.some(d=>d[0]===s[0]&&d[1]===s[1])) continue; out.push(s); } return out; };
+
+  let targets = [], prompt = "";
+  if(type === "capture"){
+    const caps = capturableSquares(pieceType, at);
+    if(caps.length === 0){ type = "reach"; }
+    else {
+      const good = rpick(caps);
+      board[good[0]][good[1]] = {t:rpick(ENEMY_TYPES), c:"b"};
+      const blocked = new Set([...caps.map(s=>s[0]+","+s[1])]);
+      const decoys = grabIllegal(2, blocked);
+      decoys.forEach(([r,c]) => board[r][c] = {t:rpick(ENEMY_TYPES), c:"b"});
+      const legalNow = new Set(getLegalMoves(board, at[0], at[1]).map(m => m[0]+","+m[1]));
+      if(!legalNow.has(good[0]+","+good[1])){ return newPracticeRound(); }
+      targets = [{ r:good[0], c:good[1], good:true, foe:true },
+        ...decoys.filter(([r,c]) => !legalNow.has(r+","+c)).map(([r,c]) => ({ r, c, good:false, foe:true }))];
+      prompt = `Capture the enemy the <strong>${nm}</strong> can reach! ⚔️`;
+    }
   }
-  practiceState.board = board; practiceState.at = at; practiceState.pieceType = type;
-  practiceState.gems = [ {r:reachable[0], c:reachable[1], reachable:true}, ...decoys.map(([r,c]) => ({r,c,reachable:false})) ];
-  const nm = TYPE_NAME[type];
-  setCoach("practiceCoach","practiceText","thinking", `Which gem can the <strong>${nm}</strong> reach? Tap it! 💎`);
+  if(type === "reach"){
+    const good = rpick(legal);
+    const decoys = grabIllegal(3, new Set());
+    targets = [{ r:good[0], c:good[1], good:true }, ...decoys.map(([r,c]) => ({ r, c, good:false }))];
+    prompt = `Which gem can the <strong>${nm}</strong> reach? Tap it! 💎`;
+  } else if(type === "collectAll"){
+    const n = Math.min(legal.length, Math.random()<0.5 ? 3 : 4);
+    const good = legal.slice().sort(() => Math.random()-0.5).slice(0, n);
+    const decoys = grabIllegal(2, new Set());
+    targets = [...good.map(([r,c]) => ({ r, c, good:true })), ...decoys.map(([r,c]) => ({ r, c, good:false }))];
+    prompt = `Collect <strong>all ${n} gems</strong> the ${nm} can reach! 💎`;
+  }
+
+  practiceState.cur = { type, pieceType, at, board, targets, remaining: targets.filter(t => t.good).length };
+  setCoach("practiceCoach","practiceText","thinking", prompt);
   drawPractice(false);
 }
 function drawPractice(showHint){
-  const { board, gems, at } = practiceState;
-  const hl = { gems: gems.map(g => [g.r, g.c]) };
-  if(showHint){ hl.sel = at; hl.moves = getLegalMoves(board, at[0], at[1]).map(to => ({to, cap:false})); }
-  renderBoard("practiceBoard", board, { highlights:hl, onTap:onPracticeTap });
+  const cur = practiceState.cur;
+  const hl = {
+    gems: cur.targets.filter(t => !t.foe && !t.collected).map(t => [t.r, t.c]),
+    foes: cur.targets.filter(t => t.foe && !t.collected).map(t => [t.r, t.c])
+  };
+  if(showHint){ hl.sel = cur.at; hl.moves = getLegalMoves(cur.board, cur.at[0], cur.at[1]).map(to => ({ to, cap: !!cur.board[to[0]][to[1]] })); }
+  renderBoard("practiceBoard", cur.board, { highlights:hl, onTap:onPracticeTap });
+}
+function finishRound(){
+  practiceState.busy = true;
+  practiceState.round++;
+  updatePracticeHud();
+  if(practiceState.round >= MISSION_ROUNDS) setTimeout(practiceWin, 850);
+  else setTimeout(newPracticeRound, 850);
 }
 function onPracticeTap(r,c){
   if(practiceState.busy) return;
-  const gem = practiceState.gems.find(g => g.r===r && g.c===c);
-  const nm = TYPE_NAME[practiceState.pieceType];
-  if(!gem){ setCoach("practiceCoach","practiceText","pointingRight", "Tap one of the <strong>gems 💎</strong>!"); return; }
-  if(gem.reachable){
-    practiceState.busy = true;
-    practiceState.collected++; practiceState.streak++;
+  const cur = practiceState.cur; const nm = TYPE_NAME[cur.pieceType];
+  const t = cur.targets.find(x => x.r===r && x.c===c && !x.collected);
+  if(!t){ setCoach("practiceCoach","practiceText","pointingRight", cur.type==="capture" ? "Tap an <strong>enemy</strong> piece!" : "Tap one of the <strong>gems 💎</strong>!"); return; }
+  if(t.good){
+    t.collected = true; cur.remaining--;
+    practiceState.gems++; practiceState.streak++;
     progress.totalCorrectPracticeMoves++; saveProgress();
     trackGameEvent("move_made", { mode:"practice", piece:nm });
-    const fromAt = practiceState.at;
-    practiceState.board = movePiece(practiceState.board, fromAt, [r,c]);
-    practiceState.at = [r,c]; practiceState.gems = [];
-    renderBoard("practiceBoard", practiceState.board, { highlights:{ last:{to:[r,c]} }, animate:{ from:fromAt, to:[r,c] } });
-    const msg = practiceState.streak >= 3 ? `🔥 ${practiceState.streak} in a row!` : rnd(PRAISE);
-    setCoach("practiceCoach","practiceText","celebrating", `<strong>${msg}</strong>`); sfx("correct"); chessSay("praise");
-    updatePracticeHud();
-    if(practiceState.collected >= MISSION_GOAL) setTimeout(practiceWin, 750);
-    else setTimeout(newPracticeRound, 750);
+    if(cur.type === "collectAll" && cur.remaining > 0){
+      sfx("correct"); chessSay("praise");
+      setCoach("practiceCoach","practiceText","celebrating", `<strong>${rnd(PRAISE)}</strong> ${cur.remaining} more!`);
+      drawPractice(false); updatePracticeHud(); return;
+    }
+    // single target, OR last gem of collectAll → move the piece onto it + end round
+    practiceState.busy = true;
+    sfx(cur.type==="capture" ? "capture" : "correct"); chessSay("praise");
+    const fromAt = cur.at;
+    cur.board = movePiece(cur.board, fromAt, [r,c]); cur.at = [r,c]; cur.targets = [];
+    renderBoard("practiceBoard", cur.board, { highlights:{ last:{to:[r,c]} }, animate:{ from:fromAt, to:[r,c] } });
+    const streakMsg = practiceState.streak >= 3 ? `🔥 ${practiceState.streak} in a row!` : rnd(PRAISE);
+    setCoach("practiceCoach","practiceText","celebrating", `<strong>${streakMsg}</strong>`);
+    finishRound();
   } else {
     practiceState.streak = 0; practiceState.misses++; progress.totalMistakes++; saveProgress();
     trackGameEvent("wrong_move", { mode:"practice", piece:nm });
-    setCoach("practiceCoach","practiceText","pointingLeft", `Oops! The <strong>${nm}</strong> can't reach that gem. Watch how it moves…`); sfx("wrong"); chessSay("nudge");
-    updatePracticeHud();
-    // teaching flash: reveal the real legal squares for a moment, then retry
-    practiceState.busy = true;
-    drawPractice(true);
-    setTimeout(() => { if(!practiceState) return; practiceState.busy = false; drawPractice(false);
-      setCoach("practiceCoach","practiceText","thinking", `Try again — which gem can the <strong>${nm}</strong> reach? 💎`); }, 1300);
+    setCoach("practiceCoach","practiceText","pointingLeft", cur.type==="capture"
+      ? `The <strong>${nm}</strong> can't reach that one. Watch how it moves…`
+      : `Oops! The <strong>${nm}</strong> can't reach that. Watch how it moves…`);
+    sfx("wrong"); chessSay("nudge"); updatePracticeHud();
+    practiceState.busy = true; drawPractice(true);
+    setTimeout(() => { if(!practiceState) return; practiceState.busy = false; drawPractice(false); }, 1300);
   }
 }
 function updatePracticeHud(){
-  document.getElementById("prCorrect").textContent = practiceState.collected;
+  document.getElementById("prCorrect").textContent = Math.min(practiceState.round + 1, MISSION_ROUNDS);
   document.getElementById("prStars").textContent = practiceState.streak;
   document.getElementById("prMiss").textContent = practiceState.misses;
 }
 function practiceWin(){
   sfx("win"); chessSay("praise");
-  trackGameEvent("practice_completed", { mode:"practice", piece:practiceState.mode, metaCorrect:practiceState.collected, metaMistakes:practiceState.misses });
+  trackGameEvent("practice_completed", { mode:"practice", piece:practiceState.mode, metaCorrect:practiceState.gems, metaMistakes:practiceState.misses });
   const label = practiceState.mode === "mixed" ? "all the pieces" : "the " + practiceState.mode;
-  overlay("celebrating", "Mission Complete! 🏆", `You collected ${MISSION_GOAL} gems and proved you know how ${label} moves! Misses: ${practiceState.misses}.`, [
+  overlay("celebrating", "Mission Complete! 🏆", `You finished ${MISSION_ROUNDS} missions, collected ${practiceState.gems} gems and proved you know how ${label} moves! Misses: ${practiceState.misses}.`, [
     { label:"New mission", cls:"green", fn:()=>startPractice(practiceState.mode) },
     { label:"Pick a piece", cls:"ghost", fn:openPracticeSelect }
   ]);
