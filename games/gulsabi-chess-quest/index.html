@@ -220,6 +220,16 @@
   .lesson-card.locked{opacity:.45;filter:grayscale(.6);cursor:not-allowed;}
   .lesson-card.done{border-color:var(--ok);}
   .lesson-card img{width:64px;height:64px;object-fit:contain;}
+  .lesson-card .lc-emoji{font-size:52px;line-height:64px;height:64px;}
+  /* Meet the Pieces gallery / quiz (reuses the lessonBoard container) */
+  .meet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(94vw,440px);}
+  .meet-card{display:flex;flex-direction:column;align-items:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:14px 6px;cursor:pointer;color:#fff;font-family:inherit;transition:transform .12s,background .2s,border-color .2s;}
+  .meet-card:active{transform:scale(.95);}
+  .meet-card img{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.3));}
+  .meet-card .meet-name{font-weight:700;font-size:.88rem;}
+  .meet-card.correct{background:rgba(45,197,114,.35);border-color:var(--ok);}
+  .meet-card.wrong{background:rgba(255,82,82,.35);border-color:var(--bad);animation:tapPop .3s;}
+  .meet-start{grid-column:1/-1;margin-top:8px;}
   .lesson-card .lc-num{font-size:.75rem;color:rgba(255,255,255,.7);}
   .lesson-card .lc-name{font-weight:700;margin-top:2px;}
   .lesson-card .lc-badge{position:absolute;top:8px;right:10px;font-size:1.1rem;}
@@ -559,6 +569,7 @@ document.addEventListener('click', (e) => {
 });
 
 /* ════════════════ PROGRESS (localStorage) ════════════════ */
+const LESSON_TOTAL = 7; // Meet the Pieces + 6 movement lessons (keep in sync with LESSONS)
 const PKEY = "gulsabi_chess_quest_progress";
 const DEFAULT_PROGRESS = {
   completedLessons: [], lastOpenedLesson: null,
@@ -579,7 +590,7 @@ function resetProgress(){
 if(!progress.sessionId){ progress.sessionId = "cq_" + Math.random().toString(36).slice(2) + Date.now().toString(36); saveProgress(); }
 
 function renderProgressCard(){
-  document.getElementById("pcLessons").textContent = progress.completedLessons.length + " / 6";
+  document.getElementById("pcLessons").textContent = progress.completedLessons.length + " / " + LESSON_TOTAL;
   document.getElementById("pcStars").textContent = progress.totalCorrectPracticeMoves;
   document.getElementById("pcWins").textContent = progress.botGamesWon;
 }
@@ -741,7 +752,18 @@ const NUDGE  = ["Almost. Try one of the glowing squares.", "Look carefully. This
 const rnd = (a) => a[Math.floor(Math.random()*a.length)];
 
 /* ════════════════ LESSONS (Learning Adventure) ════════════════ */
+const MEET_PIECES = [
+  { code:"p", name:"pawn",   label:"Pawn" },
+  { code:"r", name:"rook",   label:"Rook" },
+  { code:"n", name:"knight", label:"Knight" },
+  { code:"b", name:"bishop", label:"Bishop" },
+  { code:"q", name:"queen",  label:"Queen" },
+  { code:"k", name:"king",   label:"King" }
+];
+const labelFor = (code) => (MEET_PIECES.find(p => p.code === code) || {}).label || "piece";
+
 const LESSONS = [
+  { id:"meet", intro:true, name:"Meet the Pieces" },
   { id:"pawn", piece:"p", name:"Pawn Path",     explain:"Pawns move one step forward. On their first move, they can move two steps. Pawns capture diagonally.",
     tasks:[ {at:[6,4], goal:[5,4]}, {at:[6,4], goal:[4,4]}, {at:[4,4], goal:[3,3], enemies:[["b","p",3,3]]} ] },
   { id:"rook", piece:"r", name:"Rook Road",     explain:"Rooks move in straight lines. They can go up, down, left, or right.",
@@ -765,13 +787,13 @@ const TASK_HINTS = {
 };
 
 let lessonState = null;
-function isLessonUnlocked(idx){ return idx === 0 || progress.completedLessons.includes(LESSONS[idx-1].id); }
+function isLessonUnlocked(idx){ return idx === 0 || progress.completedLessons.includes(LESSONS[idx-1].id) || progress.completedLessons.includes(LESSONS[idx].id); }
 
 function openLearning(){
   preloadModeAssets("learning");
   progress.lastSelectedMode = "learning"; saveProgress();
   trackGameEvent("mode_selected", { mode:"learning" }); chessSay("mode_learn");
-  setCoach("learnCoach","learnCoachText","pointingRight", progress.completedLessons.length>=6 ? "You finished every lesson — chess champion! 🏆" : "Pick a lesson and learn how each piece moves!");
+  setCoach("learnCoach","learnCoachText","pointingRight", progress.completedLessons.length >= LESSONS.length ? "You finished every lesson — chess champion! 🏆" : "Start with the pieces, then learn how each one moves!");
   renderLessonGrid(); showScreen("screen-learn");
 }
 function renderLessonGrid(){
@@ -780,9 +802,12 @@ function renderLessonGrid(){
     const unlocked = isLessonUnlocked(i), done = progress.completedLessons.includes(L.id);
     const card = document.createElement("div");
     card.className = "lesson-card" + (unlocked ? "" : " locked") + (done ? " done" : "");
+    const thumb = L.intro
+      ? `<div class="lc-emoji" aria-hidden="true">♟️</div>`
+      : `<img src="${getPieceImage('white', TYPE_NAME[L.piece])}" alt="White chess ${TYPE_NAME[L.piece]} piece">`;
     card.innerHTML = `<div class="lc-badge">${done?"✅":(unlocked?"":"🔒")}</div>
-      <img src="${getPieceImage('white', TYPE_NAME[L.piece])}" alt="White chess ${TYPE_NAME[L.piece]} piece">
-      <div class="lc-num">Lesson ${i+1}</div><div class="lc-name">${L.name}</div>`;
+      ${thumb}
+      <div class="lc-num">${L.intro ? "Start here" : "Lesson "+i}</div><div class="lc-name">${L.name}</div>`;
     if(unlocked) card.onclick = () => startLesson(i);
     else card.onclick = () => toast("Finish the previous lesson to unlock this one 🔒");
     grid.appendChild(card);
@@ -791,17 +816,72 @@ function renderLessonGrid(){
 function startLesson(idx){
   const L = LESSONS[idx];
   progress.lastOpenedLesson = L.id; saveProgress();
-  trackGameEvent("lesson_started", { mode:"learning", lesson_id:L.id, piece:TYPE_NAME[L.piece] }); chessSay("lesson_"+L.id);
+  trackGameEvent("lesson_started", { mode:"learning", lesson_id:L.id, piece: L.piece ? TYPE_NAME[L.piece] : "all" });
+  if(L.intro){ startMeetLesson(idx, L); return; }
+  chessSay("lesson_"+L.id);
   lessonState = { idx, L, taskIndex:0, board:null, selected:null };
   document.getElementById("lessonTitle").textContent = L.name;
   document.getElementById("lessonBoard").className = "board bt-green";
   showScreen("screen-lesson");
-  renderTaskDots();
+  renderTaskDots(3, 0);
   loadLessonTask();
 }
-function renderTaskDots(){
+function renderTaskDots(total, current){
   const dots = document.getElementById("taskDots"); dots.innerHTML = "";
-  for(let i=0;i<3;i++){ const d = document.createElement("div"); d.className = "task-dot" + (i<lessonState.taskIndex?" done":(i===lessonState.taskIndex?" cur":"")); dots.appendChild(d); }
+  for(let i=0;i<total;i++){ const d = document.createElement("div"); d.className = "task-dot" + (i<current?" done":(i===current?" cur":"")); dots.appendChild(d); }
+}
+
+/* ── Meet the Pieces: learn each piece's name, then a tap-quiz ── */
+let meetState = null;
+function startMeetLesson(idx, L){
+  meetState = { idx, busy:false, queue:[], qi:0 };
+  document.getElementById("lessonTitle").textContent = L.name;
+  showScreen("screen-lesson");
+  meetTeach();
+}
+function meetTeach(){
+  renderTaskDots(0, 0);
+  const board = document.getElementById("lessonBoard");
+  board.className = "meet-grid";
+  board.innerHTML = MEET_PIECES.map(p =>
+    `<button class="meet-card" type="button" data-piece="${p.code}"><img src="${getPieceImage('white', p.name)}" alt="White chess ${p.name}" draggable="false"><span class="meet-name">${p.label}</span></button>`
+  ).join("") + `<button class="meet-start btn green" type="button" id="meetStartBtn">I know them — quiz me! →</button>`;
+  board.querySelectorAll(".meet-card").forEach(c => c.onclick = () => {
+    sfx("click");
+    setCoach("lessonCoach","lessonText","pointingRight", `This is the <strong>${labelFor(c.dataset.piece)}</strong>.`);
+  });
+  document.getElementById("meetStartBtn").onclick = meetStartQuiz;
+  setCoach("lessonCoach","lessonText","idle", "Meet your six chess pieces! Tap each one to learn its name, then take the quiz.");
+}
+function meetStartQuiz(){
+  meetState.queue = MEET_PIECES.map(p => p.code).sort(() => Math.random()-0.5);
+  meetState.qi = 0; meetState.busy = false;
+  meetQuizRound();
+}
+function meetQuizRound(){
+  const board = document.getElementById("lessonBoard"); board.className = "meet-grid";
+  const shuffled = MEET_PIECES.slice().sort(() => Math.random()-0.5);
+  board.innerHTML = shuffled.map(p =>
+    `<button class="meet-card quiz" type="button" data-piece="${p.code}"><img src="${getPieceImage('white', p.name)}" alt="chess piece" draggable="false"></button>`
+  ).join("");
+  const target = meetState.queue[meetState.qi];
+  board.querySelectorAll(".meet-card").forEach(c => c.onclick = () => onMeetTap(c, target));
+  renderTaskDots(MEET_PIECES.length, meetState.qi);
+  setCoach("lessonCoach","lessonText","thinking", `Tap the <strong>${labelFor(target)}</strong>!`);
+}
+function onMeetTap(card, target){
+  if(meetState.busy) return;
+  if(card.dataset.piece === target){
+    card.classList.add("correct"); sfx("correct"); chessSay("praise");
+    setCoach("lessonCoach","lessonText","celebrating", `<strong>Yes! That's the ${labelFor(target)}.</strong>`);
+    meetState.busy = true; meetState.qi++; renderTaskDots(MEET_PIECES.length, meetState.qi);
+    if(meetState.qi >= MEET_PIECES.length) setTimeout(() => completeLesson("meet"), 850);
+    else setTimeout(() => { meetState.busy = false; meetQuizRound(); }, 850);
+  } else {
+    card.classList.add("wrong"); sfx("wrong"); chessSay("nudge");
+    setCoach("lessonCoach","lessonText","pointingLeft", `That's the ${labelFor(card.dataset.piece)}. Find the <strong>${labelFor(target)}</strong>!`);
+    setTimeout(() => card.classList.remove("wrong"), 600);
+  }
 }
 function loadLessonTask(){
   const { L, taskIndex } = lessonState;
@@ -838,19 +918,21 @@ function lessonTaskWin(){
   lessonState.board = movePiece(board, selected, task.goal); lessonState.selected = null;
   renderBoard("lessonBoard", lessonState.board, { highlights:{ last:{from:selected,to:task.goal} }, animate:{ from:selected, to:task.goal } });
   setCoach("lessonCoach","lessonText","celebrating", `<strong>${rnd(PRAISE)}</strong>`); sfx("correct"); chessSay("praise");
-  lessonState.taskIndex++; renderTaskDots();
+  lessonState.taskIndex++; renderTaskDots(3, lessonState.taskIndex);
   if(lessonState.taskIndex >= 3){ setTimeout(()=>completeLesson(L.id), 850); }
   else { setTimeout(loadLessonTask, 850); }
 }
 function completeLesson(lessonId){
   if(!progress.completedLessons.includes(lessonId)){ progress.completedLessons.push(lessonId); saveProgress(); }
-  trackGameEvent("lesson_completed", { mode:"learning", lesson_id:lessonId, piece:TYPE_NAME[(LESSONS.find(l=>l.id===lessonId)||{}).piece] }); chessSay("lesson_complete");
-  const idx = LESSONS.findIndex(l=>l.id===lessonId);
+  const L = LESSONS.find(l => l.id === lessonId) || {};
+  trackGameEvent("lesson_completed", { mode:"learning", lesson_id:lessonId, piece: L.piece ? TYPE_NAME[L.piece] : "all" }); chessSay("lesson_complete");
+  const idx = LESSONS.findIndex(l => l.id === lessonId);
   const next = LESSONS[idx+1];
   const btns = [{ label:"Back to lessons", cls:"ghost", fn:openLearning }];
   if(next) btns.unshift({ label:"Next: "+next.name, cls:"green", fn:()=>startLesson(idx+1) });
   else btns.unshift({ label:"Play vs Bot 🤖", cls:"green", fn:openBotSelect });
-  overlay("celebrating", "Lesson Complete!", next ? `You learned the ${TYPE_NAME[LESSONS[idx].piece]}! ${next.name} is unlocked.` : "You finished all 6 lessons — chess champion!", btns);
+  const learned = L.intro ? "You met all the pieces" : "You learned the " + TYPE_NAME[L.piece];
+  overlay("celebrating", "Lesson Complete!", next ? `${learned}! ${next.name} is unlocked.` : `${learned} — chess champion!`, btns);
 }
 
 /* ════════════════ MISSIONS — test movement knowledge ════════════════
