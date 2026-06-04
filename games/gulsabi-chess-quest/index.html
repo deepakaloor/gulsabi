@@ -101,6 +101,10 @@
   /* tap feedback: a quick pop on any button/card the player presses */
   @keyframes tapPop{0%{transform:scale(1);}35%{transform:scale(.92);}70%{transform:scale(1.05);}100%{transform:scale(1);}}
   .tap-pop{animation:tapPop .34s cubic-bezier(.34,1.56,.64,1);}
+  /* mission gems */
+  .sq .gem{position:absolute;z-index:3;font-size:min(7.5vw,36px);line-height:1;pointer-events:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4));animation:gemBob 1.3s ease-in-out infinite;}
+  @keyframes gemBob{0%,100%{transform:translateY(0) scale(1) rotate(-4deg);}50%{transform:translateY(-5px) scale(1.1) rotate(4deg);}}
+  .pp-btn .pp-emoji{font-size:48px;height:56px;line-height:56px;}
   h1{font-size:clamp(1.8rem,7vw,2.8rem);margin:.1em 0 .05em;font-weight:700;text-shadow:0 3px 14px rgba(0,0,0,.35);}
   .subtitle{color:rgba(255,255,255,.82);font-size:clamp(.95rem,3.6vw,1.15rem);margin:0 auto 4px;max-width:30ch;}
 
@@ -257,7 +261,7 @@
 
     <div class="progress-card" id="progressCard">
       <div class="pc-item"><div class="pc-num" id="pcLessons">0 / 6</div><div class="pc-lbl">Lessons done</div></div>
-      <div class="pc-item"><div class="pc-num" id="pcStars">0</div><div class="pc-lbl">Practice stars</div></div>
+      <div class="pc-item"><div class="pc-num" id="pcStars">0</div><div class="pc-lbl">Mission gems</div></div>
       <div class="pc-item"><div class="pc-num" id="pcWins">0</div><div class="pc-lbl">Bot wins</div></div>
     </div>
 
@@ -265,54 +269,12 @@
       <button class="mode-btn mb-learn" onclick="openLearning()"><span class="mb-emoji">🧭</span><span class="mb-title">Learning Adventure</span><span class="mb-sub">Learn each piece step by step</span></button>
       <button class="mode-btn mb-bot" onclick="openBotSelect()"><span class="mb-emoji">🤖</span><span class="mb-title">Play vs Bot</span><span class="mb-sub">Challenge Gulsabi Super</span></button>
       <button class="mode-btn mb-2p" onclick="openTwoPlayer()"><span class="mb-emoji">👥</span><span class="mb-title">2 Player Chess</span><span class="mb-sub">Play on one device</span></button>
-      <button class="mode-btn mb-practice" onclick="openPracticeSelect()"><span class="mb-emoji">⭐</span><span class="mb-title">Practice Pieces</span><span class="mb-sub">Master each move</span></button>
+      <button class="mode-btn mb-practice" onclick="openPracticeSelect()"><span class="mb-emoji">🎯</span><span class="mb-title">Missions</span><span class="mb-sub">Test your piece moves</span></button>
       <button class="reset-btn" onclick="resetProgress()">↺ Reset Progress</button>
     </div>
 
-    <!-- crawlable SEO / GEO / AEO / IEO content -->
-    <div class="info">
-      <h2>Learn Chess with Gulsabi Super</h2>
-      <p class="entity">Gulsabi Chess Quest is a kids chess learning game by Gulsabi. It teaches chess pieces through lessons, practice missions, bot play, and 2-player chess.</p>
-
-      <h2>What is Gulsabi Chess Quest?</h2>
-      <p>Gulsabi Chess Quest is a chess learning adventure where kids learn pieces, solve missions, play with a bot, and enjoy 2-player chess — guided by Gulsabi Super.</p>
-
-      <h2>Who is it for?</h2>
-      <p>It is made for kids aged 5 and up who are starting to learn chess, and for families who want a safe, simple way to play together.</p>
-
-      <h2>What does it teach?</h2>
-      <ul>
-        <li>How each chess piece moves</li>
-        <li>How to plan simple moves</li>
-        <li>How to protect the king</li>
-        <li>How to take turns</li>
-        <li>How to think before moving</li>
-      </ul>
-
-      <h2>What game modes are included?</h2>
-      <h3>Chess Lessons for Kids</h3>
-      <p>A guided Learning Adventure with six lessons — Pawn Path, Rook Road, Bishop Bridge, Knight Jump, Queen Power, and King Safety.</p>
-      <h3>Practice Chess Pieces</h3>
-      <p>Pick any piece and complete practice missions to master how it moves.</p>
-      <h3>Play Chess Against the Bot</h3>
-      <p>Play a full game against a friendly browser-based bot with Easy, Smart, and Challenge levels.</p>
-      <h3>Play 2 Player Chess</h3>
-      <p>Two players share one device for a full game of chess with turns, captures, and check detection.</p>
-
-      <h2>Does it need login?</h2>
-      <p class="entity">Gulsabi Chess Quest works without login and stores simple progress on the device. It does not require personal details or chat features.</p>
-
-      <h2>Frequently asked questions</h2>
-      <details open><summary>What is Gulsabi Chess Quest?</summary><p>Gulsabi Chess Quest is a chess learning game for kids with lessons, practice missions, bot play, and 2-player chess.</p></details>
-      <details><summary>Can kids learn chess from this game?</summary><p>Yes. Kids learn how each chess piece moves through guided lessons and practice missions.</p></details>
-      <details><summary>Does the game have a bot?</summary><p>Yes. Kids can play against a simple browser-based chess bot.</p></details>
-      <details><summary>Can two players play on one device?</summary><p>Yes. The game includes a 2-player mode for same-device play.</p></details>
-      <details><summary>Does the game need login?</summary><p>No. The game works without login and saves simple progress on the device.</p></details>
-      <details><summary>Is this game safe for kids?</summary><p>Yes. It does not require personal details or chat features.</p></details>
-      <details><summary>What chess pieces does it teach?</summary><p>It teaches pawn, rook, bishop, knight, queen, and king.</p></details>
-
-      <p class="lede">Part of <a class="txt" href="/games/">Gulsabi World Games</a> · A curiosity-first kids' world by Pixnut.</p>
-    </div>
+    <!-- Game controls only. The full SEO / GEO / AEO / FAQ content for Chess
+         Quest lives on its Explore page: /games/explore.html?game=gulsabi-chess-quest -->
   </section>
 
   <!-- ══════════════════ LEARNING PATH ══════════════════ -->
@@ -337,24 +299,24 @@
 
   <!-- ══════════════════ PRACTICE SELECT ══════════════════ -->
   <section class="screen" id="screen-practice-select">
-    <h2 class="section-title">Practice Chess Pieces</h2>
-    <div class="coach"><img src="/assets/chess/gulsabi-super-pointing-right.png" alt="Gulsabi Super pointing to chess pieces"><div class="bubble">Choose a piece. Make <strong>5 correct moves</strong> to win!</div></div>
+    <h2 class="section-title">Missions</h2>
+    <div class="coach"><img src="/assets/chess/gulsabi-super-pointing-right.png" alt="Gulsabi Super setting a chess mission"><div class="bubble">Pick a piece to test — or <strong>Mixed</strong> for a surprise. Collect <strong>5 gems</strong> the piece can reach!</div></div>
     <div class="piece-pick" id="practicePick"></div>
     <div class="row"><button class="btn ghost" onclick="goHome()">← Home</button></div>
   </section>
 
   <!-- ══════════════════ PRACTICE PLAY ══════════════════ -->
   <section class="screen" id="screen-practice">
-    <h2 class="section-title" id="practiceTitle">Practice</h2>
-    <div class="coach"><img id="practiceCoach" src="/assets/chess/gulsabi-super-idle.png" alt="Gulsabi Super coaching chess practice"><div class="bubble" id="practiceText">Move to the glowing square!</div></div>
+    <h2 class="section-title" id="practiceTitle">Mission</h2>
+    <div class="coach"><img id="practiceCoach" src="/assets/chess/gulsabi-super-thinking.png" alt="Gulsabi Super setting a chess mission"><div class="bubble" id="practiceText">Which gem can the piece reach? Tap it!</div></div>
     <div class="hud">
-      <span class="pill">Correct <b id="prCorrect">0</b>/5</span>
-      <span class="pill">Stars <b id="prStars">0</b></span>
-      <span class="pill">Mistakes <b id="prMiss">0</b></span>
+      <span class="pill">Gems <b id="prCorrect">0</b>/5</span>
+      <span class="pill">Streak <b id="prStars">0</b></span>
+      <span class="pill">Misses <b id="prMiss">0</b></span>
     </div>
     <div class="board-stage"><div class="board" id="practiceBoard"></div></div>
     <div class="row">
-      <button class="btn ghost sm" onclick="openPracticeSelect()">↺ Change piece</button>
+      <button class="btn ghost sm" onclick="openPracticeSelect()">↺ New mission</button>
       <button class="btn ghost sm" onclick="goHome()">Home</button>
     </div>
   </section>
@@ -681,6 +643,7 @@ function renderBoard(elId, board, state){
     if(p){ const img = document.createElement("img"); img.className="piece"; img.src = pieceImgByCode(p); img.alt = (p.c==="w"?"White":"Black")+" chess "+TYPE_NAME[p.t]+" piece"; img.draggable=false; sq.appendChild(img); }
     const key = r+","+c;
     if(key in moveMap){ const mk = document.createElement("div"); mk.className = moveMap[key] ? "ring" : "dot"; sq.appendChild(mk); }
+    if((hl.gems||[]).some(g=>g[0]===r&&g[1]===c)){ const gm = document.createElement("div"); gm.className = "gem"; gm.textContent = "💎"; sq.appendChild(gm); }
     if(state.onTap) sq.addEventListener("click", () => state.onTap(r,c));
     el.appendChild(sq);
   }
@@ -818,80 +781,113 @@ function completeLesson(lessonId){
   overlay("celebrating", "Lesson Complete!", next ? `You learned the ${TYPE_NAME[LESSONS[idx].piece]}! ${next.name} is unlocked.` : "You finished all 6 lessons — chess champion!", btns);
 }
 
-/* ════════════════ PRACTICE PIECES ════════════════ */
+/* ════════════════ MISSIONS — test movement knowledge ════════════════
+   Each round shows the piece + several gems. Exactly ONE gem sits on a square the
+   piece can legally reach; the others are decoys on squares it CANNOT reach. The
+   child must tap the reachable gem (no move-hints shown). A wrong tap briefly
+   flashes where the piece can really go, then lets them try again. Collect 5 gems
+   to win. "Mixed" randomises the piece each round — the real knowledge test. */
 let practiceState = null;
+const MISSION_GOAL = 5;
+const TYPE_CODE = { pawn:"p", rook:"r", bishop:"b", knight:"n", queen:"q", king:"k" };
+const PIECE_NAMES = ["pawn","rook","bishop","knight","queen","king"];
+
 function openPracticeSelect(){
   preloadModeAssets("practice");
   progress.lastSelectedMode = "practice"; saveProgress();
   trackGameEvent("mode_selected", { mode:"practice" }); chessSay("mode_practice");
   const pick = document.getElementById("practicePick"); pick.innerHTML = "";
-  ["pawn","rook","bishop","knight","queen","king"].forEach(name => {
+  PIECE_NAMES.forEach(name => {
     const b = document.createElement("button"); b.className = "pp-btn";
     b.innerHTML = `<img src="${getPieceImage('white',name)}" alt="White chess ${name} piece"><div class="pp-name">${name[0].toUpperCase()+name.slice(1)}</div>`;
     b.onclick = () => startPractice(name); pick.appendChild(b);
   });
+  // Mixed: a random piece every round — tests all the moves
+  const mx = document.createElement("button"); mx.className = "pp-btn";
+  mx.innerHTML = `<div class="pp-emoji">🎲</div><div class="pp-name">Mixed</div>`;
+  mx.onclick = () => startPractice("mixed"); pick.appendChild(mx);
   showScreen("screen-practice-select");
 }
-const TYPE_CODE = { pawn:"p", rook:"r", bishop:"b", knight:"n", queen:"q", king:"k" };
-function startPractice(name){
-  practiceState = { piece:TYPE_CODE[name], name, correct:0, stars:0, mistakes:0, board:null, selected:null, goal:null };
-  trackGameEvent("practice_started", { mode:"practice", piece:name });
-  document.getElementById("practiceTitle").textContent = "Practice: " + name[0].toUpperCase()+name.slice(1);
+function startPractice(mode){
+  practiceState = { mode, collected:0, streak:0, misses:0, board:null, gems:[], at:null, pieceType:null, busy:false };
+  trackGameEvent("practice_started", { mode:"practice", piece:mode });
+  document.getElementById("practiceTitle").textContent = mode==="mixed" ? "Mission: Mixed" : "Mission: " + mode[0].toUpperCase()+mode.slice(1);
   showScreen("screen-practice");
   newPracticeRound();
   updatePracticeHud();
 }
 function randSquare(){ return [Math.floor(Math.random()*8), Math.floor(Math.random()*8)]; }
 function newPracticeRound(){
-  const t = practiceState.piece;
-  let at, moves;
-  do { at = (t==="p") ? [ 2+Math.floor(Math.random()*4), Math.floor(Math.random()*8) ] : randSquare();
-       const b = Array.from({length:8},()=>Array(8).fill(null)); b[at[0]][at[1]] = {t, c:"w"};
-       moves = getLegalMoves(b, at[0], at[1]); }
-  while(moves.length === 0);
-  const board = Array.from({length:8},()=>Array(8).fill(null)); board[at[0]][at[1]] = {t, c:"w"};
-  practiceState.board = board; practiceState.at = at; practiceState.selected = null;
-  practiceState.goal = moves[Math.floor(Math.random()*moves.length)];
-  setCoach("practiceCoach","practiceText","pointingRight", "Move to the <strong>glowing square ⭐</strong>!");
-  drawPractice();
+  practiceState.busy = false;
+  const type = practiceState.mode === "mixed" ? TYPE_CODE[PIECE_NAMES[Math.floor(Math.random()*6)]] : TYPE_CODE[practiceState.mode];
+  let at, moves, tries = 0;
+  do {
+    at = (type==="p") ? [ 2+Math.floor(Math.random()*4), Math.floor(Math.random()*8) ] : randSquare();
+    const b = Array.from({length:8},()=>Array(8).fill(null)); b[at[0]][at[1]] = {t:type, c:"w"};
+    moves = getLegalMoves(b, at[0], at[1]); tries++;
+  } while(moves.length === 0 && tries < 50);
+  const board = Array.from({length:8},()=>Array(8).fill(null)); board[at[0]][at[1]] = {t:type, c:"w"};
+  const legalKeys = new Set(moves.map(m => m[0]+","+m[1]));
+  const reachable = moves[Math.floor(Math.random()*moves.length)];
+  const decoys = []; let guard = 0;
+  while(decoys.length < 3 && guard < 300){
+    guard++; const [r,c] = randSquare(); const k = r+","+c;
+    if((r===at[0]&&c===at[1]) || legalKeys.has(k) || decoys.some(d=>d[0]===r&&d[1]===c)) continue;
+    decoys.push([r,c]);
+  }
+  practiceState.board = board; practiceState.at = at; practiceState.pieceType = type;
+  practiceState.gems = [ {r:reachable[0], c:reachable[1], reachable:true}, ...decoys.map(([r,c]) => ({r,c,reachable:false})) ];
+  const nm = TYPE_NAME[type];
+  setCoach("practiceCoach","practiceText","thinking", `Which gem can the <strong>${nm}</strong> reach? Tap it! 💎`);
+  drawPractice(false);
 }
-function drawPractice(){
-  const { board, selected, goal } = practiceState;
-  const hl = { target: goal };
-  if(selected){ hl.sel = selected; hl.moves = getLegalMoves(board, selected[0], selected[1]).map(to=>({to,cap:false})); }
+function drawPractice(showHint){
+  const { board, gems, at } = practiceState;
+  const hl = { gems: gems.map(g => [g.r, g.c]) };
+  if(showHint){ hl.sel = at; hl.moves = getLegalMoves(board, at[0], at[1]).map(to => ({to, cap:false})); }
   renderBoard("practiceBoard", board, { highlights:hl, onTap:onPracticeTap });
 }
 function onPracticeTap(r,c){
-  const { board, goal, piece } = practiceState;
-  const p = board[r][c];
-  if(p && p.c==="w"){ practiceState.selected = [r,c]; drawPractice(); return; }
-  if(!practiceState.selected){ setCoach("practiceCoach","practiceText","thinking", "Tap your piece first."); return; }
-  const legal = getLegalMoves(board, practiceState.selected[0], practiceState.selected[1]).some(m=>m[0]===r&&m[1]===c);
-  if(r===goal[0] && c===goal[1] && legal){
-    practiceState.correct++; practiceState.stars++;
+  if(practiceState.busy) return;
+  const gem = practiceState.gems.find(g => g.r===r && g.c===c);
+  const nm = TYPE_NAME[practiceState.pieceType];
+  if(!gem){ setCoach("practiceCoach","practiceText","pointingRight", "Tap one of the <strong>gems 💎</strong>!"); return; }
+  if(gem.reachable){
+    practiceState.busy = true;
+    practiceState.collected++; practiceState.streak++;
     progress.totalCorrectPracticeMoves++; saveProgress();
-    trackGameEvent("move_made", { mode:"practice", piece:practiceState.name });
-    setCoach("practiceCoach","practiceText","celebrating", `<strong>${rnd(PRAISE)}</strong>`); sfx("correct"); chessSay("praise");
+    trackGameEvent("move_made", { mode:"practice", piece:nm });
+    practiceState.board = movePiece(practiceState.board, practiceState.at, [r,c]);
+    practiceState.at = [r,c]; practiceState.gems = [];
+    renderBoard("practiceBoard", practiceState.board, { highlights:{ last:{to:[r,c]} } });
+    const msg = practiceState.streak >= 3 ? `🔥 ${practiceState.streak} in a row!` : rnd(PRAISE);
+    setCoach("practiceCoach","practiceText","celebrating", `<strong>${msg}</strong>`); sfx("correct"); chessSay("praise");
     updatePracticeHud();
-    if(practiceState.correct >= 5){ setTimeout(practiceWin, 700); }
-    else { setTimeout(newPracticeRound, 700); }
+    if(practiceState.collected >= MISSION_GOAL) setTimeout(practiceWin, 750);
+    else setTimeout(newPracticeRound, 750);
   } else {
-    practiceState.mistakes++; progress.totalMistakes++; saveProgress();
-    trackGameEvent("wrong_move", { mode:"practice", piece:practiceState.name });
-    setCoach("practiceCoach","practiceText","pointingLeft", rnd(NUDGE)); sfx("wrong"); chessSay("nudge");
+    practiceState.streak = 0; practiceState.misses++; progress.totalMistakes++; saveProgress();
+    trackGameEvent("wrong_move", { mode:"practice", piece:nm });
+    setCoach("practiceCoach","practiceText","pointingLeft", `Oops! The <strong>${nm}</strong> can't reach that gem. Watch how it moves…`); sfx("wrong"); chessSay("nudge");
     updatePracticeHud();
+    // teaching flash: reveal the real legal squares for a moment, then retry
+    practiceState.busy = true;
+    drawPractice(true);
+    setTimeout(() => { if(!practiceState) return; practiceState.busy = false; drawPractice(false);
+      setCoach("practiceCoach","practiceText","thinking", `Try again — which gem can the <strong>${nm}</strong> reach? 💎`); }, 1300);
   }
 }
 function updatePracticeHud(){
-  document.getElementById("prCorrect").textContent = practiceState.correct;
-  document.getElementById("prStars").textContent = practiceState.stars;
-  document.getElementById("prMiss").textContent = practiceState.mistakes;
+  document.getElementById("prCorrect").textContent = practiceState.collected;
+  document.getElementById("prStars").textContent = practiceState.streak;
+  document.getElementById("prMiss").textContent = practiceState.misses;
 }
 function practiceWin(){
   sfx("win"); chessSay("praise");
-  trackGameEvent("practice_completed", { mode:"practice", piece:practiceState.name, metaCorrect:practiceState.correct, metaMistakes:practiceState.mistakes });
-  overlay("celebrating", "5 Correct Moves!", `You mastered the ${practiceState.name} with ${practiceState.stars} stars ⭐`, [
-    { label:"Practice again", cls:"green", fn:()=>startPractice(practiceState.name) },
+  trackGameEvent("practice_completed", { mode:"practice", piece:practiceState.mode, metaCorrect:practiceState.collected, metaMistakes:practiceState.misses });
+  const label = practiceState.mode === "mixed" ? "all the pieces" : "the " + practiceState.mode;
+  overlay("celebrating", "Mission Complete! 🏆", `You collected ${MISSION_GOAL} gems and proved you know how ${label} moves! Misses: ${practiceState.misses}.`, [
+    { label:"New mission", cls:"green", fn:()=>startPractice(practiceState.mode) },
     { label:"Pick a piece", cls:"ghost", fn:openPracticeSelect }
   ]);
 }
