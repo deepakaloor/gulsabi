@@ -843,9 +843,25 @@
         <!-- All Games -->
         <div class="section-row">
             <h2>All Games</h2>
-            <span class="count">5 games</span>
+            <span class="count">6 games</span>
         </div>
         <div class="tile-grid">
+            <article class="app-tile" data-game-card-id="gulsabi-chess-quest">
+                <a class="tile-thumb" href="games/gulsabi-chess-quest/index.html" aria-label="Play Gulsabi Chess Quest"><img src="/assets/chess/gulsabi-chess-quest-thumbnail.png" alt="Gulsabi Chess Quest thumbnail" loading="lazy" decoding="async"><span class="thumb-play" aria-hidden="true"></span></a>
+                <div class="tile-body">
+                    <h3>Gulsabi Chess Quest</h3>
+                    <p class="tile-desc">Learn chess with Gulsabi Super: lessons, practice, bot play, and 2-player chess.</p>
+                    <div class="tile-meta">
+                        <span class="badge age">Ages 5+</span>
+                        <span class="badge solo">Learning</span>
+                        <span class="badge duo">2 Players</span>
+                    </div>
+                    <div class="tile-actions">
+                        <a class="btn-play" href="games/gulsabi-chess-quest/index.html"><span class="pico">&#9654;</span> Play</a>
+                        <a class="btn-explore" href="games/gulsabi-chess-quest/index.html">Explore</a>
+                    </div>
+                </div>
+            </article>
             <article class="app-tile" data-game-card-id="game1">
                 <a class="tile-thumb" href="games/game1/index.html" aria-label="Play Sky Adventure"><img src="assets/game1.jpg" alt="Sky Adventure" loading="lazy" decoding="async"><span class="thumb-play" aria-hidden="true"></span></a>
                 <div class="tile-body">
@@ -984,7 +1000,8 @@
                 { id: 2, gameId: 'game2', img: 'assets/game2.jpg', title: 'Cannon Color Range', sub: 'Spot the color and fire the matching cannon in time.',  href: 'games/game2/index.html' },
                 { id: 3, gameId: 'game3', img: 'assets/game3.jpg', title: 'Odd One Out',         sub: 'Find the one card that doesn\'t belong.',               href: 'games/game3/index.html' },
                 { id: 4, gameId: 'game4', img: 'assets/game4.jpg', title: 'Memory Match',       sub: 'Flip cards and find pairs. Solo or 2-player.',          href: 'games/game4/index.html' },
-                { id: 5, gameId: 'game5', img: 'assets/game5.jpg', title: 'Quiz Time',           sub: 'Identify objects, colors, and fun-fact questions.',     href: 'games/game5/index.html' }
+                { id: 5, gameId: 'game5', img: 'assets/game5.jpg', title: 'Quiz Time',           sub: 'Identify objects, colors, and fun-fact questions.',     href: 'games/game5/index.html' },
+                { id: 6, gameId: 'gulsabi-chess-quest', img: '/assets/chess/gulsabi-chess-quest-thumbnail.png', title: 'Gulsabi Chess Quest', sub: 'Learn chess: lessons, practice, bot play, and 2-player.', href: 'games/gulsabi-chess-quest/index.html', explore: 'games/gulsabi-chess-quest/index.html' }
             ];
             const pick = games[Math.floor(Math.random() * games.length)];
             const tile = document.getElementById('featuredTile');
@@ -997,7 +1014,7 @@
             playMedia.href = pick.href;
             playBtn.href = pick.href;
             playBtn.setAttribute('data-game-card-id', pick.gameId);
-            exploreBtn.href = 'games/explore.html?game=' + pick.gameId;
+            exploreBtn.href = pick.explore || ('games/explore.html?game=' + pick.gameId);
             document.getElementById('featuredImg').src = pick.img;
             document.getElementById('featuredImg').alt = pick.title;
             document.getElementById('featuredTitle').textContent = pick.title;

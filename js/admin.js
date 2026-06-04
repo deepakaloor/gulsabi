@@ -18,7 +18,8 @@ const GAME_NAMES = {
   game2: "Color Cannon",
   game3: "Odd One Out",
   game4: "Memory Match",
-  game5: "Quiz Time"
+  game5: "Quiz Time",
+  "gulsabi-chess-quest": "Gulsabi Chess Quest"
 };
 function gameDisplayName(gameId, gameName) {
   if (gameName && gameName !== gameId) return gameName;
@@ -208,6 +209,7 @@ const pageSub   = document.getElementById("pageSub");
 const PAGE_INFO = {
   overview:   { title: "Overview",            sub: "Top-line metrics across the brand" },
   games:      { title: "Games Analytics",     sub: "Per-game performance and comparison" },
+  chess:      { title: "Chess Quest",         sub: "Gulsabi Chess Quest — lessons, practice, bot & 2-player" },
   users:      { title: "Users & Retention",   sub: "New vs returning + cohort retention" },
   installs:   { title: "App Installs",        sub: "PWA install funnel" },
   sources:    { title: "Traffic Sources",     sub: "Where users come from" },
@@ -580,6 +582,7 @@ function computeGameReport() {
 function renderPage(key) {
   if (key === "overview")   renderOverview();
   if (key === "games")      renderGames();
+  if (key === "chess")      renderChess();
   if (key === "users")      renderUsers();
   if (key === "installs")   renderInstalls();
   if (key === "sources")    renderSources();
@@ -703,6 +706,63 @@ function renderGames() {
   document.getElementById("gamesMeta").textContent = computedGameReport.length
     ? computedGameReport.length + " games"
     : "No games yet";
+}
+
+/* ── Chess Quest (event-driven metrics from game_events) ───── */
+const CHESS_LESSON_NAMES = { pawn:"Pawn Path", rook:"Rook Road", bishop:"Bishop Bridge", knight:"Knight Jump", queen:"Queen Power", king:"King Safety" };
+function renderChess() {
+  const ce = filtered().events.filter(e => e.game_id === "gulsabi-chess-quest");
+  const md = (e) => e.metadata || {};
+  const byName = {};
+  ce.forEach(e => { byName[e.event_name] = (byName[e.event_name] || 0) + 1; });
+  const cnt = (n) => byName[n] || 0;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+  // unique anonymous sessions touching Chess Quest
+  const sessions = new Set(ce.map(e => e.anonymous_user_id || e.session_id).filter(Boolean)).size;
+  // learning starts = mode_selected with mode "learning"
+  const learnStarts = ce.filter(e => e.event_name === "mode_selected" && md(e).mode === "learning").length;
+  // most played lesson (by lesson_started)
+  const lessonStart = {}, lessonDone = {};
+  ce.forEach(e => { const lid = md(e).lesson_id; if (!lid) return;
+    if (e.event_name === "lesson_started")   lessonStart[lid] = (lessonStart[lid]||0)+1;
+    if (e.event_name === "lesson_completed") lessonDone[lid]  = (lessonDone[lid] ||0)+1; });
+  const topLesson = Object.entries(lessonStart).sort((a,b)=>b[1]-a[1])[0];
+  // avg mistakes per practice (metaMistakes stored on practice_completed)
+  const prac = ce.filter(e => e.event_name === "practice_completed");
+  const avgMiss = prac.length
+    ? (prac.reduce((a,e)=> a + (Number(md(e).metaMistakes)||0), 0) / prac.length).toFixed(1)
+    : "0";
+  // last 7 days
+  const wk = new Date(Date.now() - 7*864e5);
+  const last7 = ce.filter(e => e.event_time && new Date(e.event_time) >= wk).length;
+
+  set("cqOpens", cnt("game_opened").toLocaleString());
+  set("cqSessions", sessions.toLocaleString());
+  set("cqLearnStarts", learnStarts.toLocaleString());
+  set("cqLessonsDone", cnt("lesson_completed").toLocaleString());
+  set("cqMostLesson", topLesson ? (CHESS_LESSON_NAMES[topLesson[0]] || topLesson[0]) : "—");
+  set("cqPracticeDone", cnt("practice_completed").toLocaleString());
+  set("cqBotPlayed", cnt("bot_game_started").toLocaleString());
+  set("cqBotWins", cnt("bot_game_won").toLocaleString());
+  set("cqTwoP", cnt("two_player_started").toLocaleString());
+  set("cqAvgMistakes", avgMiss);
+  set("cqLast7", last7.toLocaleString());
+
+  // lessons table
+  const lt = document.getElementById("cqLessonTable");
+  if (lt) {
+    const ids = ["pawn","rook","bishop","knight","queen","king"];
+    const rows = ids.map(id => `<tr><td>${esc(CHESS_LESSON_NAMES[id])}</td><td>${lessonStart[id]||0}</td><td>${lessonDone[id]||0}</td></tr>`).join("");
+    lt.innerHTML = rows || '<tr class="empty-row"><td colspan="3">No data yet</td></tr>';
+  }
+  // events table
+  const et = document.getElementById("cqEventTable");
+  if (et) {
+    const rows = Object.entries(byName).sort((a,b)=>b[1]-a[1])
+      .map(([n,c]) => `<tr><td>${esc(n)}</td><td>${c}</td></tr>`).join("");
+    et.innerHTML = rows || '<tr class="empty-row"><td colspan="2">No data yet</td></tr>';
+  }
 }
 
 function renderUsers() {

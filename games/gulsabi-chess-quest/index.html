@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<base href="/">
+<title>Gulsabi Chess Quest | Learn Chess for Kids</title>
+<meta name="description" content="Learn chess with Gulsabi Super through simple lessons, practice missions, bot games, and 2-player chess. A fun chess learning adventure for kids.">
+<meta name="keywords" content="chess learning game for kids, kids chess game, learn chess for kids, chess adventure game, chess practice for children, play chess with bot for kids, 2 player chess for kids">
+<meta name="theme-color" content="#3B2E6E">
+<link rel="canonical" href="https://gulsabi.com/games/gulsabi-chess-quest/">
+<link rel="icon" href="/images/gulsabi-logo.png">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gulsabi World">
+<meta property="og:title" content="Gulsabi Chess Quest | Learn Chess for Kids">
+<meta property="og:description" content="Learn chess with Gulsabi Super through adventure lessons, practice missions, bot play, and 2-player chess.">
+<meta property="og:image" content="https://gulsabi.com/assets/chess/gulsabi-chess-quest-thumbnail.png">
+<meta property="og:url" content="https://gulsabi.com/games/gulsabi-chess-quest/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gulsabi Chess Quest | Learn Chess for Kids">
+<meta name="twitter:description" content="Learn chess with Gulsabi Super through lessons, practice, bot play, and 2-player chess.">
+<meta name="twitter:image" content="https://gulsabi.com/assets/chess/gulsabi-chess-quest-thumbnail.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Structured data: WebApplication / Game + FAQPage (AEO) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["WebApplication", "Game", "LearningResource"],
+      "name": "Gulsabi Chess Quest",
+      "url": "https://gulsabi.com/games/gulsabi-chess-quest/",
+      "applicationCategory": "EducationalGame",
+      "operatingSystem": "Web",
+      "browserRequirements": "Requires a modern web browser. No download or login.",
+      "description": "Gulsabi Chess Quest is a kids chess learning game by Gulsabi. It teaches chess pieces through lessons, practice missions, bot play, and 2-player chess.",
+      "image": "https://gulsabi.com/assets/chess/gulsabi-chess-quest-thumbnail.png",
+      "educationalUse": "Chess learning",
+      "learningResourceType": "Game",
+      "isAccessibleForFree": true,
+      "audience": { "@type": "EducationalAudience", "educationalRole": "student", "audienceType": "Children" },
+      "publisher": { "@type": "Organization", "name": "Gulsabi", "url": "https://gulsabi.com/" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What is Gulsabi Chess Quest?", "acceptedAnswer": { "@type": "Answer", "text": "Gulsabi Chess Quest is a chess learning game for kids with lessons, practice missions, bot play, and 2-player chess." } },
+        { "@type": "Question", "name": "Can kids learn chess from this game?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Kids learn how each chess piece moves through guided lessons and practice missions." } },
+        { "@type": "Question", "name": "Does the game have a bot?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Kids can play against a simple browser-based chess bot." } },
+        { "@type": "Question", "name": "Can two players play on one device?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The game includes a 2-player mode for same-device play." } },
+        { "@type": "Question", "name": "Does the game need login?", "acceptedAnswer": { "@type": "Answer", "text": "No. The game works without login and saves simple progress on the device." } },
+        { "@type": "Question", "name": "Is this game safe for kids?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It does not require personal details or chat features." } },
+        { "@type": "Question", "name": "What chess pieces does it teach?", "acceptedAnswer": { "@type": "Answer", "text": "It teaches pawn, rook, bishop, knight, queen, and king." } }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+  :root{
+    --sun:#FFD600; --sky:#00A3E0; --cape:#FF4F4F; --teal:#00C2A8;
+    --cream:#FAF9F6; --ink:#1F2937; --ink-soft:#6B7280;
+    --board-light:#F4ECD6; --board-dark:#7C84D8; /* soft purple-blue */
+    --bg1:#3B2E6E; --bg2:#2A2150;
+    --ok:#2DC572; --bad:#FF5252;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Fredoka',system-ui,sans-serif; color:#fff; min-height:100svh;
+    background:
+      radial-gradient(70% 50% at 15% 0%, rgba(0,163,224,.35), transparent 60%),
+      radial-gradient(60% 50% at 90% 100%, rgba(255,79,79,.28), transparent 60%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    background-attachment:fixed;
+  }
+  img{user-select:none;-webkit-user-drag:none;}
+  .wrap{max-width:760px;margin:0 auto;padding:18px 16px 56px;}
+  .screen{display:none;}
+  .screen.active{display:block;animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* ── top bar ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;}
+  .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:#fff;font-weight:700;}
+  .brand img{height:30px;}
+  .home-link{font:600 .9rem/1 'Fredoka';color:rgba(255,255,255,.85);text-decoration:none;background:rgba(255,255,255,.12);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2);}
+  .home-link:active{transform:scale(.96);}
+
+  /* ── hero ── */
+  .hero{text-align:center;padding:6px 0 4px;}
+  .hero-img{width:min(46vw,210px);height:auto;filter:drop-shadow(0 14px 30px rgba(0,0,0,.4));animation:float 5s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+  h1{font-size:clamp(1.8rem,7vw,2.8rem);margin:.1em 0 .05em;font-weight:700;text-shadow:0 3px 14px rgba(0,0,0,.35);}
+  .subtitle{color:rgba(255,255,255,.82);font-size:clamp(.95rem,3.6vw,1.15rem);margin:0 auto 4px;max-width:30ch;}
+
+  /* ── mode buttons ── */
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 14px;}
+  .mode-btn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:0;cursor:pointer;
+    padding:16px;border-radius:20px;color:#fff;font-family:inherit;box-shadow:0 8px 22px rgba(0,0,0,.25);transition:transform .12s;}
+  .mode-btn:active{transform:translateY(2px) scale(.99);}
+  .mode-btn .mb-emoji{font-size:1.6rem;}
+  .mode-btn .mb-title{font-weight:700;font-size:1.05rem;}
+  .mode-btn .mb-sub{font-size:.78rem;opacity:.92;font-weight:500;}
+  .mb-learn{background:linear-gradient(135deg,#00C2A8,#00A3E0);}
+  .mb-bot{background:linear-gradient(135deg,#FF8A3D,#FF4F4F);}
+  .mb-2p{background:linear-gradient(135deg,#8E7BE8,#5B53C6);}
+  .mb-practice{background:linear-gradient(135deg,#FFC83D,#FF9E22);color:#3a2600;}
+  .reset-btn{grid-column:1/-1;background:rgba(255,255,255,.1);border:1px dashed rgba(255,255,255,.35);color:rgba(255,255,255,.8);
+    padding:11px;border-radius:16px;font-family:inherit;font-weight:600;cursor:pointer;font-size:.9rem;}
+  .reset-btn:active{transform:scale(.98);}
+
+  /* ── progress card ── */
+  .progress-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:14px;display:flex;justify-content:space-around;gap:8px;margin-bottom:8px;backdrop-filter:blur(6px);}
+  .pc-item{text-align:center;}
+  .pc-num{font-size:1.5rem;font-weight:700;color:var(--sun);}
+  .pc-lbl{font-size:.72rem;color:rgba(255,255,255,.75);}
+
+  /* ── board ── */
+  .board-stage{display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .board{width:min(94vw,440px);aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);
+    border-radius:18px;overflow:hidden;box-shadow:0 18px 44px rgba(0,0,0,.45);border:5px solid rgba(255,255,255,.14);touch-action:manipulation;}
+  .sq{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .sq.light{background:var(--board-light);}
+  .sq.dark{background:var(--board-dark);}
+  .sq img.piece{width:86%;height:86%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));position:relative;z-index:2;}
+  .sq .dot{position:absolute;width:30%;height:30%;border-radius:50%;background:rgba(45,197,114,.85);box-shadow:0 0 10px rgba(45,197,114,.9);z-index:1;animation:pulse 1.1s ease-in-out infinite;}
+  .sq .ring{position:absolute;inset:7%;border:5px solid rgba(45,197,114,.9);border-radius:14px;z-index:1;box-shadow:0 0 12px rgba(45,197,114,.7);animation:pulse 1.1s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:.75;transform:scale(1);}50%{opacity:1;transform:scale(1.12);}}
+  .sq.sel{outline:5px solid var(--sun);outline-offset:-5px;background:rgba(255,214,0,.35)!important;}
+  .sq.last{background:rgba(255,214,0,.28)!important;}
+  .sq.target{box-shadow:inset 0 0 0 5px var(--sun);}
+  .sq.target::after{content:'';position:absolute;width:34%;height:34%;border-radius:50%;background:radial-gradient(circle,var(--sun),rgba(255,214,0,.2));animation:pulse 1s ease-in-out infinite;}
+  .sq.danger{background:rgba(255,82,82,.5)!important;}
+  .sq.checkk{box-shadow:inset 0 0 0 5px var(--bad);}
+
+  /* ── guide / coach ── */
+  .coach{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);
+    border-radius:20px;padding:12px 14px;margin:0 auto 14px;max-width:520px;backdrop-filter:blur(6px);}
+  .coach img{width:64px;height:64px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3));}
+  .coach .bubble{font-weight:500;font-size:.95rem;line-height:1.35;}
+  .coach .bubble strong{color:var(--sun);}
+
+  /* ── HUD ── */
+  .hud{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;}
+  .pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 14px;font-weight:600;font-size:.85rem;}
+  .pill b{color:var(--sun);}
+  .turn-w{background:rgba(255,255,255,.92);color:#1f2937;}
+  .turn-b{background:rgba(40,33,80,.9);}
+  .captured{display:flex;gap:2px;flex-wrap:wrap;min-height:26px;align-items:center;}
+  .captured img{width:22px;height:22px;object-fit:contain;}
+
+  /* ── controls / btns ── */
+  .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
+  .btn{font-family:inherit;font-weight:700;border:0;border-radius:999px;padding:12px 22px;cursor:pointer;font-size:1rem;color:#fff;
+    background:linear-gradient(135deg,#FF8A3D,#FF4F4F);box-shadow:0 6px 16px rgba(0,0,0,.25);}
+  .btn:active{transform:translateY(2px);}
+  .btn.ghost{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);}
+  .btn.green{background:linear-gradient(135deg,#2DC572,#1F9A55);}
+  .btn.sun{background:linear-gradient(135deg,#FFC83D,#FF9E22);color:#3a2600;}
+  .btn.sm{padding:9px 16px;font-size:.85rem;}
+
+  .section-title{font-size:1.4rem;font-weight:700;text-align:center;margin:6px 0 16px;}
+
+  /* ── learning path ── */
+  .lesson-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(min-width:560px){.lesson-grid{grid-template-columns:1fr 1fr 1fr;}}
+  .lesson-card{position:relative;border-radius:20px;padding:16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);cursor:pointer;text-align:center;transition:transform .12s;}
+  .lesson-card:active{transform:scale(.97);}
+  .lesson-card.locked{opacity:.45;filter:grayscale(.6);cursor:not-allowed;}
+  .lesson-card.done{border-color:var(--ok);}
+  .lesson-card img{width:64px;height:64px;object-fit:contain;}
+  .lesson-card .lc-num{font-size:.75rem;color:rgba(255,255,255,.7);}
+  .lesson-card .lc-name{font-weight:700;margin-top:2px;}
+  .lesson-card .lc-badge{position:absolute;top:8px;right:10px;font-size:1.1rem;}
+
+  /* ── piece picker ── */
+  .piece-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:420px;margin:0 auto;}
+  .pp-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:14px 8px;cursor:pointer;text-align:center;color:#fff;font-family:inherit;}
+  .pp-btn:active{transform:scale(.96);}
+  .pp-btn img{width:56px;height:56px;object-fit:contain;}
+  .pp-btn .pp-name{font-weight:700;margin-top:4px;}
+
+  /* ── difficulty ── */
+  .diff-row{display:flex;flex-direction:column;gap:12px;max-width:420px;margin:0 auto;}
+  .diff-btn{border:0;border-radius:18px;padding:16px;cursor:pointer;font-family:inherit;color:#fff;text-align:left;box-shadow:0 6px 16px rgba(0,0,0,.22);}
+  .diff-btn b{font-size:1.1rem;display:block;}
+  .diff-btn span{font-size:.82rem;opacity:.92;}
+  .d-easy{background:linear-gradient(135deg,#2DC572,#1F9A55);}
+  .d-smart{background:linear-gradient(135deg,#00A3E0,#0077B6);}
+  .d-challenge{background:linear-gradient(135deg,#8E7BE8,#5B53C6);}
+
+  /* ── tasks ── */
+  .task-dots{display:flex;gap:8px;justify-content:center;margin-bottom:8px;}
+  .task-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.25);}
+  .task-dot.done{background:var(--ok);}
+  .task-dot.cur{background:var(--sun);box-shadow:0 0 8px var(--sun);}
+
+  /* ── overlay ── */
+  .overlay{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:rgba(20,16,46,.82);backdrop-filter:blur(6px);padding:18px;}
+  .overlay.show{display:flex;}
+  .modal{background:#fff;color:var(--ink);border-radius:26px;padding:24px 20px;text-align:center;max-width:340px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.5);}
+  .modal img{width:120px;height:120px;object-fit:contain;margin-bottom:6px;}
+  .modal h3{margin:.1em 0;font-size:1.5rem;color:var(--cape);}
+  .modal p{color:var(--ink-soft);margin:.3em 0 1em;}
+
+  /* ── toast ── */
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:rgba(40,33,80,.95);border:2px solid var(--sun);
+    color:#fff;padding:12px 20px;border-radius:16px;font-weight:600;z-index:120;transition:transform .35s cubic-bezier(.2,1,.3,1.3);box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:88vw;text-align:center;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  /* ── SEO / GEO / AEO content (crawlable, on home) ── */
+  .info{margin-top:40px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:22px 18px;}
+  .info h2{font-size:1.3rem;margin:1.1em 0 .3em;color:var(--sun);}
+  .info h2:first-child{margin-top:0;}
+  .info h3{font-size:1.02rem;margin:1em 0 .2em;}
+  .info p,.info li{color:rgba(255,255,255,.82);line-height:1.55;font-size:.95rem;font-weight:400;}
+  .info ul{padding-left:1.1em;}
+  .info .entity{background:rgba(0,163,224,.16);border-left:3px solid var(--sky);padding:12px 14px;border-radius:10px;font-weight:500;}
+  details{background:rgba(255,255,255,.06);border-radius:12px;padding:2px 14px;margin:8px 0;border:1px solid rgba(255,255,255,.1);}
+  summary{cursor:pointer;font-weight:600;padding:10px 0;list-style:none;}
+  summary::-webkit-details-marker{display:none;}
+  summary::before{content:'+ ';color:var(--sun);}
+  details[open] summary::before{content:'– ';}
+  details p{padding-bottom:10px;margin:0;}
+  .lede{text-align:center;color:rgba(255,255,255,.7);font-size:.8rem;margin-top:30px;}
+  a.txt{color:var(--sky);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="brand" href="/games/gulsabi-chess-quest/"><img src="/images/gulsabi-logo.png" alt="Gulsabi World logo"> <span>Chess Quest</span></a>
+    <a class="home-link" id="backToGames" href="/games/">← All Games</a>
+  </div>
+
+  <!-- ══════════════════ HOME ══════════════════ -->
+  <section class="screen active" id="screen-home">
+    <div class="hero">
+      <img class="hero-img" id="heroImg" src="/assets/chess/gulsabi-super-celebrating.png" alt="Gulsabi Super celebrating in Chess Quest">
+      <h1>Gulsabi Chess Quest</h1>
+      <p class="subtitle">Learn chess. Play with a friend. Challenge the bot.</p>
+    </div>
+
+    <div class="progress-card" id="progressCard">
+      <div class="pc-item"><div class="pc-num" id="pcLessons">0 / 6</div><div class="pc-lbl">Lessons done</div></div>
+      <div class="pc-item"><div class="pc-num" id="pcStars">0</div><div class="pc-lbl">Practice stars</div></div>
+      <div class="pc-item"><div class="pc-num" id="pcWins">0</div><div class="pc-lbl">Bot wins</div></div>
+    </div>
+
+    <div class="modes">
+      <button class="mode-btn mb-learn" onclick="openLearning()"><span class="mb-emoji">🧭</span><span class="mb-title">Learning Adventure</span><span class="mb-sub">Learn each piece step by step</span></button>
+      <button class="mode-btn mb-bot" onclick="openBotSelect()"><span class="mb-emoji">🤖</span><span class="mb-title">Play vs Bot</span><span class="mb-sub">Challenge Gulsabi Super</span></button>
+      <button class="mode-btn mb-2p" onclick="openTwoPlayer()"><span class="mb-emoji">👥</span><span class="mb-title">2 Player Chess</span><span class="mb-sub">Play on one device</span></button>
+      <button class="mode-btn mb-practice" onclick="openPracticeSelect()"><span class="mb-emoji">⭐</span><span class="mb-title">Practice Pieces</span><span class="mb-sub">Master each move</span></button>
+      <button class="reset-btn" onclick="resetProgress()">↺ Reset Progress</button>
+    </div>
+
+    <!-- crawlable SEO / GEO / AEO / IEO content -->
+    <div class="info">
+      <h2>Learn Chess with Gulsabi Super</h2>
+      <p class="entity">Gulsabi Chess Quest is a kids chess learning game by Gulsabi. It teaches chess pieces through lessons, practice missions, bot play, and 2-player chess.</p>
+
+      <h2>What is Gulsabi Chess Quest?</h2>
+      <p>Gulsabi Chess Quest is a chess learning adventure where kids learn pieces, solve missions, play with a bot, and enjoy 2-player chess — guided by Gulsabi Super.</p>
+
+      <h2>Who is it for?</h2>
+      <p>It is made for kids aged 5 and up who are starting to learn chess, and for families who want a safe, simple way to play together.</p>
+
+      <h2>What does it teach?</h2>
+      <ul>
+        <li>How each chess piece moves</li>
+        <li>How to plan simple moves</li>
+        <li>How to protect the king</li>
+        <li>How to take turns</li>
+        <li>How to think before moving</li>
+      </ul>
+
+      <h2>What game modes are included?</h2>
+      <h3>Chess Lessons for Kids</h3>
+      <p>A guided Learning Adventure with six lessons — Pawn Path, Rook Road, Bishop Bridge, Knight Jump, Queen Power, and King Safety.</p>
+      <h3>Practice Chess Pieces</h3>
+      <p>Pick any piece and complete practice missions to master how it moves.</p>
+      <h3>Play Chess Against the Bot</h3>
+      <p>Play a full game against a friendly browser-based bot with Easy, Smart, and Challenge levels.</p>
+      <h3>Play 2 Player Chess</h3>
+      <p>Two players share one device for a full game of chess with turns, captures, and check detection.</p>
+
+      <h2>Does it need login?</h2>
+      <p class="entity">Gulsabi Chess Quest works without login and stores simple progress on the device. It does not require personal details or chat features.</p>
+
+      <h2>Frequently asked questions</h2>
+      <details open><summary>What is Gulsabi Chess Quest?</summary><p>Gulsabi Chess Quest is a chess learning game for kids with lessons, practice missions, bot play, and 2-player chess.</p></details>
+      <details><summary>Can kids learn chess from this game?</summary><p>Yes. Kids learn how each chess piece moves through guided lessons and practice missions.</p></details>
+      <details><summary>Does the game have a bot?</summary><p>Yes. Kids can play against a simple browser-based chess bot.</p></details>
+      <details><summary>Can two players play on one device?</summary><p>Yes. The game includes a 2-player mode for same-device play.</p></details>
+      <details><summary>Does the game need login?</summary><p>No. The game works without login and saves simple progress on the device.</p></details>
+      <details><summary>Is this game safe for kids?</summary><p>Yes. It does not require personal details or chat features.</p></details>
+      <details><summary>What chess pieces does it teach?</summary><p>It teaches pawn, rook, bishop, knight, queen, and king.</p></details>
+
+      <p class="lede">Part of <a class="txt" href="/games/">Gulsabi World Games</a> · A curiosity-first kids' world by Pixnut.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ LEARNING PATH ══════════════════ -->
+  <section class="screen" id="screen-learn">
+    <h2 class="section-title">Learning Adventure</h2>
+    <div class="coach"><img id="learnCoach" src="/assets/chess/gulsabi-super-idle.png" alt="Gulsabi Super guiding a chess lesson"><div class="bubble" id="learnCoachText">Pick a lesson and learn how each piece moves!</div></div>
+    <div class="lesson-grid" id="lessonGrid"></div>
+    <div class="row"><button class="btn ghost" onclick="goHome()">← Home</button></div>
+  </section>
+
+  <!-- ══════════════════ LESSON ══════════════════ -->
+  <section class="screen" id="screen-lesson">
+    <h2 class="section-title" id="lessonTitle">Pawn Path</h2>
+    <div class="coach"><img id="lessonCoach" src="/assets/chess/gulsabi-super-thinking.png" alt="Gulsabi Super explaining a chess piece"><div class="bubble" id="lessonText"></div></div>
+    <div class="task-dots" id="taskDots"></div>
+    <div class="board-stage"><div class="board" id="lessonBoard"></div></div>
+    <div class="row">
+      <button class="btn ghost sm" onclick="openLearning()">← Lessons</button>
+      <button class="btn ghost sm" onclick="goHome()">Home</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════ PRACTICE SELECT ══════════════════ -->
+  <section class="screen" id="screen-practice-select">
+    <h2 class="section-title">Practice Chess Pieces</h2>
+    <div class="coach"><img src="/assets/chess/gulsabi-super-pointing-right.png" alt="Gulsabi Super pointing to chess pieces"><div class="bubble">Choose a piece. Make <strong>5 correct moves</strong> to win!</div></div>
+    <div class="piece-pick" id="practicePick"></div>
+    <div class="row"><button class="btn ghost" onclick="goHome()">← Home</button></div>
+  </section>
+
+  <!-- ══════════════════ PRACTICE PLAY ══════════════════ -->
+  <section class="screen" id="screen-practice">
+    <h2 class="section-title" id="practiceTitle">Practice</h2>
+    <div class="coach"><img id="practiceCoach" src="/assets/chess/gulsabi-super-idle.png" alt="Gulsabi Super coaching chess practice"><div class="bubble" id="practiceText">Move to the glowing square!</div></div>
+    <div class="hud">
+      <span class="pill">Correct <b id="prCorrect">0</b>/5</span>
+      <span class="pill">Stars <b id="prStars">0</b></span>
+      <span class="pill">Mistakes <b id="prMiss">0</b></span>
+    </div>
+    <div class="board-stage"><div class="board" id="practiceBoard"></div></div>
+    <div class="row">
+      <button class="btn ghost sm" onclick="openPracticeSelect()">↺ Change piece</button>
+      <button class="btn ghost sm" onclick="goHome()">Home</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════ BOT SELECT ══════════════════ -->
+  <section class="screen" id="screen-bot-select">
+    <h2 class="section-title">Play Chess Against the Bot</h2>
+    <div class="coach"><img src="/assets/chess/gulsabi-super-thinking.png" alt="Gulsabi Super ready to play chess"><div class="bubble">You play <strong>White</strong> and move first. Pick how clever the bot is!</div></div>
+    <div class="diff-row">
+      <button class="diff-btn d-easy" onclick="startBot('easy')"><b>Easy</b><span>The bot plays a random safe move.</span></button>
+      <button class="diff-btn d-smart" onclick="startBot('smart')"><b>Smart</b><span>The bot grabs pieces and gives checks.</span></button>
+      <button class="diff-btn d-challenge" onclick="startBot('challenge')"><b>Challenge</b><span>The bot thinks a couple of moves ahead.</span></button>
+    </div>
+    <div class="row"><button class="btn ghost" onclick="goHome()">← Home</button></div>
+  </section>
+
+  <!-- ══════════════════ BOT / 2P GAME (shared board screen) ══════════════════ -->
+  <section class="screen" id="screen-game">
+    <h2 class="section-title" id="gameTitle">Play vs Bot</h2>
+    <div class="coach"><img id="gameCoach" src="/assets/chess/gulsabi-super-idle.png" alt="Gulsabi Super playing chess"><div class="bubble" id="gameText">Your move! Tap a white piece.</div></div>
+    <div class="hud" id="gameHud"></div>
+    <div class="captured" id="capTop"></div>
+    <div class="board-stage"><div class="board" id="gameBoard"></div></div>
+    <div class="captured" id="capBottom"></div>
+    <div class="row">
+      <button class="btn sun sm" id="restartBtn" onclick="restartGame()">↺ Restart</button>
+      <button class="btn ghost sm" onclick="goHome()">Home</button>
+    </div>
+  </section>
+</div>
+
+<!-- overlay + toast -->
+<div class="overlay" id="overlay"><div class="modal">
+  <img id="ovImg" src="/assets/chess/gulsabi-super-celebrating.png" alt="Gulsabi Super celebrating">
+  <h3 id="ovTitle">Well done!</h3>
+  <p id="ovText"></p>
+  <div class="row" id="ovButtons"></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  // Bridge to the site's anonymous analytics (game_events). Safe: never throws.
+  let _an = null, _tried = false;
+  async function an(){ if(_tried) return _an; _tried = true; try{ _an = await import('/js/analytics.js'); }catch(e){ _an = null; } return _an; }
+  window.__chessTrack = async function(eventName, payload){
+    try{
+      const a = await an();
+      if(a && a.trackEvent){
+        a.trackEvent(eventName, { game_id:'gulsabi-chess-quest', game_name:'Gulsabi Chess Quest',
+          metadata:{ slug:'gulsabi-chess-quest', ...payload } });
+      } else {
+        // Fallback: keep a small local log so nothing breaks if the DB is absent.
+        const k='gulsabi_chess_event_log'; const log=JSON.parse(localStorage.getItem(k)||'[]');
+        log.push({ eventName, payload, t:Date.now() }); localStorage.setItem(k, JSON.stringify(log.slice(-120)));
+      }
+    }catch(e){ /* never break gameplay */ }
+  };
+  try{ const a = await an(); if(a){ if(a.setupPageTracking) a.setupPageTracking(); if(a.startGameSession) a.startGameSession("gulsabi-chess-quest","Gulsabi Chess Quest"); } }catch(e){}
+</script>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   GULSABI CHESS QUEST — self-contained engine + 4 modes (vanilla JS).
+   Chess rules are implemented here (no external library) so the game works
+   fully offline. Castling / en-passant are intentionally omitted to keep the
+   ruleset simple for young kids; every move the game allows is still legal.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Asset map (Chess Quest gameplay uses CHESS_ASSETS.gulsabiSuper only) ── */
+const CHESS_ASSETS = {
+  thumbnail: "/assets/chess/gulsabi-chess-quest-thumbnail.png",
+  gulsabiSuper: {
+    celebrating:  "/assets/chess/gulsabi-super-celebrating.png",
+    idle:         "/assets/chess/gulsabi-super-idle.png",
+    pointingLeft: "/assets/chess/gulsabi-super-pointing-left.png",
+    pointingRight:"/assets/chess/gulsabi-super-pointing-right.png",
+    thinking:     "/assets/chess/gulsabi-super-thinking.png"
+  },
+  gulsabiNormal: {
+    celebration:  "/assets/chess/gulsabi-celebration.png",
+    pointingRight:"/assets/chess/gulsabi-poinitng-right.png", /* real filename (source spelling) */
+    pointingLeft: "/assets/chess/gulsabi-pointing-left.png",
+    thinking:     "/assets/chess/gulsabi-thinking-standing.png"
+  },
+  pieces: {
+    white: { king:"/assets/chess/white-king.png", queen:"/assets/chess/white-queen.png", rook:"/assets/chess/white-rook.png", bishop:"/assets/chess/white-bishop.png", knight:"/assets/chess/white-knight.png", pawn:"/assets/chess/white-pawn.png" },
+    black: { king:"/assets/chess/black-king.png", queen:"/assets/chess/black-queen.png", rook:"/assets/chess/black-rook.png", bishop:"/assets/chess/black-bishop.png", knight:"/assets/chess/black-knight.png", pawn:"/assets/chess/black-pawn.png" }
+  }
+};
+const GAME_SLUG = "gulsabi-chess-quest";
+const TYPE_NAME = { p:"pawn", r:"rook", n:"knight", b:"bishop", q:"queen", k:"king" };
+
+/* ── Asset helpers ── */
+function loadChessAssets(){ // warm the browser cache for every gameplay image
+  const urls = [ ...Object.values(CHESS_ASSETS.gulsabiSuper),
+    ...Object.values(CHESS_ASSETS.pieces.white), ...Object.values(CHESS_ASSETS.pieces.black) ];
+  urls.forEach(u => { const im = new Image(); im.decoding = "async"; im.src = u; });
+}
+function preloadModeAssets(mode){ // (kept simple — everything is already tiny + preloaded)
+  loadChessAssets();
+}
+function getGulsabiSuperImage(state){ return CHESS_ASSETS.gulsabiSuper[state] || CHESS_ASSETS.gulsabiSuper.idle; }
+function getPieceImage(color, piece){ return CHESS_ASSETS.pieces[color][piece]; }
+const pieceImgByCode = (code) => getPieceImage(code.c === "w" ? "white" : "black", TYPE_NAME[code.t]);
+
+/* ── analytics passthrough (defined in the module bridge above; safe no-op) ── */
+function trackGameEvent(eventName, payload = {}){ try{ if(window.__chessTrack) window.__chessTrack(eventName, payload); }catch(e){} }
+
+/* ════════════════ PROGRESS (localStorage) ════════════════ */
+const PKEY = "gulsabi_chess_quest_progress";
+const DEFAULT_PROGRESS = {
+  completedLessons: [], lastOpenedLesson: null,
+  totalCorrectPracticeMoves: 0, totalMistakes: 0,
+  botGamesPlayed: 0, botGamesWon: 0, twoPlayerGamesPlayed: 0, lastSelectedMode: null,
+  sessionId: null
+};
+let progress = loadProgress();
+function loadProgress(){ try{ const v = JSON.parse(localStorage.getItem(PKEY)); return Object.assign({}, DEFAULT_PROGRESS, v || {}); }catch(e){ return {...DEFAULT_PROGRESS}; } }
+function saveProgress(){ try{ localStorage.setItem(PKEY, JSON.stringify(progress)); }catch(e){} renderProgressCard(); }
+function resetProgress(){
+  progress = {...DEFAULT_PROGRESS, sessionId: progress.sessionId};
+  saveProgress(); renderLessonGrid(); renderProgressCard();
+  trackGameEvent("reset_progress", {});
+  toast("Progress reset. Fresh start! ♟️");
+}
+// anonymous session id (no personal data)
+if(!progress.sessionId){ progress.sessionId = "cq_" + Math.random().toString(36).slice(2) + Date.now().toString(36); saveProgress(); }
+
+function renderProgressCard(){
+  document.getElementById("pcLessons").textContent = progress.completedLessons.length + " / 6";
+  document.getElementById("pcStars").textContent = progress.totalCorrectPracticeMoves;
+  document.getElementById("pcWins").textContent = progress.botGamesWon;
+}
+
+/* ════════════════ SCREEN ROUTER ════════════════ */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === id));
+  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+}
+function goHome(){ stopBoardInteraction(); setHero(); showScreen("screen-home"); renderProgressCard(); }
+function setHero(){ document.getElementById("heroImg").src = progress.completedLessons.length >= 6 ? getGulsabiSuperImage("celebrating") : getGulsabiSuperImage("idle"); }
+
+/* ════════════════ CHESS ENGINE ════════════════ */
+// board[r][c] = {t,c} or null. r0 = top (black back rank), r7 = bottom (white). White moves UP.
+function createInitialBoard(){
+  const b = Array.from({length:8}, () => Array(8).fill(null));
+  const back = ["r","n","b","q","k","b","n","r"];
+  for(let c=0;c<8;c++){ b[0][c]={t:back[c],c:"b"}; b[1][c]={t:"p",c:"b"}; b[6][c]={t:"p",c:"w"}; b[7][c]={t:back[c],c:"w"}; }
+  return b;
+}
+const inb = (r,c) => r>=0 && r<8 && c>=0 && c<8;
+function cloneBoard(b){ return b.map(row => row.map(p => p ? {...p} : null)); }
+
+function pseudoMoves(board, r, c){
+  const p = board[r][c]; if(!p) return [];
+  const moves = []; const opp = p.c === "w" ? "b" : "w";
+  const add = (rr,cc) => { if(!inb(rr,cc)) return; const t = board[rr][cc]; if(!t || t.c === opp) moves.push([rr,cc]); };
+  const ray = (dr,dc) => { let rr=r+dr, cc=c+dc; while(inb(rr,cc)){ const t = board[rr][cc]; if(!t){ moves.push([rr,cc]); } else { if(t.c===opp) moves.push([rr,cc]); break; } rr+=dr; cc+=dc; } };
+  if(p.t === "p"){
+    const dir = p.c === "w" ? -1 : 1, start = p.c === "w" ? 6 : 1;
+    if(inb(r+dir,c) && !board[r+dir][c]){ moves.push([r+dir,c]); if(r===start && !board[r+2*dir][c]) moves.push([r+2*dir,c]); }
+    for(const dc of [-1,1]){ const rr=r+dir, cc=c+dc; if(inb(rr,cc) && board[rr][cc] && board[rr][cc].c===opp) moves.push([rr,cc]); }
+  } else if(p.t === "n"){
+    for(const [dr,dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]) add(r+dr,c+dc);
+  } else if(p.t === "k"){
+    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++) if(dr||dc) add(r+dr,c+dc);
+  } else {
+    if(p.t==="r"||p.t==="q"){ ray(-1,0); ray(1,0); ray(0,-1); ray(0,1); }
+    if(p.t==="b"||p.t==="q"){ ray(-1,-1); ray(-1,1); ray(1,-1); ray(1,1); }
+  }
+  return moves;
+}
+function findKing(board, color){ for(let r=0;r<8;r++) for(let c=0;c<8;c++){ const p=board[r][c]; if(p&&p.t==="k"&&p.c===color) return [r,c]; } return null; }
+function isAttacked(board, r, c, byColor){
+  for(let rr=0;rr<8;rr++) for(let cc=0;cc<8;cc++){ const p=board[rr][cc];
+    if(p && p.c===byColor && pseudoMoves(board,rr,cc).some(m=>m[0]===r&&m[1]===c)) return true; }
+  return false;
+}
+function detectCheck(board, color){ const k = findKing(board, color); return k ? isAttacked(board, k[0], k[1], color==="w"?"b":"w") : false; }
+function movePiece(board, from, to){
+  const nb = cloneBoard(board); const p = nb[from[0]][from[1]];
+  nb[to[0]][to[1]] = p; nb[from[0]][from[1]] = null;
+  if(p && p.t==="p" && (to[0]===0 || to[0]===7)) nb[to[0]][to[1]] = {t:"q", c:p.c}; // auto-promote to queen
+  return nb;
+}
+function getLegalMoves(board, r, c){
+  const p = board[r][c]; if(!p) return [];
+  return pseudoMoves(board, r, c).filter(to => !detectCheck(movePiece(board,[r,c],to), p.c));
+}
+function allLegalMoves(board, color){
+  const out = [];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){ const p=board[r][c];
+    if(p && p.c===color) for(const to of getLegalMoves(board,r,c)) out.push({from:[r,c], to}); }
+  return out;
+}
+function detectCheckmate(board, color){ return detectCheck(board,color) && allLegalMoves(board,color).length===0; }
+function detectStalemate(board, color){ return !detectCheck(board,color) && allLegalMoves(board,color).length===0; }
+
+/* ── bot ── */
+const VAL = { p:1, n:3, b:3, r:5, q:9, k:0 };
+function evalBoard(board, color){ let s=0; for(let r=0;r<8;r++) for(let c=0;c<8;c++){ const p=board[r][c]; if(p) s += (p.c===color?1:-1)*VAL[p.t]; } return s; }
+function chooseRandomBotMove(moves){ return moves[Math.floor(Math.random()*moves.length)]; }
+function chooseSmartBotMove(board, moves, color){
+  let best = -1e9, bag = [];
+  for(const m of moves){
+    const nb = movePiece(board, m.from, m.to);
+    let sc = evalBoard(nb, color);
+    if(detectCheck(nb, color==="w"?"b":"w")) sc += 0.6;                 // likes giving check
+    if(isAttacked(nb, m.to[0], m.to[1], color==="w"?"b":"w")) sc -= VAL[board[m.from[0]][m.from[1]].t]*0.6; // dislikes hanging the piece
+    sc += Math.random()*0.15;
+    if(sc > best){ best = sc; bag = [m]; } else if(sc === best){ bag.push(m); }
+  }
+  return bag[Math.floor(Math.random()*bag.length)];
+}
+function negamax(board, color, depth){
+  const moves = allLegalMoves(board, color);
+  if(moves.length === 0) return detectCheck(board,color) ? -9999 : 0;
+  if(depth === 0) return evalBoard(board, color);
+  let best = -1e9;
+  for(const m of moves){ const sc = -negamax(movePiece(board,m.from,m.to), color==="w"?"b":"w", depth-1); if(sc>best) best=sc; }
+  return best;
+}
+function chooseChallengeBotMove(board, moves, color){
+  let best = -1e9, bag = [];
+  for(const m of moves){ const sc = -negamax(movePiece(board,m.from,m.to), color==="w"?"b":"w", 1) + Math.random()*0.05;
+    if(sc>best){ best=sc; bag=[m]; } else if(sc===best){ bag.push(m); } }
+  return bag[Math.floor(Math.random()*bag.length)];
+}
+
+/* ════════════════ BOARD RENDERING ════════════════ */
+// state.highlights: {sel:[r,c], moves:[{to,cap}], target:[r,c], last:{from,to}, check:[r,c], danger:[[r,c]]}
+function renderBoard(elId, board, state){
+  const el = document.getElementById(elId); el.innerHTML = "";
+  const hl = state.highlights || {};
+  const moveMap = {}; (hl.moves||[]).forEach(m => moveMap[m.to[0]+","+m.to[1]] = m.cap);
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    const sq = document.createElement("div");
+    sq.className = "sq " + ((r+c)%2===0 ? "light" : "dark");
+    sq.dataset.r = r; sq.dataset.c = c;
+    if(hl.last && ((hl.last.from && hl.last.from[0]===r && hl.last.from[1]===c) || (hl.last.to && hl.last.to[0]===r && hl.last.to[1]===c))) sq.classList.add("last");
+    if(hl.sel && hl.sel[0]===r && hl.sel[1]===c) sq.classList.add("sel");
+    if(hl.check && hl.check[0]===r && hl.check[1]===c) sq.classList.add("checkk");
+    if((hl.danger||[]).some(d=>d[0]===r&&d[1]===c)) sq.classList.add("danger");
+    if(hl.target && hl.target[0]===r && hl.target[1]===c) sq.classList.add("target");
+    const p = board[r][c];
+    if(p){ const img = document.createElement("img"); img.className="piece"; img.src = pieceImgByCode(p); img.alt = (p.c==="w"?"White":"Black")+" chess "+TYPE_NAME[p.t]+" piece"; img.draggable=false; sq.appendChild(img); }
+    const key = r+","+c;
+    if(key in moveMap){ const mk = document.createElement("div"); mk.className = moveMap[key] ? "ring" : "dot"; sq.appendChild(mk); }
+    if(state.onTap) sq.addEventListener("click", () => state.onTap(r,c));
+    el.appendChild(sq);
+  }
+}
+let _boardLocked = false;
+function stopBoardInteraction(){ _boardLocked = true; }
+
+/* ════════════════ COACH / FEEDBACK helpers ════════════════ */
+function setCoach(imgId, textId, state, html){ const i=document.getElementById(imgId); if(i) i.src = getGulsabiSuperImage(state); const t=document.getElementById(textId); if(t) t.innerHTML = html; }
+let _toastT = null;
+function toast(msg){ const el = document.getElementById("toast"); el.textContent = msg; el.classList.add("show"); clearTimeout(_toastT); _toastT = setTimeout(()=>el.classList.remove("show"), 2600); }
+function overlay(state, title, text, buttons){
+  document.getElementById("ovImg").src = getGulsabiSuperImage(state);
+  document.getElementById("ovTitle").textContent = title;
+  document.getElementById("ovText").textContent = text;
+  const bc = document.getElementById("ovButtons"); bc.innerHTML = "";
+  buttons.forEach(b => { const btn = document.createElement("button"); btn.className = "btn "+(b.cls||""); btn.textContent = b.label; btn.onclick = ()=>{ closeOverlay(); b.fn&&b.fn(); }; bc.appendChild(btn); });
+  document.getElementById("overlay").classList.add("show");
+}
+function closeOverlay(){ document.getElementById("overlay").classList.remove("show"); }
+
+const PRAISE = ["Great move!", "That was smart!", "You found the right square!"];
+const NUDGE  = ["Almost. Try one of the glowing squares.", "Look carefully. This piece moves differently.", "Good try. Let's try again."];
+const rnd = (a) => a[Math.floor(Math.random()*a.length)];
+
+/* ════════════════ LESSONS (Learning Adventure) ════════════════ */
+const LESSONS = [
+  { id:"pawn", piece:"p", name:"Pawn Path",     explain:"Pawns move one step forward. On their first move, they can move two steps. Pawns capture diagonally.",
+    tasks:[ {at:[6,4], goal:[5,4]}, {at:[6,4], goal:[4,4]}, {at:[4,4], goal:[3,3], enemies:[["b","p",3,3]]} ] },
+  { id:"rook", piece:"r", name:"Rook Road",     explain:"Rooks move in straight lines. They can go up, down, left, or right.",
+    tasks:[ {at:[4,4], goal:[4,0]}, {at:[4,4], goal:[0,4]}, {at:[4,4], goal:[4,7]} ] },
+  { id:"bishop", piece:"b", name:"Bishop Bridge", explain:"Bishops move diagonally. They stay on the same colour squares.",
+    tasks:[ {at:[4,4], goal:[1,1]}, {at:[4,4], goal:[2,6]}, {at:[4,4], goal:[7,7]} ] },
+  { id:"knight", piece:"n", name:"Knight Jump",  explain:"Knights jump in an L shape. They can jump over other pieces.",
+    tasks:[ {at:[4,4], goal:[2,3]}, {at:[4,4], goal:[6,5]}, {at:[4,4], goal:[2,5], enemies:[["b","p",3,4],["b","p",3,5],["b","p",4,5]]} ] },
+  { id:"queen", piece:"q", name:"Queen Power",   explain:"The queen is the strongest piece. She moves like a rook and bishop together.",
+    tasks:[ {at:[4,4], goal:[4,7]}, {at:[4,4], goal:[1,1]}, {at:[4,4], goal:[7,4]} ] },
+  { id:"king", piece:"k", name:"King Safety",    explain:"The king moves one square at a time. Keep the king safe.",
+    tasks:[ {at:[4,4], goal:[3,4]}, {at:[4,4], goal:[5,5]}, {at:[4,4], goal:[3,3], enemies:[["b","q",4,0]]} ] }
+];
+const TASK_HINTS = {
+  pawn:["Move the pawn to the glowing square.","Pawns can leap two squares on their first move!","Pawns capture the enemy diagonally."],
+  rook:["Move the rook straight to the star.","Rooks love straight lines — go up!","Slide the rook across the row."],
+  bishop:["Move the bishop diagonally to the target.","Bishops stay on one colour.","Ride the long diagonal to the star."],
+  knight:["Move the knight in an L shape.","Two steps then one — that's the L!","Knights jump right over other pieces."],
+  queen:["Move the queen to the goal.","She moves like a rook here.","Now move her like a bishop."],
+  king:["Move the king one square.","Step the king to the star.","Move the king away from danger!"]
+};
+
+let lessonState = null;
+function isLessonUnlocked(idx){ return idx === 0 || progress.completedLessons.includes(LESSONS[idx-1].id); }
+
+function openLearning(){
+  preloadModeAssets("learning");
+  progress.lastSelectedMode = "learning"; saveProgress();
+  trackGameEvent("mode_selected", { mode:"learning" });
+  setCoach("learnCoach","learnCoachText","pointingRight", progress.completedLessons.length>=6 ? "You finished every lesson — chess champion! 🏆" : "Pick a lesson and learn how each piece moves!");
+  renderLessonGrid(); showScreen("screen-learn");
+}
+function renderLessonGrid(){
+  const grid = document.getElementById("lessonGrid"); grid.innerHTML = "";
+  LESSONS.forEach((L, i) => {
+    const unlocked = isLessonUnlocked(i), done = progress.completedLessons.includes(L.id);
+    const card = document.createElement("div");
+    card.className = "lesson-card" + (unlocked ? "" : " locked") + (done ? " done" : "");
+    card.innerHTML = `<div class="lc-badge">${done?"✅":(unlocked?"":"🔒")}</div>
+      <img src="${getPieceImage('white', TYPE_NAME[L.piece])}" alt="White chess ${TYPE_NAME[L.piece]} piece">
+      <div class="lc-num">Lesson ${i+1}</div><div class="lc-name">${L.name}</div>`;
+    if(unlocked) card.onclick = () => startLesson(i);
+    else card.onclick = () => toast("Finish the previous lesson to unlock this one 🔒");
+    grid.appendChild(card);
+  });
+}
+function startLesson(idx){
+  const L = LESSONS[idx];
+  progress.lastOpenedLesson = L.id; saveProgress();
+  trackGameEvent("lesson_started", { mode:"learning", lesson_id:L.id, piece:TYPE_NAME[L.piece] });
+  lessonState = { idx, L, taskIndex:0, board:null, selected:null };
+  document.getElementById("lessonTitle").textContent = L.name;
+  showScreen("screen-lesson");
+  renderTaskDots();
+  loadLessonTask();
+}
+function renderTaskDots(){
+  const dots = document.getElementById("taskDots"); dots.innerHTML = "";
+  for(let i=0;i<3;i++){ const d = document.createElement("div"); d.className = "task-dot" + (i<lessonState.taskIndex?" done":(i===lessonState.taskIndex?" cur":"")); dots.appendChild(d); }
+}
+function loadLessonTask(){
+  const { L, taskIndex } = lessonState;
+  const task = L.tasks[taskIndex];
+  const board = Array.from({length:8},()=>Array(8).fill(null));
+  board[task.at[0]][task.at[1]] = { t:L.piece, c:"w" };
+  (task.enemies||[]).forEach(([col,t,r,c]) => board[r][c] = { t, c:col });
+  lessonState.board = board; lessonState.selected = null;
+  setCoach("lessonCoach","lessonText","thinking", `<strong>${L.name}.</strong> ${L.explain}<br><em>${TASK_HINTS[L.id][taskIndex]}</em>`);
+  drawLesson();
+}
+function drawLesson(){
+  const { board, selected, L } = lessonState;
+  const task = L.tasks[lessonState.taskIndex];
+  const hl = { target: task.goal };
+  if(selected){
+    hl.sel = selected;
+    hl.moves = getLegalMoves(board, selected[0], selected[1]).map(to => ({ to, cap: !!board[to[0]][to[1]] }));
+  }
+  renderBoard("lessonBoard", board, { highlights:hl, onTap:onLessonTap });
+}
+function onLessonTap(r,c){
+  const { board, L } = lessonState; const task = L.tasks[lessonState.taskIndex];
+  const p = board[r][c];
+  if(p && p.c==="w"){ lessonState.selected = [r,c]; setCoach("lessonCoach","lessonText","pointingRight", `<strong>Now tap the glowing star ⭐</strong> to move the ${TYPE_NAME[L.piece]}.`); drawLesson(); return; }
+  if(!lessonState.selected){ setCoach("lessonCoach","lessonText","thinking", `Tap your <strong>${TYPE_NAME[L.piece]}</strong> first, then the glowing star.`); return; }
+  const legal = getLegalMoves(board, lessonState.selected[0], lessonState.selected[1]).some(m=>m[0]===r&&m[1]===c);
+  if(r===task.goal[0] && c===task.goal[1] && legal){ lessonTaskWin(); }
+  else if(legal){ setCoach("lessonCoach","lessonText","pointingLeft", "Almost! Reach the <strong>glowing star ⭐</strong>."); }
+  else { setCoach("lessonCoach","lessonText","thinking", rnd(NUDGE)); }
+}
+function lessonTaskWin(){
+  const { board, selected, L } = lessonState; const task = L.tasks[lessonState.taskIndex];
+  lessonState.board = movePiece(board, selected, task.goal); lessonState.selected = null;
+  renderBoard("lessonBoard", lessonState.board, { highlights:{ last:{from:selected,to:task.goal} } });
+  setCoach("lessonCoach","lessonText","celebrating", `<strong>${rnd(PRAISE)}</strong>`);
+  lessonState.taskIndex++; renderTaskDots();
+  if(lessonState.taskIndex >= 3){ setTimeout(()=>completeLesson(L.id), 850); }
+  else { setTimeout(loadLessonTask, 850); }
+}
+function completeLesson(lessonId){
+  if(!progress.completedLessons.includes(lessonId)){ progress.completedLessons.push(lessonId); saveProgress(); }
+  trackGameEvent("lesson_completed", { mode:"learning", lesson_id:lessonId, piece:TYPE_NAME[(LESSONS.find(l=>l.id===lessonId)||{}).piece] });
+  const idx = LESSONS.findIndex(l=>l.id===lessonId);
+  const next = LESSONS[idx+1];
+  const btns = [{ label:"Back to lessons", cls:"ghost", fn:openLearning }];
+  if(next) btns.unshift({ label:"Next: "+next.name, cls:"green", fn:()=>startLesson(idx+1) });
+  else btns.unshift({ label:"Play vs Bot 🤖", cls:"green", fn:openBotSelect });
+  overlay("celebrating", "Lesson Complete!", next ? `You learned the ${TYPE_NAME[LESSONS[idx].piece]}! ${next.name} is unlocked.` : "You finished all 6 lessons — chess champion!", btns);
+}
+
+/* ════════════════ PRACTICE PIECES ════════════════ */
+let practiceState = null;
+function openPracticeSelect(){
+  preloadModeAssets("practice");
+  progress.lastSelectedMode = "practice"; saveProgress();
+  trackGameEvent("mode_selected", { mode:"practice" });
+  const pick = document.getElementById("practicePick"); pick.innerHTML = "";
+  ["pawn","rook","bishop","knight","queen","king"].forEach(name => {
+    const b = document.createElement("button"); b.className = "pp-btn";
+    b.innerHTML = `<img src="${getPieceImage('white',name)}" alt="White chess ${name} piece"><div class="pp-name">${name[0].toUpperCase()+name.slice(1)}</div>`;
+    b.onclick = () => startPractice(name); pick.appendChild(b);
+  });
+  showScreen("screen-practice-select");
+}
+const TYPE_CODE = { pawn:"p", rook:"r", bishop:"b", knight:"n", queen:"q", king:"k" };
+function startPractice(name){
+  practiceState = { piece:TYPE_CODE[name], name, correct:0, stars:0, mistakes:0, board:null, selected:null, goal:null };
+  trackGameEvent("practice_started", { mode:"practice", piece:name });
+  document.getElementById("practiceTitle").textContent = "Practice: " + name[0].toUpperCase()+name.slice(1);
+  showScreen("screen-practice");
+  newPracticeRound();
+  updatePracticeHud();
+}
+function randSquare(){ return [Math.floor(Math.random()*8), Math.floor(Math.random()*8)]; }
+function newPracticeRound(){
+  const t = practiceState.piece;
+  let at, moves;
+  do { at = (t==="p") ? [ 2+Math.floor(Math.random()*4), Math.floor(Math.random()*8) ] : randSquare();
+       const b = Array.from({length:8},()=>Array(8).fill(null)); b[at[0]][at[1]] = {t, c:"w"};
+       moves = getLegalMoves(b, at[0], at[1]); }
+  while(moves.length === 0);
+  const board = Array.from({length:8},()=>Array(8).fill(null)); board[at[0]][at[1]] = {t, c:"w"};
+  practiceState.board = board; practiceState.at = at; practiceState.selected = null;
+  practiceState.goal = moves[Math.floor(Math.random()*moves.length)];
+  setCoach("practiceCoach","practiceText","pointingRight", "Move to the <strong>glowing square ⭐</strong>!");
+  drawPractice();
+}
+function drawPractice(){
+  const { board, selected, goal } = practiceState;
+  const hl = { target: goal };
+  if(selected){ hl.sel = selected; hl.moves = getLegalMoves(board, selected[0], selected[1]).map(to=>({to,cap:false})); }
+  renderBoard("practiceBoard", board, { highlights:hl, onTap:onPracticeTap });
+}
+function onPracticeTap(r,c){
+  const { board, goal, piece } = practiceState;
+  const p = board[r][c];
+  if(p && p.c==="w"){ practiceState.selected = [r,c]; drawPractice(); return; }
+  if(!practiceState.selected){ setCoach("practiceCoach","practiceText","thinking", "Tap your piece first."); return; }
+  const legal = getLegalMoves(board, practiceState.selected[0], practiceState.selected[1]).some(m=>m[0]===r&&m[1]===c);
+  if(r===goal[0] && c===goal[1] && legal){
+    practiceState.correct++; practiceState.stars++;
+    progress.totalCorrectPracticeMoves++; saveProgress();
+    trackGameEvent("move_made", { mode:"practice", piece:practiceState.name });
+    setCoach("practiceCoach","practiceText","celebrating", `<strong>${rnd(PRAISE)}</strong>`);
+    updatePracticeHud();
+    if(practiceState.correct >= 5){ setTimeout(practiceWin, 700); }
+    else { setTimeout(newPracticeRound, 700); }
+  } else {
+    practiceState.mistakes++; progress.totalMistakes++; saveProgress();
+    trackGameEvent("wrong_move", { mode:"practice", piece:practiceState.name });
+    setCoach("practiceCoach","practiceText","pointingLeft", rnd(NUDGE));
+    updatePracticeHud();
+  }
+}
+function updatePracticeHud(){
+  document.getElementById("prCorrect").textContent = practiceState.correct;
+  document.getElementById("prStars").textContent = practiceState.stars;
+  document.getElementById("prMiss").textContent = practiceState.mistakes;
+}
+function practiceWin(){
+  trackGameEvent("practice_completed", { mode:"practice", piece:practiceState.name, metaCorrect:practiceState.correct, metaMistakes:practiceState.mistakes });
+  overlay("celebrating", "5 Correct Moves!", `You mastered the ${practiceState.name} with ${practiceState.stars} stars ⭐`, [
+    { label:"Practice again", cls:"green", fn:()=>startPractice(practiceState.name) },
+    { label:"Pick a piece", cls:"ghost", fn:openPracticeSelect }
+  ]);
+}
+
+/* ════════════════ FULL GAME (Bot + 2 Player) ════════════════ */
+let game = null;
+function newGameState(mode, opts){
+  return { mode, board:createInitialBoard(), turn:"w", selected:null, last:null,
+           captured:{w:[], b:[]}, over:false, botDiff:(opts&&opts.botDiff)||null, botThinking:false };
+}
+function openBotSelect(){ preloadModeAssets("bot"); progress.lastSelectedMode="bot"; saveProgress(); trackGameEvent("mode_selected",{mode:"bot"}); showScreen("screen-bot-select"); }
+function startBot(diff){
+  game = newGameState("bot", { botDiff:diff });
+  progress.botGamesPlayed++; saveProgress();
+  trackGameEvent("bot_game_started", { mode:"bot", metaDiff:diff });
+  document.getElementById("gameTitle").textContent = "Play vs Bot · " + diff[0].toUpperCase()+diff.slice(1);
+  document.getElementById("restartBtn").style.display = "";
+  beginGameScreen("Your move! Tap a white piece.", "idle");
+}
+function openTwoPlayer(){
+  preloadModeAssets("2p"); progress.lastSelectedMode="2p"; saveProgress();
+  trackGameEvent("mode_selected",{mode:"2p"});
+  game = newGameState("2p");
+  progress.twoPlayerGamesPlayed++; saveProgress();
+  trackGameEvent("two_player_started", { mode:"2p" });
+  document.getElementById("gameTitle").textContent = "2 Player Chess";
+  document.getElementById("restartBtn").style.display = "";
+  beginGameScreen("Player 1 (White) — tap a piece to start.", "pointingRight");
+}
+function beginGameScreen(msg, coachState){
+  _boardLocked = false; showScreen("screen-game");
+  setCoach("gameCoach","gameText",coachState,msg);
+  drawGame();
+}
+function restartGame(){
+  if(game.mode === "bot") startBot(game.botDiff); else openTwoPlayer();
+}
+function drawGame(){
+  const hl = { last: game.last };
+  if(game.selected){ hl.sel = game.selected; hl.moves = getLegalMoves(game.board, game.selected[0], game.selected[1]).map(to=>({to, cap:!!game.board[to[0]][to[1]]})); }
+  if(detectCheck(game.board, game.turn)){ const k = findKing(game.board, game.turn); if(k) hl.check = k; }
+  renderBoard("gameBoard", game.board, { highlights:hl, onTap:onGameTap });
+  renderHud(); renderCaptured();
+}
+function renderHud(){
+  const hud = document.getElementById("gameHud");
+  if(game.mode === "2p"){
+    hud.innerHTML = `<span class="pill ${game.turn==='w'?'turn-w':''}">Player 1 · White</span>
+                     <span class="pill ${game.turn==='b'?'turn-b':''}">Player 2 · Black</span>`;
+  } else {
+    hud.innerHTML = `<span class="pill ${game.turn==='w'?'turn-w':''}">You · White</span>
+                     <span class="pill ${game.turn==='b'?'turn-b':''}">Bot · Black</span>`;
+  }
+}
+function renderCaptured(){
+  const top = document.getElementById("capTop"), bot = document.getElementById("capBottom");
+  top.innerHTML = game.captured.b.map(t=>`<img src="${getPieceImage('black',TYPE_NAME[t])}" alt="captured black ${TYPE_NAME[t]}">`).join("");
+  bot.innerHTML = game.captured.w.map(t=>`<img src="${getPieceImage('white',TYPE_NAME[t])}" alt="captured white ${TYPE_NAME[t]}">`).join("");
+}
+function onGameTap(r,c){
+  if(_boardLocked || game.over || game.botThinking) return;
+  if(game.mode === "bot" && game.turn === "b") return; // not your turn
+  const p = game.board[r][c];
+  if(game.selected){
+    const legal = getLegalMoves(game.board, game.selected[0], game.selected[1]).some(m=>m[0]===r&&m[1]===c);
+    if(legal){ doMove(game.selected, [r,c]); return; }
+    if(p && p.c === game.turn){ game.selected = [r,c]; drawGame(); return; }
+    game.selected = null; drawGame(); return;
+  }
+  if(p && p.c === game.turn){ game.selected = [r,c]; drawGame(); }
+}
+function doMove(from, to){
+  const moving = game.board[from[0]][from[1]];
+  const captured = game.board[to[0]][to[1]];
+  if(captured) game.captured[captured.c].push(captured.t);
+  game.board = movePiece(game.board, from, to);
+  game.last = { from, to }; game.selected = null;
+  game.turn = game.turn === "w" ? "b" : "w";
+  trackGameEvent("move_made", { mode:game.mode, piece:TYPE_NAME[moving.t] });
+  drawGame();
+  checkGameEnd(() => { if(game.mode === "bot" && game.turn === "b" && !game.over) scheduleBotMove(); });
+}
+function checkGameEnd(after){
+  const me = game.turn; // side to move now
+  if(detectCheckmate(game.board, me)){
+    game.over = true;
+    const winnerIsHuman = (game.mode==="bot" && me==="b");
+    if(game.mode === "bot"){
+      if(me === "b"){ progress.botGamesWon++; saveProgress(); trackGameEvent("bot_game_won", { mode:"bot", metaDiff:game.botDiff }); }
+      else { trackGameEvent("bot_game_lost", { mode:"bot", metaDiff:game.botDiff }); }
+      overlay(winnerIsHuman?"celebrating":"thinking", winnerIsHuman?"Checkmate — You Win! 🏆":"Checkmate!",
+        winnerIsHuman?"Wow! You won the chess quest!":"The bot got your king. Good try — let's play again!",
+        [{label:"Play again", cls:"green", fn:()=>startBot(game.botDiff)},{label:"Home", cls:"ghost", fn:goHome}]);
+    } else {
+      const winner = me === "w" ? "Player 2 (Black)" : "Player 1 (White)";
+      overlay("celebrating", "Checkmate!", winner + " wins the game! 🏆",
+        [{label:"Play again", cls:"green", fn:openTwoPlayer},{label:"Home", cls:"ghost", fn:goHome}]);
+    }
+    return;
+  }
+  if(detectStalemate(game.board, me)){
+    game.over = true;
+    overlay("thinking", "Stalemate!", "No legal moves — it's a draw. That was a close game!",
+      [{label:"Play again", cls:"green", fn:()=> game.mode==="bot"?startBot(game.botDiff):openTwoPlayer()},{label:"Home", cls:"ghost", fn:goHome}]);
+    return;
+  }
+  // ongoing — coach message
+  const inChk = detectCheck(game.board, me);
+  if(game.mode === "bot"){
+    if(me === "w") setCoach("gameCoach","gameText", inChk?"pointingLeft":"idle", inChk?"Careful, your king is in check!":rnd(["Nice move!","Your move!","Keep going!"]));
+  } else {
+    const who = me === "w" ? "Player 1 (White)" : "Player 2 (Black)";
+    setCoach("gameCoach","gameText", inChk?"pointingLeft":"idle", inChk? (who+" — your king is in check!") : (who+"'s turn."));
+  }
+  if(after) after();
+}
+function scheduleBotMove(){
+  game.botThinking = true;
+  setCoach("gameCoach","gameText","thinking","Gulsabi Super is thinking…");
+  const delay = 400 + Math.floor(Math.random()*400);
+  setTimeout(makeBotMove, delay);
+}
+function makeBotMove(){
+  if(game.over){ game.botThinking=false; return; }
+  const moves = allLegalMoves(game.board, "b");
+  if(moves.length === 0){ game.botThinking=false; checkGameEnd(); return; }
+  let mv;
+  if(game.botDiff === "easy") mv = chooseRandomBotMove(moves);
+  else if(game.botDiff === "smart") mv = chooseSmartBotMove(game.board, moves, "b");
+  else mv = chooseChallengeBotMove(game.board, moves, "b");
+  game.botThinking = false;
+  const captured = game.board[mv.to[0]][mv.to[1]];
+  if(captured) game.captured[captured.c].push(captured.t);
+  game.board = movePiece(game.board, mv.from, mv.to);
+  game.last = { from:mv.from, to:mv.to }; game.turn = "w"; game.selected = null;
+  drawGame();
+  checkGameEnd();
+}
+
+/* ════════════════ BOOT ════════════════ */
+(function init(){
+  loadChessAssets();
+  renderProgressCard();
+  renderLessonGrid();
+  setHero();
+  trackGameEvent("game_opened", { mode:progress.lastSelectedMode || "home" });
+})();
+// expose a few for inline onclick handlers (module-free script — already global)
+</script>
+</body>
+</html>

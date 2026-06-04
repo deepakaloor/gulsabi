@@ -443,6 +443,7 @@
       </div>
       <div class="nav-item active" data-page="overview"><span class="dot"></span>Overview</div>
       <div class="nav-item" data-page="games"><span class="dot"></span>Games Analytics</div>
+      <div class="nav-item" data-page="chess"><span class="dot"></span>Chess Quest</div>
       <div class="nav-item" data-page="users"><span class="dot"></span>Users &amp; Retention</div>
       <div class="nav-item" data-page="installs"><span class="dot"></span>App Installs</div>
       <div class="nav-item" data-page="sources"><span class="dot"></span>Traffic Sources</div>
@@ -537,6 +538,37 @@
           </table>
         </div>
         <div class="chart-card"><h3>Completion funnel</h3><div class="chart-wrap"><canvas id="chartFunnel"></canvas></div></div>
+      </section>
+
+      <!-- CHESS QUEST -->
+      <section class="page" data-page="chess">
+        <div class="cards">
+          <div class="card"><div class="label">Total opens</div><div class="num" id="cqOpens">—</div></div>
+          <div class="card"><div class="label">Unique sessions</div><div class="num" id="cqSessions">—</div></div>
+          <div class="card"><div class="label">Learning Adventure starts</div><div class="num" id="cqLearnStarts">—</div></div>
+          <div class="card"><div class="label">Lessons completed</div><div class="num" id="cqLessonsDone">—</div></div>
+          <div class="card"><div class="label">Most played lesson</div><div class="num" id="cqMostLesson" style="font-size:1.05rem">—</div></div>
+          <div class="card"><div class="label">Practice completions</div><div class="num" id="cqPracticeDone">—</div></div>
+          <div class="card"><div class="label">Bot games played</div><div class="num" id="cqBotPlayed">—</div></div>
+          <div class="card"><div class="label">Bot wins</div><div class="num" id="cqBotWins">—</div></div>
+          <div class="card"><div class="label">2-player games started</div><div class="num" id="cqTwoP">—</div></div>
+          <div class="card"><div class="label">Avg mistakes / practice</div><div class="num" id="cqAvgMistakes">—</div></div>
+          <div class="card"><div class="label">Last 7 days activity</div><div class="num" id="cqLast7">—</div></div>
+        </div>
+        <div class="section-row"><div class="section-h">Lessons completed by lesson</div><div class="meta">Learning Adventure</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Lesson</th><th>Started</th><th>Completed</th></tr></thead>
+            <tbody id="cqLessonTable"><tr class="empty-row"><td colspan="3">No data yet</td></tr></tbody>
+          </table>
+        </div>
+        <div class="section-row"><div class="section-h">All Chess Quest events</div><div class="meta">By event name</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Event</th><th>Count</th></tr></thead>
+            <tbody id="cqEventTable"><tr class="empty-row"><td colspan="2">No data yet</td></tr></tbody>
+          </table>
+        </div>
       </section>
 
       <!-- USERS & RETENTION -->
