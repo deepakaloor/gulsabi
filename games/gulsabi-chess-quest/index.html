@@ -238,7 +238,10 @@
 <div class="wrap">
   <div class="topbar">
     <a class="brand" href="/games/gulsabi-chess-quest/"><img src="/images/gulsabi-logo.png" alt="Gulsabi World logo"> <span>Chess Quest</span></a>
-    <a class="home-link" id="backToGames" href="/games/">← All Games</a>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="home-link" id="muteBtn" type="button" aria-label="Toggle sound" onclick="toggleMute()" style="cursor:pointer;font-size:1rem;line-height:1;">🔊</button>
+      <a class="home-link" id="backToGames" href="/games/">← All Games</a>
+    </div>
   </div>
 
   <!-- ══════════════════ HOME ══════════════════ -->
@@ -459,6 +462,43 @@ const pieceImgByCode = (code) => getPieceImage(code.c === "w" ? "white" : "black
 function trackGameEvent(eventName, payload = {}){ try{ if(window.__chessTrack) window.__chessTrack(eventName, payload); }catch(e){} }
 /* Optional Gulsabi voiceover (plays generated MP3s if present; silent otherwise) */
 function chessSay(key){ try{ if(window.CHESS_VOICE) window.CHESS_VOICE.say(key); }catch(e){} }
+
+/* ── Gentle synthesised background music (Web Audio, mute-able) ──
+   A soft, slow arpeggio + pad — calm enough to think over. Starts on the first
+   user gesture (autoplay policy), auto-stops when the tab is hidden/closed, and
+   shares one mute switch with the voiceovers. */
+const Music = (function(){
+  let ac=null, on=false, muted=false, timer=null, step=0, nextT=0;
+  const ARP = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; // C major, gentle
+  function ctx(){ if(!ac){ try{ ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ ac=null; } } return ac; }
+  function note(freq,t,dur,vol,type){ const a=ctx(); if(!a) return; const o=a.createOscillator(), g=a.createGain();
+    o.type=type||'sine'; o.frequency.value=freq; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.06);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+dur); }
+  function sched(){ const a=ctx(); if(!a||!on) return; while(nextT < a.currentTime + 0.25){
+      const f = ARP[step % ARP.length];
+      note(f, nextT, 0.85, 0.045, 'triangle');
+      if(step % 6 === 0) note(f/2, nextT, 2.4, 0.035, 'sine'); // soft pad
+      nextT += 0.46; step++; }
+    timer = setTimeout(sched, 90); }
+  return {
+    start(){ if(on || muted) return; const a=ctx(); if(!a) return; if(a.state==='suspended') a.resume();
+      on=true; step=0; nextT=a.currentTime + 0.1; sched(); },
+    stop(){ on=false; clearTimeout(timer); timer=null; },
+    setMuted(m){ muted=!!m; if(muted) this.stop(); try{ if(window.CHESS_VOICE) window.CHESS_VOICE.setMuted(muted); }catch(e){} },
+    isMuted(){ return muted; }
+  };
+})();
+function applyMutedUI(){ const b=document.getElementById('muteBtn'); if(b) b.textContent = Music.isMuted() ? '🔇' : '🔊'; }
+function toggleMute(){
+  const next = !Music.isMuted();
+  Music.setMuted(next);
+  if(!next) Music.start(); // unmuting resumes music
+  try{ localStorage.setItem('gulsabi_chess_quest_muted', next ? '1' : '0'); }catch(e){}
+  applyMutedUI();
+}
+function startMusicOnce(){ Music.start(); }
+document.addEventListener('visibilitychange', () => { if(document.hidden) Music.stop(); else if(!Music.isMuted()) Music.start(); });
+window.addEventListener('pagehide', () => Music.stop());
 
 /* ════════════════ PROGRESS (localStorage) ════════════════ */
 const PKEY = "gulsabi_chess_quest_progress";
@@ -956,6 +996,11 @@ function makeBotMove(){
 /* ════════════════ BOOT ════════════════ */
 (function init(){
   loadChessAssets();
+  // restore mute preference (default: sound ON, like the other games)
+  try{ if(localStorage.getItem("gulsabi_chess_quest_muted") === "1") Music.setMuted(true); }catch(e){}
+  applyMutedUI();
+  // browsers block autoplay until a gesture — start the music on the first tap
+  window.addEventListener("pointerdown", function once(){ if(!Music.isMuted()) Music.start(); window.removeEventListener("pointerdown", once); }, { once:true });
   renderProgressCard();
   renderLessonGrid();
   setHero();

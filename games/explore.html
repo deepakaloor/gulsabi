@@ -187,6 +187,44 @@
             font-size: 0.95rem; color: var(--text-muted);
             margin-bottom: clamp(16px, 3vw, 24px);
         }
+        /* hero subtitle */
+        .ex-subtitle { font-size: clamp(1rem, 2.6vw, 1.18rem); color: var(--text-muted); font-weight: 600; margin: 0 0 14px; }
+        /* about: what is / who for */
+        .ex-subhead { font-size: 1.05rem; font-weight: 600; margin: 18px 0 4px; color: var(--text-dark); }
+        .ex-lead { font-size: 1rem; line-height: 1.6; color: var(--text-dark); margin: 0; }
+        /* game modes */
+        .modes-list { display: grid; gap: 12px; }
+        @media (min-width: 760px) { .modes-list { grid-template-columns: repeat(2, 1fr); } }
+        .mode-row {
+            display: flex; gap: 12px; align-items: flex-start;
+            background: var(--pure-white); border: 1px solid rgba(31,41,55,0.07);
+            border-radius: 18px; padding: 16px 18px; box-shadow: 0 8px 24px rgba(31,41,55,0.05);
+        }
+        .mode-dot { flex-shrink: 0; width: 12px; height: 12px; border-radius: 50%; margin-top: 6px;
+            background: linear-gradient(135deg, var(--hero-blue), #00C2A8); box-shadow: 0 0 0 4px rgba(0,163,224,0.14); }
+        .mode-row h3 { font-size: 1rem; font-weight: 600; margin: 0 0 2px; }
+        .mode-row p { font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.45; }
+        /* safe play + entity callouts */
+        .ex-entity {
+            background: rgba(0,163,224,0.08); border-left: 4px solid var(--hero-blue);
+            border-radius: 12px; padding: 14px 16px; font-size: 0.98rem; line-height: 1.55;
+            color: var(--text-dark); margin: 0;
+        }
+        .ex-entity-strong { background: rgba(255,214,0,0.14); border-left-color: var(--gulsabi-yellow); font-weight: 600; }
+        /* FAQ */
+        .faq-list { display: flex; flex-direction: column; gap: 10px; }
+        .faq-list details {
+            background: var(--pure-white); border: 1px solid rgba(31,41,55,0.08);
+            border-radius: 14px; padding: 2px 16px; box-shadow: 0 6px 18px rgba(31,41,55,0.04);
+        }
+        .faq-list summary {
+            cursor: pointer; font-weight: 600; padding: 13px 0; list-style: none;
+            font-size: 0.98rem; color: var(--text-dark);
+        }
+        .faq-list summary::-webkit-details-marker { display: none; }
+        .faq-list summary::before { content: '+ '; color: var(--hero-blue); font-weight: 700; }
+        .faq-list details[open] summary::before { content: '– '; }
+        .faq-list details p { padding: 0 0 13px; margin: 0; color: var(--text-muted); line-height: 1.55; font-size: 0.93rem; }
         .skills-grid {
             display: grid; grid-template-columns: repeat(2, 1fr);
             gap: clamp(12px, 3vw, 16px);
@@ -421,17 +459,49 @@
             <div class="ex-intro">
                 <div class="ex-eyebrow" id="exEyebrow">Game</div>
                 <h1 class="ex-title" id="exTitle">Loading…</h1>
+                <p class="ex-subtitle" id="exSubtitle"></p>
                 <div class="ex-badges" id="exBadges"></div>
                 <div class="ex-story" id="exStory"></div>
                 <a class="ex-play" id="exPlay" href="#"><span class="pico" aria-hidden="true"></span> Play now</a>
             </div>
         </section>
 
-        <!-- skills -->
+        <!-- about: what is + who is it for -->
         <section class="ex-section">
-            <h2>What this game grows</h2>
+            <h2 id="exWhatHead">About this game</h2>
+            <p class="ex-lead" id="exWhatIs"></p>
+            <h3 class="ex-subhead">Who is it for?</h3>
+            <p class="ex-lead" id="exWhoFor"></p>
+        </section>
+
+        <!-- what kids learn -->
+        <section class="ex-section">
+            <h2>What kids learn</h2>
             <p class="sub">Little skills that get a workout every time your child plays.</p>
             <div class="skills-grid" id="exSkills"></div>
+        </section>
+
+        <!-- game modes -->
+        <section class="ex-section">
+            <h2>Game modes</h2>
+            <div class="modes-list" id="exModes"></div>
+        </section>
+
+        <!-- safe play -->
+        <section class="ex-section">
+            <h2>Safe play</h2>
+            <p class="ex-entity" id="exSafe"></p>
+        </section>
+
+        <!-- FAQ (AEO) -->
+        <section class="ex-section">
+            <h2>Frequently asked questions</h2>
+            <div class="faq-list" id="exFaq"></div>
+        </section>
+
+        <!-- entity summary -->
+        <section class="ex-section">
+            <p class="ex-entity ex-entity-strong" id="exEntity"></p>
         </section>
 
         <!-- more games carousel -->
@@ -498,77 +568,152 @@
             game1: {
                 title: 'Sky Adventure', img: '/assets/game1.jpg', href: 'games/game1/index.html',
                 eyebrow: 'Flying arcade',
+                subtitle: 'Tap to fly. Dodge the asteroids. Soar past the aliens.',
                 badges: [['age','Ages 5+'],['solo','Solo']],
                 story: [
                     'High above the clouds, Gulsabi straps on a rocket jetpack and blasts off into wild alien skies. One tap lifts him up; let go and gravity tugs him back down. Asteroids tumble past and cheeky aliens zip by, so timing is everything.',
                     'Grab the unicorn shield, ride the jetpack, scoop up coins and keep your combo alive. Every level paints the sky a brand-new colour and speeds things up just a little.'
                 ],
+                whatIs: 'Sky Adventure is a tap-to-fly arcade game where Gulsabi rockets through alien skies, dodging asteroids and aliens while grabbing power-ups.',
+                whoFor: 'Made for kids aged 5 and up who love quick, playful arcade action.',
                 skills: [
                     ['bolt','Quick reflexes','Reacting in a blink to dodge what is coming.'],
                     ['target','Hand-eye coordination','Tapping at exactly the right moment.'],
                     ['eye','Focus & timing','Staying locked in as the pace picks up.'],
                     ['heart','Never give up','Dusting off to beat the last best score.']
-                ]
+                ],
+                modes: [
+                    ['Endless Flight','Fly as far as you can and chase a new high score.'],
+                    ['Power-ups','Grab the unicorn shield, jetpack and coins, and keep your combo alive.']
+                ],
+                safe: 'Sky Adventure works without login and stores your best score on the device. No ads, no chat, no personal details.',
+                faq: [
+                    ['How do you play Sky Adventure?','Tap, click or press space to fly up; let go and gravity pulls you down. Dodge asteroids and aliens.'],
+                    ['Is it free?','Yes. Every Gulsabi game is free and ad-free.'],
+                    ['Does it need login?','No. It plays right in the browser and saves your best score on the device.'],
+                    ['What age is it for?','Ages 5 and up.']
+                ],
+                entity: 'Sky Adventure is a free tap-to-fly arcade game for kids by Gulsabi, where you dodge asteroids and aliens to grow quick reflexes and focus.'
             },
             game2: {
                 title: 'Cannon Color Range', img: '/assets/game2.jpg', href: 'games/game2/index.html',
                 eyebrow: 'Colour matching',
+                subtitle: 'Spot the colour. Load the cannon. Beat the timer.',
                 badges: [['age','Ages 3+'],['solo','Solo']],
                 story: [
                     'A parade of colourful things floats across the screen: a blue bird, a red apple, a green leaf. Gulsabi mans the colour cannon and has to load the matching shade before the timer runs out.',
                     'Get it right and Gulsabi beams; pick the wrong colour and he gives a cheeky "oops". The longer you last, the faster the colours come, so quick eyes win the day.'
                 ],
+                whatIs: 'Cannon Color Range is a colour-matching game where kids fire the matching-coloured cannon at each object before the timer runs out.',
+                whoFor: 'Made for little ones aged 3 and up who are learning their colours.',
                 skills: [
                     ['palette','Colour recognition','Naming and matching eight different colours.'],
                     ['target','Quick decisions','Choosing the right answer under a friendly timer.'],
                     ['eye','Visual matching','Linking each object to the colour it belongs to.'],
                     ['bolt','Reaction speed','Acting fast as the rounds speed up.']
-                ]
+                ],
+                modes: [
+                    ['Colour Rounds','Match each object to its colour before the timer runs out.'],
+                    ['Speed-up levels','The colours arrive faster as you climb the levels.']
+                ],
+                safe: 'Cannon Color Range works without login and keeps your high score on the device. No ads, no chat, no personal details.',
+                faq: [
+                    ['What does Cannon Color Range teach?','It builds colour recognition, quick decisions and visual matching across eight colours.'],
+                    ['Is it free?','Yes. Every Gulsabi game is free and ad-free.'],
+                    ['Does it need login?','No. It plays in the browser and saves progress on the device.'],
+                    ['What age is it for?','Ages 3 and up.']
+                ],
+                entity: 'Cannon Color Range is a free colour-recognition game for kids by Gulsabi, where you match objects to colours under a friendly timer.'
             },
             game3: {
                 title: 'Odd One Out', img: '/assets/game3.jpg', href: 'games/game3/index.html',
                 eyebrow: 'Spot the difference',
+                subtitle: 'Find the one that does not belong before time runs out.',
                 badges: [['age','Ages 4+'],['solo','Solo']],
                 story: [
                     'One of these is not like the others! Gulsabi pops on a detective hat and lays out a grid of look-alike pictures, with a single sneaky odd one hiding in the bunch.',
                     'Look closely, trust your eyes and tap the one that does not belong before the clock ticks down. Each round gets a little trickier and a lot more fun.'
                 ],
+                whatIs: 'Odd One Out is a spot-the-difference game where kids find the single picture that does not belong in a grid of look-alikes.',
+                whoFor: 'Made for kids aged 4 and up who love a good visual puzzle.',
                 skills: [
                     ['eye','Sharp observation','Scanning a whole group to find what stands out.'],
                     ['puzzle','Attention to detail','Noticing the tiny differences others miss.'],
                     ['grid','Pattern spotting','Seeing what belongs together and what does not.'],
                     ['bulb','Logical thinking','Reasoning out the odd one with confidence.']
-                ]
+                ],
+                modes: [
+                    ['Spot Rounds','Find the odd one out across 10 growing levels.'],
+                    ['Power-ups','Use Hint, +5 seconds and +1 Life to keep your streak alive.']
+                ],
+                safe: 'Odd One Out works without login and stores progress on the device. No ads, no chat, no personal details.',
+                faq: [
+                    ['What does Odd One Out teach?','It sharpens observation, attention to detail and logical thinking.'],
+                    ['Is it free?','Yes. Every Gulsabi game is free and ad-free.'],
+                    ['Does it need login?','No. It plays in the browser and saves progress on the device.'],
+                    ['What age is it for?','Ages 4 and up.']
+                ],
+                entity: 'Odd One Out is a free spot-the-difference puzzle for kids by Gulsabi, where you find the picture that does not belong to grow observation skills.'
             },
             game4: {
                 title: 'Memory Match', img: '/assets/game4.jpg', href: 'games/game4/index.html',
                 eyebrow: 'Memory game',
+                subtitle: 'Flip, remember and pair, solo or with a friend.',
                 badges: [['age','Ages 4+'],['duo','Solo & 2 Players']],
                 story: [
                     'Flip, remember, match! Gulsabi turns every card face-down and hides matching pairs across the board. Flip two at a time and use your memory to recall where each picture is hiding.',
                     'Play solo across ten growing levels, or grab a friend for couch two-player mode and take turns. Every pair you find is a tiny memory win.'
                 ],
+                whatIs: 'Memory Match is a card-flipping memory game where kids find matching pairs, solo across ten levels or with a friend in 2-player mode.',
+                whoFor: 'Made for kids aged 4 and up, and for two players who want to play together.',
                 skills: [
                     ['grid','Memory & recall','Remembering where each picture is hidden.'],
                     ['eye','Concentration','Keeping track over many flips in a row.'],
                     ['puzzle','Spatial memory','Mapping pictures to spots on the board.'],
                     ['users','Turn-taking','Sharing, waiting and cheering in 2-player mode.']
-                ]
+                ],
+                modes: [
+                    ['Solo (10 levels)','A slow ramp from 3 pairs up to 18, with stars, coins and power-ups.'],
+                    ['2 Players','Take turns on one device and race to the most pairs.']
+                ],
+                safe: 'Memory Match works without login and stores progress on the device. No ads, no chat, no personal details.',
+                faq: [
+                    ['Can two players play on one device?','Yes. Memory Match has a 2-player mode for same-device play.'],
+                    ['What does it teach?','It grows memory, recall, concentration and turn-taking.'],
+                    ['Is it free and login-free?','Yes. It is free, ad-free and needs no login.'],
+                    ['What age is it for?','Ages 4 and up.']
+                ],
+                entity: 'Memory Match is a free card-matching memory game for kids by Gulsabi, playable solo across ten levels or in 2-player mode.'
             },
             game5: {
                 title: 'Quiz Time', img: '/assets/game5.jpg', href: 'games/game5/index.html',
                 eyebrow: 'Curious quiz',
+                subtitle: 'Look, read, tap. Test what you know.',
                 badges: [['age','Ages 5+'],['solo','Solo']],
                 story: [
                     'Brain power, activate! Gulsabi fires off all kinds of curious questions: name the object, pick the colour, guess the fun fact. Every answer is a little "aha!" moment.',
                     'There are no scary buzzers here, just friendly questions that grow a child’s world one curious thought at a time. Answer, learn, and feel that spark of "I knew it!"'
                 ],
+                whatIs: 'Quiz Time is a friendly quiz game where kids answer what-is, what-colour and fun-fact questions about the world around them.',
+                whoFor: 'Made for curious kids aged 5 and up who love to learn and show what they know.',
                 skills: [
                     ['bulb','General knowledge','Learning fun facts about the world around us.'],
                     ['target','Recall','Bringing back what you already know.'],
                     ['eye','Words & objects','Connecting names, pictures and ideas.'],
                     ['heart','Confidence','Feeling proud with every right answer.']
-                ]
+                ],
+                modes: [
+                    ['Quiz Rounds','Answer what-is, what-colour and fun-fact questions.'],
+                    ['10 levels','The questions grow with every level you clear.']
+                ],
+                safe: 'Quiz Time works without login and stores progress on the device. No ads, no chat, no personal details.',
+                faq: [
+                    ['What does Quiz Time teach?','It grows general knowledge, vocabulary, recall and confidence.'],
+                    ['Is it free?','Yes. Every Gulsabi game is free and ad-free.'],
+                    ['Does it need login?','No. It plays in the browser and saves progress on the device.'],
+                    ['What age is it for?','Ages 5 and up.']
+                ],
+                entity: 'Quiz Time is a free quiz game for kids by Gulsabi, where friendly questions about objects, colours and the world grow knowledge and confidence.'
             }
         };
         const ORDER = ['game1','game2','game3','game4','game5'];
@@ -605,9 +750,25 @@
             play.href = g.href;
             play.setAttribute('data-game-card-id', id);
 
+            document.getElementById('exSubtitle').textContent = g.subtitle || '';
+            document.getElementById('exWhatHead').textContent = 'What is ' + g.title + '?';
+            document.getElementById('exWhatIs').textContent = g.whatIs || '';
+            document.getElementById('exWhoFor').textContent = g.whoFor || '';
+            document.getElementById('exSafe').textContent = g.safe || '';
+            document.getElementById('exEntity').textContent = g.entity || '';
+
             document.getElementById('exSkills').innerHTML = g.skills.map(([icon, name, desc]) =>
                 '<div class="skill-card"><div class="skill-icon">' + svg(icon) + '</div>' +
                 '<h3>' + name + '</h3><p>' + desc + '</p></div>'
+            ).join('');
+
+            document.getElementById('exModes').innerHTML = (g.modes || []).map(([name, desc]) =>
+                '<div class="mode-row"><div class="mode-dot" aria-hidden="true"></div>' +
+                '<div><h3>' + name + '</h3><p>' + desc + '</p></div></div>'
+            ).join('');
+
+            document.getElementById('exFaq').innerHTML = (g.faq || []).map(([q, a], i) =>
+                '<details' + (i === 0 ? ' open' : '') + '><summary>' + q + '</summary><p>' + a + '</p></details>'
             ).join('');
 
             // carousel: every other game
@@ -664,6 +825,13 @@
                             { "@type": "ListItem", "position": 2, "name": "Games", "item": "https://gulsabi.com/games" },
                             { "@type": "ListItem", "position": 3, "name": g.title, "item": pageUrl }
                         ]
+                    },
+                    {
+                        "@type": "FAQPage",
+                        "mainEntity": (g.faq || []).map(([q, a]) => ({
+                            "@type": "Question", "name": q,
+                            "acceptedAnswer": { "@type": "Answer", "text": a }
+                        }))
                     }
                 ]
             };
