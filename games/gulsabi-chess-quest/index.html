@@ -409,6 +409,7 @@
   try{ const a = await an(); if(a){ if(a.setupPageTracking) a.setupPageTracking(); if(a.startGameSession) a.startGameSession("gulsabi-chess-quest","Gulsabi Chess Quest"); } }catch(e){}
 </script>
 
+<script src="/games/gulsabi-chess-quest/chessVoiceLines.js"></script>
 <script>
 /* ════════════════════════════════════════════════════════════════════════
    GULSABI CHESS QUEST — self-contained engine + 4 modes (vanilla JS).
@@ -456,6 +457,8 @@ const pieceImgByCode = (code) => getPieceImage(code.c === "w" ? "white" : "black
 
 /* ── analytics passthrough (defined in the module bridge above; safe no-op) ── */
 function trackGameEvent(eventName, payload = {}){ try{ if(window.__chessTrack) window.__chessTrack(eventName, payload); }catch(e){} }
+/* Optional Gulsabi voiceover (plays generated MP3s if present; silent otherwise) */
+function chessSay(key){ try{ if(window.CHESS_VOICE) window.CHESS_VOICE.say(key); }catch(e){} }
 
 /* ════════════════ PROGRESS (localStorage) ════════════════ */
 const PKEY = "gulsabi_chess_quest_progress";
@@ -652,7 +655,7 @@ function isLessonUnlocked(idx){ return idx === 0 || progress.completedLessons.in
 function openLearning(){
   preloadModeAssets("learning");
   progress.lastSelectedMode = "learning"; saveProgress();
-  trackGameEvent("mode_selected", { mode:"learning" });
+  trackGameEvent("mode_selected", { mode:"learning" }); chessSay("mode_learn");
   setCoach("learnCoach","learnCoachText","pointingRight", progress.completedLessons.length>=6 ? "You finished every lesson — chess champion! 🏆" : "Pick a lesson and learn how each piece moves!");
   renderLessonGrid(); showScreen("screen-learn");
 }
@@ -673,7 +676,7 @@ function renderLessonGrid(){
 function startLesson(idx){
   const L = LESSONS[idx];
   progress.lastOpenedLesson = L.id; saveProgress();
-  trackGameEvent("lesson_started", { mode:"learning", lesson_id:L.id, piece:TYPE_NAME[L.piece] });
+  trackGameEvent("lesson_started", { mode:"learning", lesson_id:L.id, piece:TYPE_NAME[L.piece] }); chessSay("lesson_"+L.id);
   lessonState = { idx, L, taskIndex:0, board:null, selected:null };
   document.getElementById("lessonTitle").textContent = L.name;
   showScreen("screen-lesson");
@@ -718,14 +721,14 @@ function lessonTaskWin(){
   const { board, selected, L } = lessonState; const task = L.tasks[lessonState.taskIndex];
   lessonState.board = movePiece(board, selected, task.goal); lessonState.selected = null;
   renderBoard("lessonBoard", lessonState.board, { highlights:{ last:{from:selected,to:task.goal} } });
-  setCoach("lessonCoach","lessonText","celebrating", `<strong>${rnd(PRAISE)}</strong>`);
+  setCoach("lessonCoach","lessonText","celebrating", `<strong>${rnd(PRAISE)}</strong>`); chessSay("praise");
   lessonState.taskIndex++; renderTaskDots();
   if(lessonState.taskIndex >= 3){ setTimeout(()=>completeLesson(L.id), 850); }
   else { setTimeout(loadLessonTask, 850); }
 }
 function completeLesson(lessonId){
   if(!progress.completedLessons.includes(lessonId)){ progress.completedLessons.push(lessonId); saveProgress(); }
-  trackGameEvent("lesson_completed", { mode:"learning", lesson_id:lessonId, piece:TYPE_NAME[(LESSONS.find(l=>l.id===lessonId)||{}).piece] });
+  trackGameEvent("lesson_completed", { mode:"learning", lesson_id:lessonId, piece:TYPE_NAME[(LESSONS.find(l=>l.id===lessonId)||{}).piece] }); chessSay("lesson_complete");
   const idx = LESSONS.findIndex(l=>l.id===lessonId);
   const next = LESSONS[idx+1];
   const btns = [{ label:"Back to lessons", cls:"ghost", fn:openLearning }];
@@ -739,7 +742,7 @@ let practiceState = null;
 function openPracticeSelect(){
   preloadModeAssets("practice");
   progress.lastSelectedMode = "practice"; saveProgress();
-  trackGameEvent("mode_selected", { mode:"practice" });
+  trackGameEvent("mode_selected", { mode:"practice" }); chessSay("mode_practice");
   const pick = document.getElementById("practicePick"); pick.innerHTML = "";
   ["pawn","rook","bishop","knight","queen","king"].forEach(name => {
     const b = document.createElement("button"); b.className = "pp-btn";
@@ -787,14 +790,14 @@ function onPracticeTap(r,c){
     practiceState.correct++; practiceState.stars++;
     progress.totalCorrectPracticeMoves++; saveProgress();
     trackGameEvent("move_made", { mode:"practice", piece:practiceState.name });
-    setCoach("practiceCoach","practiceText","celebrating", `<strong>${rnd(PRAISE)}</strong>`);
+    setCoach("practiceCoach","practiceText","celebrating", `<strong>${rnd(PRAISE)}</strong>`); chessSay("praise");
     updatePracticeHud();
     if(practiceState.correct >= 5){ setTimeout(practiceWin, 700); }
     else { setTimeout(newPracticeRound, 700); }
   } else {
     practiceState.mistakes++; progress.totalMistakes++; saveProgress();
     trackGameEvent("wrong_move", { mode:"practice", piece:practiceState.name });
-    setCoach("practiceCoach","practiceText","pointingLeft", rnd(NUDGE));
+    setCoach("practiceCoach","practiceText","pointingLeft", rnd(NUDGE)); chessSay("nudge");
     updatePracticeHud();
   }
 }
@@ -817,7 +820,7 @@ function newGameState(mode, opts){
   return { mode, board:createInitialBoard(), turn:"w", selected:null, last:null,
            captured:{w:[], b:[]}, over:false, botDiff:(opts&&opts.botDiff)||null, botThinking:false };
 }
-function openBotSelect(){ preloadModeAssets("bot"); progress.lastSelectedMode="bot"; saveProgress(); trackGameEvent("mode_selected",{mode:"bot"}); showScreen("screen-bot-select"); }
+function openBotSelect(){ preloadModeAssets("bot"); progress.lastSelectedMode="bot"; saveProgress(); trackGameEvent("mode_selected",{mode:"bot"}); chessSay("mode_bot"); showScreen("screen-bot-select"); }
 function startBot(diff){
   game = newGameState("bot", { botDiff:diff });
   progress.botGamesPlayed++; saveProgress();
@@ -828,7 +831,7 @@ function startBot(diff){
 }
 function openTwoPlayer(){
   preloadModeAssets("2p"); progress.lastSelectedMode="2p"; saveProgress();
-  trackGameEvent("mode_selected",{mode:"2p"});
+  trackGameEvent("mode_selected",{mode:"2p"}); chessSay("mode_2p");
   game = newGameState("2p");
   progress.twoPlayerGamesPlayed++; saveProgress();
   trackGameEvent("two_player_started", { mode:"2p" });
@@ -881,7 +884,7 @@ function onGameTap(r,c){
 function doMove(from, to){
   const moving = game.board[from[0]][from[1]];
   const captured = game.board[to[0]][to[1]];
-  if(captured) game.captured[captured.c].push(captured.t);
+  if(captured){ game.captured[captured.c].push(captured.t); chessSay("capture_01"); }
   game.board = movePiece(game.board, from, to);
   game.last = { from, to }; game.selected = null;
   game.turn = game.turn === "w" ? "b" : "w";
@@ -897,11 +900,13 @@ function checkGameEnd(after){
     if(game.mode === "bot"){
       if(me === "b"){ progress.botGamesWon++; saveProgress(); trackGameEvent("bot_game_won", { mode:"bot", metaDiff:game.botDiff }); }
       else { trackGameEvent("bot_game_lost", { mode:"bot", metaDiff:game.botDiff }); }
+      chessSay(winnerIsHuman?"win_01":"lose_01");
       overlay(winnerIsHuman?"celebrating":"thinking", winnerIsHuman?"Checkmate — You Win! 🏆":"Checkmate!",
         winnerIsHuman?"Wow! You won the chess quest!":"The bot got your king. Good try — let's play again!",
         [{label:"Play again", cls:"green", fn:()=>startBot(game.botDiff)},{label:"Home", cls:"ghost", fn:goHome}]);
     } else {
       const winner = me === "w" ? "Player 2 (Black)" : "Player 1 (White)";
+      chessSay("win_01");
       overlay("celebrating", "Checkmate!", winner + " wins the game! 🏆",
         [{label:"Play again", cls:"green", fn:openTwoPlayer},{label:"Home", cls:"ghost", fn:goHome}]);
     }
@@ -909,12 +914,14 @@ function checkGameEnd(after){
   }
   if(detectStalemate(game.board, me)){
     game.over = true;
+    chessSay("draw_01");
     overlay("thinking", "Stalemate!", "No legal moves — it's a draw. That was a close game!",
       [{label:"Play again", cls:"green", fn:()=> game.mode==="bot"?startBot(game.botDiff):openTwoPlayer()},{label:"Home", cls:"ghost", fn:goHome}]);
     return;
   }
   // ongoing — coach message
   const inChk = detectCheck(game.board, me);
+  if(inChk) chessSay("check_01");
   if(game.mode === "bot"){
     if(me === "w") setCoach("gameCoach","gameText", inChk?"pointingLeft":"idle", inChk?"Careful, your king is in check!":rnd(["Nice move!","Your move!","Keep going!"]));
   } else {
@@ -925,7 +932,7 @@ function checkGameEnd(after){
 }
 function scheduleBotMove(){
   game.botThinking = true;
-  setCoach("gameCoach","gameText","thinking","Gulsabi Super is thinking…");
+  setCoach("gameCoach","gameText","thinking","Gulsabi Super is thinking…"); chessSay("bot_thinking_01");
   const delay = 400 + Math.floor(Math.random()*400);
   setTimeout(makeBotMove, delay);
 }
