@@ -647,6 +647,21 @@ function renderBoard(elId, board, state){
     if(state.onTap) sq.addEventListener("click", () => state.onTap(r,c));
     el.appendChild(sq);
   }
+  // Slide the moved piece from its old square into its new one.
+  if(state.animate){
+    const { from, to } = state.animate;
+    const destSq = el.children[to[0]*8 + to[1]];
+    const img = destSq && destSq.querySelector("img.piece");
+    if(img){
+      const cell = el.clientWidth / 8;
+      img.style.transform = `translate(${(from[1]-to[1])*cell}px, ${(from[0]-to[0])*cell}px)`;
+      img.style.zIndex = "5";
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        img.style.transition = "transform .26s cubic-bezier(.25,.9,.35,1.1)";
+        img.style.transform = "translate(0,0)";
+      }));
+    }
+  }
 }
 let _boardLocked = false;
 function stopBoardInteraction(){ _boardLocked = true; }
@@ -764,7 +779,7 @@ function onLessonTap(r,c){
 function lessonTaskWin(){
   const { board, selected, L } = lessonState; const task = L.tasks[lessonState.taskIndex];
   lessonState.board = movePiece(board, selected, task.goal); lessonState.selected = null;
-  renderBoard("lessonBoard", lessonState.board, { highlights:{ last:{from:selected,to:task.goal} } });
+  renderBoard("lessonBoard", lessonState.board, { highlights:{ last:{from:selected,to:task.goal} }, animate:{ from:selected, to:task.goal } });
   setCoach("lessonCoach","lessonText","celebrating", `<strong>${rnd(PRAISE)}</strong>`); sfx("correct"); chessSay("praise");
   lessonState.taskIndex++; renderTaskDots();
   if(lessonState.taskIndex >= 3){ setTimeout(()=>completeLesson(L.id), 850); }
@@ -857,9 +872,10 @@ function onPracticeTap(r,c){
     practiceState.collected++; practiceState.streak++;
     progress.totalCorrectPracticeMoves++; saveProgress();
     trackGameEvent("move_made", { mode:"practice", piece:nm });
-    practiceState.board = movePiece(practiceState.board, practiceState.at, [r,c]);
+    const fromAt = practiceState.at;
+    practiceState.board = movePiece(practiceState.board, fromAt, [r,c]);
     practiceState.at = [r,c]; practiceState.gems = [];
-    renderBoard("practiceBoard", practiceState.board, { highlights:{ last:{to:[r,c]} } });
+    renderBoard("practiceBoard", practiceState.board, { highlights:{ last:{to:[r,c]} }, animate:{ from:fromAt, to:[r,c] } });
     const msg = practiceState.streak >= 3 ? `🔥 ${practiceState.streak} in a row!` : rnd(PRAISE);
     setCoach("practiceCoach","practiceText","celebrating", `<strong>${msg}</strong>`); sfx("correct"); chessSay("praise");
     updatePracticeHud();
@@ -929,7 +945,8 @@ function drawGame(){
   const hl = { last: game.last };
   if(game.selected){ hl.sel = game.selected; hl.moves = getLegalMoves(game.board, game.selected[0], game.selected[1]).map(to=>({to, cap:!!game.board[to[0]][to[1]]})); }
   if(detectCheck(game.board, game.turn)){ const k = findKing(game.board, game.turn); if(k) hl.check = k; }
-  renderBoard("gameBoard", game.board, { highlights:hl, onTap:onGameTap });
+  renderBoard("gameBoard", game.board, { highlights:hl, onTap:onGameTap, animate: game._anim });
+  game._anim = null; // one-shot
   renderHud(); renderCaptured();
 }
 function renderHud(){
@@ -968,6 +985,7 @@ function doMove(from, to){
   game.last = { from, to }; game.selected = null;
   game.turn = game.turn === "w" ? "b" : "w";
   trackGameEvent("move_made", { mode:game.mode, piece:TYPE_NAME[moving.t] });
+  game._anim = { from, to };
   drawGame();
   checkGameEnd(() => { if(game.mode === "bot" && game.turn === "b" && !game.over) scheduleBotMove(); });
 }
@@ -1028,6 +1046,7 @@ function makeBotMove(){
   if(captured) game.captured[captured.c].push(captured.t);
   game.board = movePiece(game.board, mv.from, mv.to);
   game.last = { from:mv.from, to:mv.to }; game.turn = "w"; game.selected = null;
+  game._anim = { from:mv.from, to:mv.to };
   drawGame();
   checkGameEnd();
 }
