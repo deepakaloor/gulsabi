@@ -447,6 +447,8 @@
             <p>Flip cards and find matching pairs, solo across ten levels or in 2-player mode. Grows memory, recall and concentration. <a href="games/game4/index.html">Play Memory Match</a>.</p>
             <h2>Quiz Time (ages 5+, solo)</h2>
             <p>Answer friendly questions about objects, colours and the world. Grows knowledge, vocabulary and confidence. <a href="games/game5/index.html">Play Quiz Time</a>.</p>
+            <h2>Gulsabi Chess Quest (ages 5+, solo &amp; 2 players)</h2>
+            <p>Learn chess with Gulsabi Super through guided lessons, practice missions, bot games and 2-player chess. Grows logic, focus, planning and chess basics. <a href="games/gulsabi-chess-quest/index.html">Play Gulsabi Chess Quest</a>.</p>
             <p><a href="games/">Back to all games</a></p>
         </noscript>
 
@@ -714,9 +716,43 @@
                     ['What age is it for?','Ages 5 and up.']
                 ],
                 entity: 'Quiz Time is a free quiz game for kids by Gulsabi, where friendly questions about objects, colours and the world grow knowledge and confidence.'
+            },
+            'gulsabi-chess-quest': {
+                title: 'Gulsabi Chess Quest', img: '/assets/chess/gulsabi-chess-quest-thumbnail.png', href: 'games/gulsabi-chess-quest/index.html',
+                eyebrow: 'Chess learning adventure',
+                subtitle: 'Learn chess. Play with a friend. Challenge the bot.',
+                badges: [['age','Ages 5+'],['solo','Learning'],['duo','2 Players']],
+                story: [
+                    'Gulsabi Super straps on a cape and turns chess into an adventure. Kids meet each piece one at a time, learn how it moves with friendly guided lessons, then practise with quick missions until every move feels easy.',
+                    'When they are ready, they can challenge a friendly browser bot at three skill levels, or play a full game of 2-player chess with a friend on the same device.'
+                ],
+                whatIs: 'Gulsabi Chess Quest is a chess learning adventure where kids learn pieces, solve missions, play with a bot, and enjoy 2-player chess — guided by Gulsabi Super.',
+                whoFor: 'Made for kids aged 5 and up who are starting to learn chess, and for families who want a safe, simple way to play together.',
+                skills: [
+                    ['grid','How pieces move','Learning the moves of all six chess pieces.'],
+                    ['bulb','Planning ahead','Thinking a move or two before tapping.'],
+                    ['heart','King safety','Keeping the king safe from danger.'],
+                    ['users','Taking turns','Sharing the board and playing fair in 2-player.']
+                ],
+                modes: [
+                    ['Learning Adventure','Six guided lessons — learn each piece step by step.'],
+                    ['Play vs Bot','A full game against a friendly bot (Easy, Smart or Challenge).'],
+                    ['2 Player Chess','Two players share one device for a full game.'],
+                    ['Practice Pieces','Pick a piece and master its moves with quick missions.']
+                ],
+                safe: 'Gulsabi Chess Quest works without login and stores simple progress on the device. It does not require personal details or chat features.',
+                faq: [
+                    ['What is Gulsabi Chess Quest?','A chess learning game for kids with lessons, practice missions, bot play, and 2-player chess.'],
+                    ['Can kids learn chess from this game?','Yes. Kids learn how each chess piece moves through guided lessons and practice missions.'],
+                    ['Does the game have a bot?','Yes. Kids can play against a simple browser-based chess bot at three levels.'],
+                    ['Can two players play on one device?','Yes. The game includes a 2-player mode for same-device play.'],
+                    ['Does the game need login?','No. It works without login and saves simple progress on the device.'],
+                    ['What chess pieces does it teach?','It teaches pawn, rook, bishop, knight, queen, and king.']
+                ],
+                entity: 'Gulsabi Chess Quest is a kids chess learning game by Gulsabi. It teaches chess pieces through lessons, practice missions, bot play, and 2-player chess.'
             }
         };
-        const ORDER = ['game1','game2','game3','game4','game5'];
+        const ORDER = ['gulsabi-chess-quest','game1','game2','game3','game4','game5'];
 
         /* Per-game SEO / structured-data facts */
         const SEO = {
@@ -724,7 +760,8 @@
             game2: { desc: 'Match the colour and fire the cannon before time runs out. A bright colour-recognition game for ages 3+ that builds quick thinking and visual matching.', genre: 'Educational', minAge: 3, playMode: 'SinglePlayer' },
             game3: { desc: 'Spot the odd one out in a grid of look-alikes. An observation puzzle for ages 4+ that sharpens attention to detail and logical thinking.', genre: 'Puzzle', minAge: 4, playMode: 'SinglePlayer' },
             game4: { desc: 'Flip cards and find matching pairs - solo across ten levels or head-to-head in 2-player mode. A memory game for ages 4+ that grows recall and concentration.', genre: 'Educational', minAge: 4, playMode: ['SinglePlayer', 'CoOp'] },
-            game5: { desc: 'Answer fun, friendly questions about objects, colours and the world. A curious quiz for ages 5+ that grows knowledge, vocabulary and confidence.', genre: 'Educational', minAge: 5, playMode: 'SinglePlayer' }
+            game5: { desc: 'Answer fun, friendly questions about objects, colours and the world. A curious quiz for ages 5+ that grows knowledge, vocabulary and confidence.', genre: 'Educational', minAge: 5, playMode: 'SinglePlayer' },
+            'gulsabi-chess-quest': { desc: 'Learn chess with Gulsabi Super through simple lessons, practice missions, bot games, and 2-player chess. A fun chess learning adventure for kids aged 5+.', genre: 'EducationalGame', minAge: 5, playMode: ['SinglePlayer', 'CoOp'] }
         };
 
         /* ── Render the page from ?game= ── */
