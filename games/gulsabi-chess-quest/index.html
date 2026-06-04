@@ -98,6 +98,9 @@
   .hero{text-align:center;padding:6px 0 4px;}
   .hero-img{width:min(46vw,210px);height:auto;filter:drop-shadow(0 14px 30px rgba(0,0,0,.4));animation:float 5s ease-in-out infinite;}
   @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+  /* tap feedback: a quick pop on any button/card the player presses */
+  @keyframes tapPop{0%{transform:scale(1);}35%{transform:scale(.92);}70%{transform:scale(1.05);}100%{transform:scale(1);}}
+  .tap-pop{animation:tapPop .34s cubic-bezier(.34,1.56,.64,1);}
   h1{font-size:clamp(1.8rem,7vw,2.8rem);margin:.1em 0 .05em;font-weight:700;text-shadow:0 3px 14px rgba(0,0,0,.35);}
   .subtitle{color:rgba(255,255,255,.82);font-size:clamp(.95rem,3.6vw,1.15rem);margin:0 auto 4px;max-width:30ch;}
 
@@ -500,6 +503,44 @@ function startMusicOnce(){ Music.start(); }
 document.addEventListener('visibilitychange', () => { if(document.hidden) Music.stop(); else if(!Music.isMuted()) Music.start(); });
 window.addEventListener('pagehide', () => Music.stop());
 
+/* ── Synthesised sound effects (instant audio feedback, no files needed) ──
+   These play right away in every mode (correct/wrong/move/win/tap). The recorded
+   Gulsabi voiceovers layer on top once generated; until then these give sound.
+   Muting (the 🔊 button) silences these too. */
+let _sfxAC = null;
+function sfx(name){
+  if(Music.isMuted()) return;
+  try{
+    if(!_sfxAC) _sfxAC = new (window.AudioContext||window.webkitAudioContext)();
+    const A = _sfxAC; if(A.state === 'suspended') A.resume();
+    const t = A.currentTime;
+    const tone = (f, start, dur, vol, type) => {
+      const o = A.createOscillator(), g = A.createGain();
+      o.type = type || 'triangle'; o.frequency.value = f;
+      g.gain.setValueAtTime(0, start); g.gain.linearRampToValueAtTime(vol, start + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      o.connect(g); g.connect(A.destination); o.start(start); o.stop(start + dur);
+    };
+    if(name === 'correct')      [523.25, 659.25, 783.99].forEach((f,i) => tone(f, t + i*0.08, 0.18, 0.09, 'triangle'));
+    else if(name === 'wrong')   { tone(311.13, t, 0.18, 0.08, 'sawtooth'); tone(233.08, t + 0.12, 0.22, 0.07, 'sawtooth'); }
+    else if(name === 'click')   tone(680, t, 0.06, 0.05, 'triangle');
+    else if(name === 'move')    tone(440, t, 0.07, 0.05, 'sine');
+    else if(name === 'capture') { tone(330, t, 0.1, 0.08, 'square'); tone(220, t + 0.05, 0.12, 0.06, 'square'); }
+    else if(name === 'win')     [523.25, 659.25, 783.99, 1046.5].forEach((f,i) => tone(f, t + i*0.1, 0.32, 0.09, 'triangle'));
+  }catch(e){}
+}
+
+/* Tap feedback on every button/card we made: a quick pop + a click sound. */
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('.mode-btn,.btn,.pp-btn,.diff-btn,.lesson-card,.reset-btn,.home-link,.bigbtn');
+  if(!el) return;
+  if(!el.classList.contains('locked')){
+    el.classList.remove('tap-pop'); void el.offsetWidth; el.classList.add('tap-pop');
+    setTimeout(() => el.classList.remove('tap-pop'), 340);
+    sfx('click');
+  }
+});
+
 /* ════════════════ PROGRESS (localStorage) ════════════════ */
 const PKEY = "gulsabi_chess_quest_progress";
 const DEFAULT_PROGRESS = {
@@ -755,13 +796,13 @@ function onLessonTap(r,c){
   const legal = getLegalMoves(board, lessonState.selected[0], lessonState.selected[1]).some(m=>m[0]===r&&m[1]===c);
   if(r===task.goal[0] && c===task.goal[1] && legal){ lessonTaskWin(); }
   else if(legal){ setCoach("lessonCoach","lessonText","pointingLeft", "Almost! Reach the <strong>glowing star ⭐</strong>."); }
-  else { setCoach("lessonCoach","lessonText","thinking", rnd(NUDGE)); }
+  else { setCoach("lessonCoach","lessonText","thinking", rnd(NUDGE)); sfx("wrong"); }
 }
 function lessonTaskWin(){
   const { board, selected, L } = lessonState; const task = L.tasks[lessonState.taskIndex];
   lessonState.board = movePiece(board, selected, task.goal); lessonState.selected = null;
   renderBoard("lessonBoard", lessonState.board, { highlights:{ last:{from:selected,to:task.goal} } });
-  setCoach("lessonCoach","lessonText","celebrating", `<strong>${rnd(PRAISE)}</strong>`); chessSay("praise");
+  setCoach("lessonCoach","lessonText","celebrating", `<strong>${rnd(PRAISE)}</strong>`); sfx("correct"); chessSay("praise");
   lessonState.taskIndex++; renderTaskDots();
   if(lessonState.taskIndex >= 3){ setTimeout(()=>completeLesson(L.id), 850); }
   else { setTimeout(loadLessonTask, 850); }
@@ -830,14 +871,14 @@ function onPracticeTap(r,c){
     practiceState.correct++; practiceState.stars++;
     progress.totalCorrectPracticeMoves++; saveProgress();
     trackGameEvent("move_made", { mode:"practice", piece:practiceState.name });
-    setCoach("practiceCoach","practiceText","celebrating", `<strong>${rnd(PRAISE)}</strong>`); chessSay("praise");
+    setCoach("practiceCoach","practiceText","celebrating", `<strong>${rnd(PRAISE)}</strong>`); sfx("correct"); chessSay("praise");
     updatePracticeHud();
     if(practiceState.correct >= 5){ setTimeout(practiceWin, 700); }
     else { setTimeout(newPracticeRound, 700); }
   } else {
     practiceState.mistakes++; progress.totalMistakes++; saveProgress();
     trackGameEvent("wrong_move", { mode:"practice", piece:practiceState.name });
-    setCoach("practiceCoach","practiceText","pointingLeft", rnd(NUDGE)); chessSay("nudge");
+    setCoach("practiceCoach","practiceText","pointingLeft", rnd(NUDGE)); sfx("wrong"); chessSay("nudge");
     updatePracticeHud();
   }
 }
@@ -847,6 +888,7 @@ function updatePracticeHud(){
   document.getElementById("prMiss").textContent = practiceState.mistakes;
 }
 function practiceWin(){
+  sfx("win"); chessSay("praise");
   trackGameEvent("practice_completed", { mode:"practice", piece:practiceState.name, metaCorrect:practiceState.correct, metaMistakes:practiceState.mistakes });
   overlay("celebrating", "5 Correct Moves!", `You mastered the ${practiceState.name} with ${practiceState.stars} stars ⭐`, [
     { label:"Practice again", cls:"green", fn:()=>startPractice(practiceState.name) },
@@ -926,6 +968,7 @@ function doMove(from, to){
   const captured = game.board[to[0]][to[1]];
   if(captured){ game.captured[captured.c].push(captured.t); chessSay("capture_01"); }
   game.board = movePiece(game.board, from, to);
+  sfx(captured ? "capture" : "move");
   game.last = { from, to }; game.selected = null;
   game.turn = game.turn === "w" ? "b" : "w";
   trackGameEvent("move_made", { mode:game.mode, piece:TYPE_NAME[moving.t] });
@@ -940,13 +983,13 @@ function checkGameEnd(after){
     if(game.mode === "bot"){
       if(me === "b"){ progress.botGamesWon++; saveProgress(); trackGameEvent("bot_game_won", { mode:"bot", metaDiff:game.botDiff }); }
       else { trackGameEvent("bot_game_lost", { mode:"bot", metaDiff:game.botDiff }); }
-      chessSay(winnerIsHuman?"win_01":"lose_01");
+      sfx(winnerIsHuman?"win":"wrong"); chessSay(winnerIsHuman?"win_01":"lose_01");
       overlay(winnerIsHuman?"celebrating":"thinking", winnerIsHuman?"Checkmate — You Win! 🏆":"Checkmate!",
         winnerIsHuman?"Wow! You won the chess quest!":"The bot got your king. Good try — let's play again!",
         [{label:"Play again", cls:"green", fn:()=>startBot(game.botDiff)},{label:"Home", cls:"ghost", fn:goHome}]);
     } else {
       const winner = me === "w" ? "Player 2 (Black)" : "Player 1 (White)";
-      chessSay("win_01");
+      sfx("win"); chessSay("win_01");
       overlay("celebrating", "Checkmate!", winner + " wins the game! 🏆",
         [{label:"Play again", cls:"green", fn:openTwoPlayer},{label:"Home", cls:"ghost", fn:goHome}]);
     }
