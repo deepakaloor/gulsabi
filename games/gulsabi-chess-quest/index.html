@@ -160,6 +160,12 @@
   .board-stage{display:flex;flex-direction:column;align-items:center;gap:12px;}
   .board{width:min(94vw,440px);aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);
     border-radius:18px;overflow:hidden;box-shadow:0 18px 44px rgba(0,0,0,.45);border:5px solid rgba(255,255,255,.14);touch-action:manipulation;}
+  /* per-mode board colour themes (custom props cascade to the .sq squares) */
+  .board.bt-teal{--board-light:#F3E7C7;--board-dark:#3FB0A3;}
+  .board.bt-green{--board-light:#ECE9C6;--board-dark:#6FA463;}
+  .board.bt-blue{--board-light:#E9EDF6;--board-dark:#5277C0;}
+  .board.bt-purple{--board-light:#F0E7F4;--board-dark:#8E6FC6;}
+  .board.bt-rose{--board-light:#F7E6D4;--board-dark:#D98E6E;}
   .sq{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;}
   .sq.light{background:var(--board-light);}
   .sq.dark{background:var(--board-dark);}
@@ -786,6 +792,7 @@ function startLesson(idx){
   trackGameEvent("lesson_started", { mode:"learning", lesson_id:L.id, piece:TYPE_NAME[L.piece] }); chessSay("lesson_"+L.id);
   lessonState = { idx, L, taskIndex:0, board:null, selected:null };
   document.getElementById("lessonTitle").textContent = L.name;
+  document.getElementById("lessonBoard").className = "board bt-green";
   showScreen("screen-lesson");
   renderTaskDots();
   loadLessonTask();
@@ -889,6 +896,7 @@ function startPractice(mode){
   practiceState = { mode, round:0, gems:0, streak:0, misses:0, busy:false, cur:null, typeBag:[] };
   trackGameEvent("practice_started", { mode:"practice", piece:mode });
   document.getElementById("practiceTitle").textContent = mode==="mixed" ? "Mission: Mixed" : "Mission: " + cap1(mode);
+  document.getElementById("practiceBoard").className = "board bt-rose";
   showScreen("screen-practice");
   setTimeout(() => chessSay("mission_" + mode), 200);
   newPracticeRound();
@@ -1031,6 +1039,7 @@ function startBot(diff){
   trackGameEvent("bot_game_started", { mode:"bot", metaDiff:diff });
   document.getElementById("gameTitle").textContent = "Play vs Bot · " + diff[0].toUpperCase()+diff.slice(1);
   document.getElementById("restartBtn").style.display = "";
+  document.getElementById("gameBoard").className = "board bt-blue";
   beginGameScreen("Your move! Tap a white piece.", "idle");
 }
 function openTwoPlayer(){
@@ -1041,6 +1050,7 @@ function openTwoPlayer(){
   trackGameEvent("two_player_started", { mode:"2p" });
   document.getElementById("gameTitle").textContent = "2 Player Chess";
   document.getElementById("restartBtn").style.display = "";
+  document.getElementById("gameBoard").className = "board bt-purple";
   beginGameScreen("Player 1 (White) — tap a piece to start.", "pointingRight");
 }
 function beginGameScreen(msg, coachState){
