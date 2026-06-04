@@ -8,6 +8,9 @@
 <meta name="description" content="Learn chess with Gulsabi through simple lessons, practice missions, bot games, and 2-player chess. A fun chess learning adventure for kids.">
 <meta name="keywords" content="chess learning game for kids, kids chess game, learn chess for kids, chess adventure game, chess practice for children, play chess with bot for kids, 2 player chess for kids">
 <meta name="theme-color" content="#3B2E6E">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="Pixnut">
+<meta name="publisher" content="Gulsabi">
 <link rel="canonical" href="https://gulsabi.com/games/gulsabi-chess-quest/">
 <link rel="icon" href="/images/gulsabi-logo.png">
 
@@ -17,6 +20,10 @@
 <meta property="og:title" content="Gulsabi Chess Quest | Learn Chess for Kids">
 <meta property="og:description" content="Learn chess with Gulsabi through adventure lessons, practice missions, bot play, and 2-player chess.">
 <meta property="og:image" content="https://gulsabi.com/assets/chess/gulsabi-chess-quest-thumbnail.png">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="593">
+<meta property="og:image:alt" content="Gulsabi Chess Quest — a kids chess learning game">
+<meta property="og:locale" content="en_US">
 <meta property="og:url" content="https://gulsabi.com/games/gulsabi-chess-quest/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Gulsabi Chess Quest | Learn Chess for Kids">
@@ -45,7 +52,18 @@
       "learningResourceType": "Game",
       "isAccessibleForFree": true,
       "audience": { "@type": "EducationalAudience", "educationalRole": "student", "audienceType": "Children" },
+      "inLanguage": "en",
+      "keywords": "chess learning game for kids, kids chess game, learn chess for kids, play chess with bot, 2 player chess for kids",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
       "publisher": { "@type": "Organization", "name": "Gulsabi", "url": "https://gulsabi.com/" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://gulsabi.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Games", "item": "https://gulsabi.com/games" },
+        { "@type": "ListItem", "position": 3, "name": "Gulsabi Chess Quest", "item": "https://gulsabi.com/games/gulsabi-chess-quest/" }
+      ]
     },
     {
       "@type": "FAQPage",
@@ -107,6 +125,12 @@
   .pp-btn .pp-emoji{font-size:48px;height:56px;line-height:56px;}
   h1{font-size:clamp(1.8rem,7vw,2.8rem);margin:.1em 0 .05em;font-weight:700;text-shadow:0 3px 14px rgba(0,0,0,.35);}
   .subtitle{color:rgba(255,255,255,.82);font-size:clamp(.95rem,3.6vw,1.15rem);margin:0 auto 4px;max-width:30ch;}
+  /* visible link to the full detail page */
+  .learn-more{text-align:center;margin:18px 0 0;}
+  .learn-more a{color:rgba(255,255,255,.7);font-size:.85rem;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:1px;}
+  .learn-more a:hover{color:#fff;}
+  /* crawlable-but-invisible summary for SEO / GEO / AEO (accessible to screen readers + engines) */
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
   /* ── mode buttons ── */
   .modes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 14px;}
@@ -170,6 +194,8 @@
     background:linear-gradient(135deg,#FF8A3D,#FF4F4F);box-shadow:0 6px 16px rgba(0,0,0,.25);}
   .btn:active{transform:translateY(2px);}
   .btn.ghost{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);}
+  /* ghost buttons sit on the WHITE modal too — make them readable there (dark text on light) */
+  .modal .btn.ghost{background:#eef0f7;color:#3B2E6E;border:1px solid rgba(31,41,55,.14);}
   .btn.green{background:linear-gradient(135deg,#2DC572,#1F9A55);}
   .btn.sun{background:linear-gradient(135deg,#FFC83D,#FF9E22);color:#3a2600;}
   .btn.sm{padding:9px 16px;font-size:.85rem;}
@@ -254,7 +280,7 @@
   <!-- ══════════════════ HOME ══════════════════ -->
   <section class="screen active" id="screen-home">
     <div class="hero">
-      <img class="hero-img" id="heroImg" src="/assets/chess/gulsabi-super-celebrating.png" alt="Gulsabi celebrating in Chess Quest">
+      <img class="hero-img" id="heroImg" src="/assets/chess/chess-cover.png" alt="Gulsabi Chess Quest — a kids chess learning game by Gulsabi">
       <h1>Gulsabi Chess Quest</h1>
       <p class="subtitle">Learn chess. Play with a friend. Challenge the bot.</p>
     </div>
@@ -266,15 +292,34 @@
     </div>
 
     <div class="modes">
-      <button class="mode-btn mb-learn" onclick="openLearning()"><span class="mb-emoji">🧭</span><span class="mb-title">Learning Adventure</span><span class="mb-sub">Learn each piece step by step</span></button>
-      <button class="mode-btn mb-bot" onclick="openBotSelect()"><span class="mb-emoji">🤖</span><span class="mb-title">Play vs Bot</span><span class="mb-sub">Challenge Gulsabi</span></button>
-      <button class="mode-btn mb-2p" onclick="openTwoPlayer()"><span class="mb-emoji">👥</span><span class="mb-title">2 Player Chess</span><span class="mb-sub">Play on one device</span></button>
-      <button class="mode-btn mb-practice" onclick="openPracticeSelect()"><span class="mb-emoji">🎯</span><span class="mb-title">Missions</span><span class="mb-sub">Test your piece moves</span></button>
+      <button class="mode-btn mb-learn" onclick="openLearning()"><span class="mb-title">Learning Adventure</span><span class="mb-sub">Learn each piece step by step</span></button>
+      <button class="mode-btn mb-bot" onclick="openBotSelect()"><span class="mb-title">Play vs Bot</span><span class="mb-sub">Challenge Gulsabi</span></button>
+      <button class="mode-btn mb-2p" onclick="openTwoPlayer()"><span class="mb-title">2 Player Chess</span><span class="mb-sub">Play on one device</span></button>
+      <button class="mode-btn mb-practice" onclick="openPracticeSelect()"><span class="mb-title">Missions</span><span class="mb-sub">Test your piece moves</span></button>
       <button class="reset-btn" onclick="resetProgress()">↺ Reset Progress</button>
     </div>
 
-    <!-- Game controls only. The full SEO / GEO / AEO / FAQ content for Chess
-         Quest lives on its Explore page: /games/explore.html?game=gulsabi-chess-quest -->
+    <!-- small visible link to the full detail/SEO page -->
+    <p class="learn-more"><a href="/games/explore.html?game=gulsabi-chess-quest">About &amp; FAQ — how Gulsabi Chess Quest works →</a></p>
+
+    <!-- Crawlable SEO / GEO / AEO summary (screen-reader + search/answer engines).
+         Full visible detail page: /games/explore.html?game=gulsabi-chess-quest -->
+    <div class="sr-only">
+      <h2>About Gulsabi Chess Quest</h2>
+      <p>Gulsabi Chess Quest is a free chess learning game for kids aged 5 and up, made by Gulsabi (Pixnut). It teaches how every chess piece moves through guided lessons and practice missions, then lets kids play a friendly browser-based bot or 2-player chess on one device. It needs no login, has no ads, and collects no personal details.</p>
+      <h2>What kids learn</h2>
+      <p>How each chess piece moves, how to plan simple moves, how to protect the king, how to take turns, and how to think before moving.</p>
+      <h2>Game modes</h2>
+      <p>Learning Adventure (six guided lessons), Practice Missions (test how each piece moves), Play vs Bot (easy, smart and challenge levels), and 2 Player Chess (same-device).</p>
+      <h2>Frequently asked questions</h2>
+      <p><strong>What is Gulsabi Chess Quest?</strong> A chess learning game for kids with lessons, practice missions, bot play, and 2-player chess.</p>
+      <p><strong>Can kids learn chess from this game?</strong> Yes. Kids learn how each chess piece moves through guided lessons and practice missions.</p>
+      <p><strong>Does the game have a bot?</strong> Yes. Kids can play against a simple browser-based chess bot.</p>
+      <p><strong>Can two players play on one device?</strong> Yes. The game includes a 2-player mode for same-device play.</p>
+      <p><strong>Does the game need login?</strong> No. It works without login and saves simple progress on the device.</p>
+      <p><strong>Is this game safe for kids?</strong> Yes. It does not require personal details or chat features.</p>
+      <p><strong>What chess pieces does it teach?</strong> Pawn, rook, bishop, knight, queen, and king.</p>
+    </div>
   </section>
 
   <!-- ══════════════════ LEARNING PATH ══════════════════ -->
@@ -535,7 +580,7 @@ function showScreen(id){
   window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
 }
 function goHome(){ stopBoardInteraction(); setHero(); showScreen("screen-home"); renderProgressCard(); }
-function setHero(){ document.getElementById("heroImg").src = progress.completedLessons.length >= 6 ? getGulsabiSuperImage("celebrating") : getGulsabiSuperImage("idle"); }
+function setHero(){ document.getElementById("heroImg").src = "/assets/chess/chess-cover.png"; }
 
 /* ════════════════ CHESS ENGINE ════════════════ */
 // board[r][c] = {t,c} or null. r0 = top (black back rank), r7 = bottom (white). White moves UP.
