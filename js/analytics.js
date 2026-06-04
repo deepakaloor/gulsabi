@@ -154,6 +154,13 @@ function isStandalone() {
 // First-time setup of anonymous_users row + session row
 // Idempotent — called automatically on first use.
 // ─────────────────────────────────────────────────────────────────
+// A plain INSERT of an already-seen anon/session id raises a duplicate-key error -
+// that's expected on return visits, so we don't treat it as a failure.
+function isDuplicate(err) {
+  if (!err) return false;
+  const m = ((err.message || "") + " " + (err.code || "")).toLowerCase();
+  return err.code === "23505" || m.includes("duplicate") || m.includes("already exists");
+}
 let _ensureProfilePromise = null;
 function ensureProfile() {
   if (_ensureProfilePromise) return _ensureProfilePromise;
@@ -176,10 +183,16 @@ function ensureProfile() {
       utm_term:          utm.utm_term,
       is_returning_user: isReturningUser()
     };
+    // anon cannot use upsert (ON CONFLICT needs SELECT, which is admin-only here),
+    // so create-then-refresh: a plain INSERT (new visitor) + a plain UPDATE (last_seen).
     try {
-      const { error } = await safeUpsert("anonymous_users", userRow, { onConflict: "anonymous_user_id", ignoreDuplicates: false });
-      if (error) logFail("anonymous_users upsert", error);
-    } catch (e) { logFail("anonymous_users upsert", e); }
+      const ins = await safeInsert("anonymous_users", userRow);
+      if (ins.error && !isDuplicate(ins.error)) logFail("anonymous_users insert", ins.error);
+      const upd = await safeUpdate("anonymous_users",
+        { last_seen_at: userRow.last_seen_at, is_returning_user: userRow.is_returning_user },
+        "anonymous_user_id", anonId);
+      if (upd.error) logFail("anonymous_users update", upd.error);
+    } catch (e) { logFail("anonymous_users profile", e); }
 
     const sessId = getSessionId();
     const sessRow = {
@@ -193,10 +206,12 @@ function ensureProfile() {
       browser:           detectBrowser(),
       os:                detectOS()
     };
+    // sessions: a fresh session_id each session, so a plain INSERT is enough
+    // (no ON CONFLICT, which anon can't do); a stray duplicate is harmless.
     try {
-      const { error } = await safeUpsert("sessions", sessRow, { onConflict: "session_id", ignoreDuplicates: true });
-      if (error) logFail("sessions upsert", error);
-    } catch (e) { logFail("sessions upsert", e); }
+      const { error } = await safeInsert("sessions", sessRow);
+      if (error && !isDuplicate(error)) logFail("sessions insert", error);
+    } catch (e) { logFail("sessions insert", e); }
 
     return { anonId, sessId };
   })();
