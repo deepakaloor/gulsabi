@@ -849,10 +849,13 @@ function meetTeach(){
   board.querySelectorAll(".meet-card").forEach(c => c.onclick = () => {
     sfx("click");
     setCoach("lessonCoach","lessonText","pointingRight", `This is the <strong>${labelFor(c.dataset.piece)}</strong>.`);
+    chessSay("meet_" + meetVoiceName(c.dataset.piece));
   });
   document.getElementById("meetStartBtn").onclick = meetStartQuiz;
   setCoach("lessonCoach","lessonText","idle", "Meet your six chess pieces! Tap each one to learn its name, then take the quiz.");
+  chessSay("meet_intro");
 }
+function meetVoiceName(code){ const p = MEET_PIECES.find(x => x.code === code); return p ? p.name : ""; }
 function meetStartQuiz(){
   meetState.queue = MEET_PIECES.map(p => p.code).sort(() => Math.random()-0.5);
   meetState.qi = 0; meetState.busy = false;
@@ -868,6 +871,7 @@ function meetQuizRound(){
   board.querySelectorAll(".meet-card").forEach(c => c.onclick = () => onMeetTap(c, target));
   renderTaskDots(MEET_PIECES.length, meetState.qi);
   setCoach("lessonCoach","lessonText","thinking", `Tap the <strong>${labelFor(target)}</strong>!`);
+  chessSay("find_" + meetVoiceName(target));
 }
 function onMeetTap(card, target){
   if(meetState.busy) return;

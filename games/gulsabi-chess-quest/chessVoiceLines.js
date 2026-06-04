@@ -45,7 +45,20 @@
     { id: "mission_knight", filename: "mission-knight.mp3", text: "Knights jump in an L shape. Tap a gem the knight can reach!", category: "mission" },
     { id: "mission_queen", filename: "mission-queen.mp3", text: "The queen moves straight or diagonally. Tap a gem she can reach!", category: "mission" },
     { id: "mission_king", filename: "mission-king.mp3", text: "The king moves one square any way. Tap a gem the king can reach!", category: "mission" },
-    { id: "mission_mixed", filename: "mission-mixed.mp3", text: "A surprise piece each round! Tap a gem it can reach.", category: "mission" }
+    { id: "mission_mixed", filename: "mission-mixed.mp3", text: "A surprise piece each round! Tap a gem it can reach.", category: "mission" },
+    { id: "meet_intro", filename: "meet-intro.mp3", text: "Meet your six chess pieces! Tap each one to learn its name.", category: "meet" },
+    { id: "meet_pawn", filename: "meet-this-pawn.mp3", text: "This is the pawn.", category: "meet" },
+    { id: "meet_rook", filename: "meet-this-rook.mp3", text: "This is the rook.", category: "meet" },
+    { id: "meet_knight", filename: "meet-this-knight.mp3", text: "This is the knight.", category: "meet" },
+    { id: "meet_bishop", filename: "meet-this-bishop.mp3", text: "This is the bishop.", category: "meet" },
+    { id: "meet_queen", filename: "meet-this-queen.mp3", text: "This is the queen.", category: "meet" },
+    { id: "meet_king", filename: "meet-this-king.mp3", text: "This is the king.", category: "meet" },
+    { id: "find_pawn", filename: "find-pawn.mp3", text: "Tap the pawn!", category: "find" },
+    { id: "find_rook", filename: "find-rook.mp3", text: "Tap the rook!", category: "find" },
+    { id: "find_knight", filename: "find-knight.mp3", text: "Tap the knight!", category: "find" },
+    { id: "find_bishop", filename: "find-bishop.mp3", text: "Tap the bishop!", category: "find" },
+    { id: "find_queen", filename: "find-queen.mp3", text: "Tap the queen!", category: "find" },
+    { id: "find_king", filename: "find-king.mp3", text: "Tap the king!", category: "find" }
   ];
 
   var byId = {}, byCat = {};
