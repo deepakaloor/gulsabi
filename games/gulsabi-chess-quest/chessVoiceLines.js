@@ -34,7 +34,7 @@
     { id: "check_01", filename: "check-01.mp3", text: "Careful, the king is in danger!", category: "moves" },
     { id: "fork_01", filename: "fork-01.mp3", text: "That's a fork!", category: "tactics" },
     { id: "pin_01", filename: "pin-01.mp3", text: "Nice pin!", category: "tactics" },
-    { id: "bot_thinking_01", filename: "bot-thinking-01.mp3", text: "Gulsabi Super is thinking...", category: "bot" },
+    { id: "bot_thinking_01", filename: "bot-thinking-01.mp3", text: "Gulsabi is thinking...", category: "bot" },
     { id: "bot_nice_01", filename: "bot-nice-01.mp3", text: "Nice move!", category: "bot" },
     { id: "win_01", filename: "win-01.mp3", text: "Wow! You won the chess quest!", category: "result" },
     { id: "lose_01", filename: "lose-01.mp3", text: "Good try. Let's play again!", category: "result" },
