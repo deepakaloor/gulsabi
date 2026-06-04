@@ -529,9 +529,10 @@ export async function runWriteTest() {
   // 1. anonymous_users — schema: anonymous_user_id, first_seen_at,
   //    last_seen_at, device_type, browser, os, is_returning_user
   try {
-    const { error } = await supabase
+    // Mirror the real client path: plain INSERT + plain UPDATE (anon can't upsert).
+    const ins = await supabase
       .from("anonymous_users")
-      .upsert({
+      .insert({
         anonymous_user_id: probeId,
         first_seen_at: nowIso,
         last_seen_at:  nowIso,
@@ -539,8 +540,13 @@ export async function runWriteTest() {
         browser:       "diagnostic",
         os:            "diagnostic",
         is_returning_user: false
-      }, { onConflict: "anonymous_user_id" });
-    out.anonymous_users = error ? { ok: false, error: error.message } : { ok: true };
+      });
+    const upd = await supabase
+      .from("anonymous_users")
+      .update({ last_seen_at: nowIso, is_returning_user: true })
+      .eq("anonymous_user_id", probeId);
+    const err = (ins.error && !isDuplicate(ins.error)) ? ins.error : upd.error;
+    out.anonymous_users = err ? { ok: false, error: err.message } : { ok: true };
   } catch (e) { out.anonymous_users = { ok: false, error: e.message || String(e) }; }
   log("anonymous_users", out.anonymous_users);
 
