@@ -936,9 +936,15 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
                 try {
+                    // Reload only when an UPDATED worker takes over, never on the
+                    // first install - reloading first-time visitors double-counts
+                    // the analytics page_view.
+                    const hadController = !!navigator.serviceWorker.controller;
                     const reg = await navigator.serviceWorker.register('/games/service-worker.js', { scope: '/games/' });
                     let reloaded = false;
-                    navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded) return; reloaded = true; window.location.reload(); });
+                    if (hadController) {
+                        navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded) return; reloaded = true; window.location.reload(); });
+                    }
                     reg.update().catch(() => {});
                     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
                 } catch (e) { /* no offline - fine */ }

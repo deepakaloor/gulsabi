@@ -1091,6 +1091,9 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
                 try {
+                    // Capture before the new worker can claim the page, so we can
+                    // tell a first install (no controller) from an update.
+                    const hadController = !!navigator.serviceWorker.controller;
                     const reg = await navigator.serviceWorker.register('/games/service-worker.js', { scope: '/games/' });
 
                     // When a new SW is found, ask it to take over as soon as installed
@@ -1105,12 +1108,16 @@
                         });
                     });
 
-                    // When the controller actually changes (new SW took over), reload
+                    // When an UPDATED controller takes over, reload to the new code.
+                    // Skip on first install (no prior controller) so first-time
+                    // visitors aren't reloaded - that double-counted the page_view.
                     let reloaded = false;
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        if (reloaded) return; reloaded = true;
-                        window.location.reload();
-                    });
+                    if (hadController) {
+                        navigator.serviceWorker.addEventListener('controllerchange', () => {
+                            if (reloaded) return; reloaded = true;
+                            window.location.reload();
+                        });
+                    }
 
                     // Proactively check for updates on every app open / focus
                     const poke = () => reg.update().catch(() => {});
