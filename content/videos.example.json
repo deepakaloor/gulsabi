@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "updated": "2026-06-10",
+  "channelUrl": "https://www.youtube.com/@GulsabiKids",
+  "videos": [
+    {
+      "id": "why-is-the-sky-blue",
+      "title": "Why is the sky blue?",
+      "thumbnail": "https://vz-XXXXXXXX.b-cdn.net/why-is-the-sky-blue/thumbnail.jpg",
+      "src": "https://vz-XXXXXXXX.b-cdn.net/why-is-the-sky-blue/play_720p.mp4",
+      "lang": "en",
+      "durationSec": 42
+    },
+    {
+      "id": "how-do-fish-breathe",
+      "title": "How do fish breathe underwater?",
+      "thumbnail": "https://vz-XXXXXXXX.b-cdn.net/how-do-fish-breathe/thumbnail.jpg",
+      "src": "https://vz-XXXXXXXX.b-cdn.net/how-do-fish-breathe/play_720p.mp4",
+      "lang": "en",
+      "durationSec": 51
+    },
+    {
+      "id": "where-does-rain-come-from",
+      "title": "Where does rain come from?",
+      "thumbnail": "https://vz-XXXXXXXX.b-cdn.net/where-does-rain-come-from/thumbnail.jpg",
+      "src": "https://vz-XXXXXXXX.b-cdn.net/where-does-rain-come-from/play_720p.mp4",
+      "lang": "en",
+      "durationSec": 47
+    }
+  ]
+}

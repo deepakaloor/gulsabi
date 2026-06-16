@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "updated": "2026-06-10",
+  "_note": "Add videos here when your clips are hosted (see videos.example.json and docs/android-app/video-manifest.md). Empty videos shows the 'coming soon' state.",
+  "channelUrl": "https://www.youtube.com/@GulsabiKids",
+  "videos": []
+}
