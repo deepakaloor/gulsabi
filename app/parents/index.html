@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <title>Gulsabi — Parents</title>
+  <link rel="icon" href="/images/gulsabi-app-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@500;700&family=Noto+Sans+Malayalam:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:#1C3D5A; --gold:#F5DF33; --coral:#F06E70; --ink:#20364a;
+      --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{margin:0;min-height:100%;font-family:'Fredoka',system-ui,sans-serif;background:var(--navy);color:var(--ink);}
+    body{padding:calc(14px + var(--safe-top)) 0 calc(24px + var(--safe-bottom));}
+    .top{display:flex;align-items:center;gap:12px;padding:4px 18px 16px;}
+    .top .back{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:20px;}
+    .top h1{color:#fff;font-size:20px;margin:0;font-weight:700;}
+    .wrap{padding:0 18px;}
+    .card{background:#fff;border-radius:22px;padding:22px 20px;box-shadow:0 8px 22px rgba(0,0,0,.18);margin-bottom:16px;}
+    .card h2{margin:0 0 6px;color:var(--navy);font-size:20px;}
+    .card p{margin:0 0 14px;color:#5b7186;font-weight:500;line-height:1.45;}
+    label{display:block;font-weight:600;color:var(--navy);margin:12px 0 6px;font-size:14px;}
+    input,select{width:100%;font-family:inherit;font-size:16px;font-weight:500;padding:13px 14px;border:2px solid #d4deea;border-radius:14px;color:var(--navy);background:#fff;}
+    .btn{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:0 22px;border:none;border-radius:16px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;margin-top:14px;}
+    .btn:active{transform:scale(.98);}
+    .btn-coral{background:var(--coral);color:#fff;}
+    .btn-navy{background:var(--navy);color:#fff;}
+    .btn-ghost{background:#eaf0f7;color:var(--navy);}
+    .btn-danger{background:#fff;color:#c0392b;border:2px solid #f0c9c4;}
+    .muted{font-size:13px;color:#7990a3;font-weight:500;text-align:center;margin-top:10px;}
+    .err{color:var(--coral);font-weight:600;min-height:20px;font-size:14px;margin-top:8px;}
+    .ok{color:#15805a;font-weight:600;font-size:14px;margin-top:8px;}
+    ul.what{margin:0 0 14px;padding-left:18px;color:#41566a;font-weight:500;line-height:1.6;}
+    ul.what b{color:var(--navy);}
+    a.link{color:var(--navy);font-weight:600;cursor:pointer;}
+    a.link + a.link{margin-left:18px;}
+    /* Grown-ups gate */
+    .gate-hero{font-size:26px;font-weight:700;color:var(--navy);margin:0 0 8px;line-height:1.15;}
+    .adult-check{display:flex;gap:10px;align-items:flex-start;background:#fff7d6;border:2px solid #f3e08a;
+      border-radius:16px;padding:13px 14px;margin:14px 0 4px;cursor:pointer;}
+    .adult-check input{width:22px;height:22px;flex:0 0 auto;margin-top:1px;accent-color:var(--coral);}
+    .adult-check span{font-size:13px;font-weight:600;color:#5a4b10;line-height:1.4;}
+    /* PIN pad */
+    .pin-dots{display:flex;gap:16px;justify-content:center;margin:20px 0 6px;}
+    .pin-dots span{width:16px;height:16px;border-radius:50%;border:2px solid #c4d2e2;transition:background .12s;}
+    .pin-dots span.on{background:var(--navy);border-color:var(--navy);}
+    .pin-dots.shake{animation:shake .35s;}
+    @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-9px);}60%{transform:translateX(9px);}}
+    .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;}
+    .keypad button{height:62px;border:none;border-radius:16px;background:#f1f5fa;color:var(--navy);
+      font-family:inherit;font-size:24px;font-weight:700;cursor:pointer;}
+    .keypad button:active{background:#e2eaf3;transform:scale(.96);}
+    .keypad button.blank{background:transparent;pointer-events:none;}
+    .pin-foot{text-align:center;margin-top:14px;}
+    /* Math gate */
+    .math-q{font-size:30px;font-weight:700;color:var(--navy);text-align:center;margin:14px 0 6px;}
+    #math-input{text-align:center;font-size:26px;letter-spacing:2px;}
+    /* Did You Know */
+    .fact-card{background:linear-gradient(135deg,#fff4cf,#ffe7b3);border-radius:22px;padding:20px;
+      margin-bottom:16px;box-shadow:0 8px 22px rgba(0,0,0,.12);}
+    .fact-card h2{margin:0 0 8px;color:#7a5a00;font-size:18px;}
+    .fact-card p{margin:0;color:#5a4b10;font-weight:600;line-height:1.5;}
+    /* Sliders */
+    .slider-row{margin:16px 0;}
+    .slider-row .lbl{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;color:var(--navy);font-size:15px;}
+    .slider-row .val{color:var(--coral);font-weight:700;}
+    input[type=range]{-webkit-appearance:none;width:100%;height:8px;border-radius:8px;background:#e2eaf3;margin-top:10px;padding:0;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--coral);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+    .slider-sub{font-size:12px;color:#7990a3;font-weight:500;margin-top:4px;}
+    /* Notice board */
+    .notice{display:block;text-align:left;width:100%;background:#f6f9fc;border:1px solid #e2eaf3;border-radius:16px;
+      padding:13px 14px;margin-bottom:10px;cursor:pointer;}
+    .notice b{display:block;color:var(--navy);font-size:15px;font-weight:700;margin-bottom:2px;}
+    .notice span{color:#5b7186;font-size:13px;font-weight:500;}
+    /* Privacy footer */
+    .privacy-footer{background:#eef7f0;border:2px solid #cfe9d6;border-radius:20px;padding:18px;margin-bottom:8px;}
+    .privacy-footer b{display:block;color:#15805a;font-size:16px;margin-bottom:6px;}
+    .privacy-footer p{margin:0;color:#3c6b50;font-weight:500;font-size:13px;line-height:1.5;}
+    /* Consent popup */
+    .modal{position:fixed;inset:0;z-index:90;background:rgba(28,61,90,.74);display:none;
+      align-items:center;justify-content:center;padding:18px;}
+    .modal.active{display:flex;}
+    .modal .box{background:#fff;border-radius:24px;padding:24px 20px;max-width:360px;width:100%;
+      max-height:88vh;overflow-y:auto;box-shadow:0 18px 44px rgba(0,0,0,.3);}
+    .modal .box h2{margin:0 0 6px;color:var(--navy);font-size:21px;}
+    .policy-links{margin:4px 0 6px;}
+    /* Collapsible child-profile header */
+    .profile-head{display:flex;width:100%;align-items:center;justify-content:space-between;
+      background:none;border:none;padding:0;cursor:pointer;text-align:left;font-family:inherit;}
+    .acct-box{background:#f4f8fd;border-radius:14px;padding:12px 14px;margin:6px 0 14px;}
+    .acct-row{display:flex;align-items:center;gap:10px;}
+    .acct-label{font-size:11.5px;font-weight:600;color:#7990a3;}
+    .acct-email{font-size:15px;font-weight:700;color:var(--navy);word-break:break-all;}
+    .acct-change{margin-left:auto;flex:0 0 auto;background:#fff;border:1.5px solid #cdd9e6;color:var(--navy);
+      border-radius:10px;padding:8px 14px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;}
+    .acct-change:active{transform:scale(.96);}
+    #email-change{margin-top:12px;}
+    /* Language picker cards (shared look with the first-run picker) */
+    #parent-lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .lang-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:74px;
+      justify-content:center;border:2.5px solid #E4EBF4;border-radius:16px;background:#F8FBFF;font-family:inherit;
+      cursor:pointer;padding:12px 8px;transition:border-color .15s,background .15s,transform .1s;}
+    .lang-card:active{transform:scale(.97);}
+    .lang-card.selected{border-color:#15805a;background:#e7f6ec;}
+    .lang-card.locked{background:#fbfcfe;border-style:dashed;}
+    .lang-card.primary{border-color:var(--gold);background:#fffbea;box-shadow:0 0 0 2px rgba(245,223,51,.4);}
+    .lang-native{font-size:20px;font-weight:700;color:var(--navy);line-height:1.1;}
+    .lang-sub{font-size:11.5px;color:#7990a3;font-weight:600;}
+    .lang-tick{position:absolute;top:6px;right:8px;color:#15805a;font-weight:700;font-size:15px;}
+    .lang-badge{position:absolute;top:6px;right:6px;font-size:10px;font-weight:700;color:#9a7b1f;background:#fff3da;border-radius:999px;padding:2px 7px;}
+    .lang-star{position:absolute;bottom:5px;right:7px;font-size:11px;font-weight:700;color:#b9a14a;}
+    .lang-star.on{color:#E0A100;}
+    .profile-name{font-size:19px;font-weight:700;color:var(--navy);}
+    .profile-hint{font-size:12.5px;color:#7990a3;font-weight:500;margin-top:2px;}
+    .chevron{font-size:18px;color:#9aaabd;transition:transform .2s;}
+    .chevron.open{transform:rotate(180deg);}
+    .note{font-size:12.5px;color:#15805a;font-weight:600;margin-top:4px;}
+    .warn{background:#fff4e0;border:2px solid #f3d28a;border-radius:14px;padding:12px 14px;
+      margin:12px 0;font-size:13px;font-weight:600;color:#7a5a00;line-height:1.5;}
+    .warn b{color:#6b4a08;}
+    .hidden{display:none!important;}
+    .spin{opacity:.55;pointer-events:none;}
+  </style>
+</head>
+<body>
+  <div class="top">
+    <button class="back" id="back" aria-label="Back">‹</button>
+    <h1>Parents</h1>
+  </div>
+  <div class="wrap">
+
+    <!-- Step 1 — "Grown-Ups Only" provisioning gate -->
+    <div class="card hidden" id="view-provision">
+      <div class="gate-hero">✋ Grown-Ups Only Zone!</div>
+      <p>This corner of Gulsabi requires taller legs and a bit of life experience.
+         If you are legally allowed to stay up past 9:00 PM, you're in the right place!</p>
+      <label class="adult-check" for="adult">
+        <input type="checkbox" id="adult" />
+        <span>By entering your email and requesting an access code, you are confirming
+        that you are an adult/parent. This action serves as your official parental
+        verification stamp under global child data privacy regulations.</span>
+      </label>
+      <div id="step-email">
+        <label for="email">Your email</label>
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+        <button class="btn btn-coral" id="send-code">Email me a code</button>
+      </div>
+      <div id="step-code" class="hidden">
+        <label for="code">Enter the code from your email</label>
+        <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456" />
+        <button class="btn btn-coral" id="verify-code">Verify</button>
+        <button class="btn btn-ghost" id="change-email">Use a different email</button>
+      </div>
+      <div class="err" id="auth-err"></div>
+      <div class="ok" id="auth-ok"></div>
+    </div>
+
+    <!-- Reusable PIN pad -->
+    <div class="card hidden" id="view-pin">
+      <h2 id="pin-title">Enter your PIN</h2>
+      <p id="pin-sub">Unlock the Parents area.</p>
+      <div class="pin-dots" id="pin-dots"><span></span><span></span><span></span><span></span></div>
+      <div class="err" id="pin-err" style="text-align:center;"></div>
+      <div class="keypad" id="keypad"></div>
+      <button class="btn btn-ghost hidden" id="pin-bio">👆 Use fingerprint / face</button>
+      <div class="pin-foot">
+        <a class="link hidden" id="pin-forgot">Forgot PIN?</a>
+        <a class="link hidden" id="pin-cancel">Cancel</a>
+      </div>
+    </div>
+
+    <!-- Step 2 — math gate (everyday fallback when no PIN) -->
+    <div class="card hidden" id="view-math">
+      <h2>Grown-up check</h2>
+      <p>Prove you're a grown-up to open the Parents area.</p>
+      <div class="math-q" id="math-q">7 × 9 = ?</div>
+      <input id="math-input" type="number" inputmode="numeric" autocomplete="off" placeholder="?" />
+      <button class="btn btn-coral" id="math-go">Enter</button>
+      <button class="btn btn-bio btn-ghost hidden" id="math-bio">👆 Use fingerprint / face</button>
+      <div class="err" id="math-err" style="text-align:center;"></div>
+    </div>
+
+    <!-- Profile setup (first time) -->
+    <div class="card hidden" id="view-profile-setup">
+      <h2>Tell us about your little explorer</h2>
+      <p>All optional — kept only on this device, you can skip and add any time.</p>
+      <label for="ps-name">Child’s first name</label>
+      <input id="ps-name" type="text" autocomplete="off" placeholder="e.g. Aria (optional)" />
+      <label for="ps-nick">Nickname <span style="font-weight:500;color:#7990a3;">(can be used instead of a real name)</span></label>
+      <input id="ps-nick" type="text" autocomplete="off" placeholder="e.g. Sunshine (optional)" />
+      <label for="ps-age">Age group</label>
+      <select id="ps-age">
+        <option value="">Prefer not to say</option>
+        <option value="3-4">3–4</option>
+        <option value="5-6">5–6</option>
+        <option value="7-8">7–8</option>
+      </select>
+      <button class="btn btn-coral" id="ps-continue">Continue</button>
+      <button class="btn btn-ghost" id="ps-skip">Skip for now</button>
+      <div class="err" id="ps-err"></div>
+    </div>
+
+    <!-- ================= DASHBOARD ================= -->
+    <!-- Step 4 — Did You Know -->
+    <div class="fact-card hidden" id="view-fact">
+      <h2>💡 Did You Know?</h2>
+      <p id="fact-text"></p>
+    </div>
+
+    <!-- Profile (collapsible) -->
+    <div class="card hidden" id="view-dashboard">
+      <button class="profile-head" id="profile-head" type="button">
+        <div>
+          <div class="profile-name" id="profile-name">👶 Your child</div>
+          <div class="profile-hint" id="profile-hint">Tap to add a name, nickname &amp; age</div>
+        </div>
+        <span class="chevron" id="profile-chevron">▾</span>
+      </button>
+      <div id="profile-form" class="hidden">
+        <!-- Account email (registered) + change with OTP -->
+        <div class="acct-box">
+          <div class="acct-row">
+            <div>
+              <div class="acct-label">Account email</div>
+              <div class="acct-email" id="reg-email">—</div>
+            </div>
+            <button class="acct-change" id="change-email-btn">Change</button>
+          </div>
+          <div id="email-change" class="hidden">
+            <label for="new-email">New email</label>
+            <input id="new-email" type="email" inputmode="email" autocomplete="off" placeholder="new@email.com" />
+            <button class="btn btn-navy" id="send-email-otp">Send code</button>
+            <div id="email-otp-row" class="hidden">
+              <label for="email-otp">Enter the code we sent to your new email</label>
+              <input id="email-otp" type="text" inputmode="numeric" autocomplete="off" placeholder="6-digit code" />
+              <button class="btn btn-coral" id="verify-email-otp">Confirm new email</button>
+            </div>
+            <div class="err" id="email-err"></div>
+            <div class="ok" id="email-ok"></div>
+          </div>
+        </div>
+        <label for="child-name">Child’s first name (optional)</label>
+        <input id="child-name" type="text" autocomplete="off" placeholder="e.g. Aria" />
+        <label for="child-nick">Nickname (optional)</label>
+        <input id="child-nick" type="text" autocomplete="off" placeholder="e.g. Sunshine" />
+        <label for="age-band">Age group (optional)</label>
+        <select id="age-band">
+          <option value="">Prefer not to say</option>
+          <option value="3-4">3–4</option>
+          <option value="5-6">5–6</option>
+          <option value="7-8">7–8</option>
+        </select>
+        <button class="btn btn-navy" id="save-child">Save</button>
+        <div class="ok" id="save-ok"></div>
+      </div>
+      <button class="btn btn-navy" style="margin-top:12px"
+        onclick="location.href='/app/parents/learn.html'">✏️ Learn — progress &amp; insights</button>
+    </div>
+
+    <!-- Languages (reuses the first-run picker component) -->
+    <div class="card hidden" id="view-languages">
+      <h2>Languages</h2>
+      <p class="muted" style="text-align:left;margin:0 0 12px;line-height:1.5;">
+        Which languages your child learns and traces in. Tap the ★ to set the
+        main one. Changes apply next time they open Learn.</p>
+      <div id="parent-lang-grid"></div>
+      <div id="parent-lang-msg" class="ok" style="min-height:18px;"></div>
+    </div>
+
+    <!-- Step 3 — Daily Boundaries -->
+    <div class="card hidden" id="view-boundaries">
+      <h2>Daily Boundaries</h2>
+      <p>Independent daily time limits, kept on this device.</p>
+      <p class="note">✨ Just drag the sliders — changes save automatically, no button needed.</p>
+      <div class="slider-row">
+        <div class="lbl"><span>🎮 Interactive Play (Games)</span><span class="val" id="val-game">30m</span></div>
+        <input type="range" id="slider-game" min="0" max="120" step="5" value="30" />
+        <div class="slider-sub">0 = no games · 120 = 2 hours</div>
+      </div>
+      <div class="slider-row">
+        <div class="lbl"><span>📺 Curiosity Watch (Videos)</span><span class="val" id="val-video">45m</span></div>
+        <input type="range" id="slider-video" min="0" max="120" step="5" value="45" />
+        <div class="slider-sub">0 = no videos · 120 = 2 hours</div>
+      </div>
+      <div class="ok" id="bound-ok"></div>
+    </div>
+
+    <!-- Kid Mode (Android screen pinning) -->
+    <div class="card hidden" id="view-kidmode">
+      <h2>🔒 Kid Mode</h2>
+      <p><b>What it does:</b> locks the phone into Gulsabi so your child can’t
+         switch to other apps or wander off.</p>
+      <div class="warn">
+        ⚠️ <b>For full security</b>, turn on your phone’s <b>“Ask for PIN before
+        unpinning.”</b> Without it, a curious child can still leave by holding
+        <b>Back + Recents</b>.
+      </div>
+      <button class="btn btn-ghost" id="kidmode-settings">⚙️ Open phone security settings</button>
+      <button class="btn" id="kidmode-toggle">Turn on Kid Mode</button>
+      <p class="note" style="color:#7990a3;">To exit later: open Parents → Turn off
+         Kid Mode, or hold <b>Back + Recents</b> (then your phone PIN, if set up above).</p>
+      <div class="ok" id="kidmode-ok"></div>
+    </div>
+
+    <!-- Progress (local only) -->
+    <div class="card hidden" id="view-progress">
+      <h2>Play &amp; Learn rewards</h2>
+      <p id="progress-for" class="muted" style="text-align:left;margin:0 0 12px;"></p>
+      <div style="display:flex;gap:10px;text-align:center;">
+        <div style="flex:1;background:#fff7d6;border-radius:16px;padding:14px 8px;">
+          <div style="font-size:26px;font-weight:700;color:#1C3D5A;" id="stat-stars">0</div>
+          <div style="font-size:12.5px;font-weight:700;color:#7990a3;">⭐ Stars</div>
+          <div style="font-size:10.5px;color:#9aa8b8;margin-top:2px;line-height:1.3;">earned for every win across games &amp; Learn</div>
+        </div>
+        <div style="flex:1;background:#ffe9ea;border-radius:16px;padding:14px 8px;">
+          <div style="font-size:26px;font-weight:700;color:#1C3D5A;" id="stat-badges">0</div>
+          <div style="font-size:12.5px;font-weight:700;color:#7990a3;">🏅 Badges</div>
+          <div style="font-size:10.5px;color:#9aa8b8;margin-top:2px;line-height:1.3;">milestones unlocked, like first letter mastered</div>
+        </div>
+        <div style="flex:1;background:#e7f3ff;border-radius:16px;padding:14px 8px;">
+          <div style="font-size:26px;font-weight:700;color:#1C3D5A;" id="stat-streak">0</div>
+          <div style="font-size:12.5px;font-weight:700;color:#7990a3;">🔥 Day streak</div>
+          <div style="font-size:10.5px;color:#9aa8b8;margin-top:2px;line-height:1.3;">days in a row your child showed up</div>
+        </div>
+      </div>
+      <button class="btn btn-navy" style="margin-top:14px" onclick="location.href='/app/parents/learn.html'">
+        📈 See detailed Learn progress</button>
+      <p class="muted" style="text-align:left;margin-top:10px;line-height:1.5;">
+        A quick motivation summary, kept only on this device. For what your child is
+        actually learning — letters mastered, writing readiness — open Learn progress
+        above. Never uploaded or shown in any leaderboard.</p>
+    </div>
+
+    <!-- Security -->
+    <div class="card hidden" id="view-security">
+      <h2>Security</h2>
+      <p>Quick unlock for the Parents area. Your PIN is stored only on this
+         device (hashed) — never sent anywhere.</p>
+      <div id="security-controls"></div>
+      <div class="ok" id="security-ok"></div>
+    </div>
+
+    <!-- Step 5 — Notice board -->
+    <div class="card hidden" id="view-notices">
+      <h2>The Grown-Up Notice Board</h2>
+      <div id="notices-list"><p class="muted" style="text-align:left;">Loading…</p></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="card hidden" id="view-actions">
+      <button class="btn btn-danger" id="delete">Delete my data</button>
+      <div class="err" id="action-err"></div>
+      <p class="muted">Deletes your child’s profile, progress and limits from this
+         device, and removes your parent email from our system. Can’t be undone.</p>
+    </div>
+
+    <!-- Step 5 — Privacy boast -->
+    <div class="privacy-footer hidden" id="view-privacy">
+      <b>🛡️ 100% On-Device Privacy Guaranteed</b>
+      <p>Gulsabi complies strictly with global COPPA and Indian DPDP child safety
+         acts. Every single byte of your child's milestones, nicknames, and playtime
+         counters are kept strictly on this physical phone. We have zero behavioral
+         tracking engines and zero child cloud exposure.</p>
+    </div>
+
+  </div>
+
+  <!-- Consent popup -->
+  <div class="modal" id="consent-modal">
+    <div class="box">
+      <h2>A quick consent</h2>
+      <p>Before we save anything on this device, here’s what Gulsabi stores — and
+         what it never does.</p>
+      <ul class="what">
+        <li><b>Your child’s name/nickname, age band, progress &amp; playtime</b> — kept only on this phone.</li>
+        <li><b>Your email</b> — used once to verify you’re a grown-up.</li>
+      </ul>
+      <label style="display:flex;gap:10px;align-items:flex-start;text-align:left;font-size:13.5px;
+                    background:#EEF3FA;border-radius:12px;padding:10px 12px;margin:0 0 10px;cursor:pointer;">
+        <input type="checkbox" id="learn-sync-opt" style="margin-top:2px;" />
+        <span><b>Optional:</b> also sync my child’s <b>Learn practice progress</b>
+          (skills practised and scores — never a name or photo) to my parent
+          account, so I can see insights and keep progress if we change phones.</span>
+      </label>
+      <p style="margin-bottom:8px;"><b>We never</b> track your child for ads, or sell
+         or share anything. Cloud sync is optional, off by default, and you can
+         delete it all at any time.</p>
+      <p class="policy-links">
+        <a class="link" href="https://gulsabi.com/children-privacy" target="_system">Privacy Policy</a>
+        <a class="link" href="https://gulsabi.com/terms" target="_system">Terms</a>
+      </p>
+      <button class="btn btn-coral" id="agree">I agree — continue</button>
+      <button class="btn btn-ghost" id="decline">Not now</button>
+      <div class="err" id="consent-err"></div>
+    </div>
+  </div>
+
+  <script src="./config.js"></script>
+  <!-- shared language picker component (same source as the first-run picker) -->
+  <script src="/app/parents/languages.js"></script>
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const $ = (s) => document.querySelector(s);
+    const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
+    const cfg = window.GULSABI_KIDS || {};
+    const configured = cfg.SUPABASE_URL && !cfg.SUPABASE_URL.includes('YOUR-KIDS-PROJECT');
+    const NOTICES_URL = 'https://gulsabi.com/feeds/parent_notices.json';
+
+    $('#back').addEventListener('click', () => { window.location.href = '/app/index.html'; });
+
+    // ---- Local storage --------------------------------------------------
+    // Dual-write: localStorage (ALWAYS shared across the app's same-origin pages,
+    // so the shell and this page stay in sync) + Capacitor Preferences (extra
+    // durability when its proxy is available). Read localStorage first, fall back
+    // to Preferences — this is what guarantees the shell sees the limits we set.
+    const _pref = () => window.Capacitor?.Plugins?.Preferences;
+    const store = {
+      async set(k, v) {
+        try { localStorage.setItem(k, String(v)); } catch (_) {}
+        try { await _pref()?.set({ key: k, value: String(v) }); } catch (_) {}
+      },
+      async get(k) {
+        try { const ls = localStorage.getItem(k); if (ls != null) return ls; } catch (_) {}
+        try { const r = await _pref()?.get({ key: k }); return (r && r.value != null) ? r.value : null; } catch (_) { return null; }
+      },
+      async remove(k) {
+        try { localStorage.removeItem(k); } catch (_) {}
+        try { await _pref()?.remove({ key: k }); } catch (_) {}
+      },
+    };
+    const L = {
+      prov: 'gulsabi_provisioned', email: 'gulsabi_parent_email', consent: 'gulsabi_consent_version',
+      cName: 'gulsabi_child_name', cNick: 'gulsabi_child_nick', cAge: 'gulsabi_child_age',
+      limGame: 'gulsabi_limit_game_min', limVideo: 'gulsabi_limit_video_min',
+      kidMode: 'gulsabi_kid_mode',
+      salt: 'gulsabi_pin_salt', hash: 'gulsabi_pin_hash', bio: 'gulsabi_pin_bio', fails: 'gulsabi_pin_fails',
+    };
+
+    let supabase, email = '';
+
+    // ====================================================================
+    //  Entry: provisioning gate (first launch) OR everyday gate
+    // ====================================================================
+    async function start() {
+      if (!configured) { showOnly('#view-provision'); $('#auth-err').textContent = 'Setup incomplete — see docs.'; return; }
+      supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+      wireHandlers();
+      if ((await store.get(L.prov)) !== '1') showProvision();
+      else enterEveryday();
+    }
+
+    function hideAll() {
+      document.querySelectorAll('.wrap > .card, .wrap > .fact-card, .wrap > .privacy-footer')
+        .forEach(e => e.classList.add('hidden'));
+      $('#consent-modal').classList.remove('active');
+    }
+    function showOnly(id) { hideAll(); show(id, true); }
+
+    // ---- Provisioning (Grown-Ups Only) ----------------------------------
+    function showProvision() {
+      hideAll();
+      show('#step-email', true); show('#step-code', false);
+      $('#auth-err').textContent = ''; $('#auth-ok').textContent = '';
+      show('#view-provision', true);
+    }
+
+    function wireHandlers() {
+      $('#send-code').addEventListener('click', async () => {
+        email = $('#email').value.trim();
+        $('#auth-err').textContent = ''; $('#auth-ok').textContent = '';
+        if (!$('#adult').checked) { $('#auth-err').textContent = 'Please confirm you are an adult/parent.'; return; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { $('#auth-err').textContent = 'Please enter a valid email.'; return; }
+        await guarded('#send-code', async () => {
+          const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+          if (error) throw error;
+          show('#step-email', false); show('#step-code', true);
+          $('#auth-ok').textContent = 'Code sent — check your email.';
+        }, '#auth-err');
+      });
+      $('#change-email').addEventListener('click', () => {
+        show('#step-code', false); show('#step-email', true);
+        $('#auth-err').textContent = ''; $('#auth-ok').textContent = '';
+      });
+      $('#verify-code').addEventListener('click', async () => {
+        const token = $('#code').value.trim();
+        $('#auth-err').textContent = '';
+        if (token.length < 4) { $('#auth-err').textContent = 'Enter the code from your email.'; return; }
+        await guarded('#verify-code', async () => {
+          const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+          if (error) throw error;
+          await afterVerify();
+        }, '#auth-err');
+      });
+
+      // Consent + profile
+      $('#agree').addEventListener('click', async () => {
+        await store.set(L.consent, cfg.CONSENT_VERSION || '1');
+        // Learn cloud sync is a SEPARATE, default-off opt-in (DPDP data
+        // minimization): without it the Learn module stays local-only.
+        await store.set('gulsabi_learn_sync_consent', $('#learn-sync-opt').checked ? '1' : '0');
+        $('#consent-modal').classList.remove('active');
+      });
+      $('#decline').addEventListener('click', () => { window.location.href = '/app/index.html'; });
+      $('#ps-continue').addEventListener('click', () => saveProfile(true));
+      $('#ps-skip').addEventListener('click', () => finishOnboarding());
+
+      // Dashboard: save profile
+      $('#save-child').addEventListener('click', async () => {
+        await guarded('#save-child', async () => {
+          await store.set(L.cName, $('#child-name').value.trim());
+          await store.set(L.cNick, $('#child-nick').value.trim());
+          await store.set(L.cAge, $('#age-band').value);
+          await renderProgressLabel();
+          await showFact();             // age band may have changed → refresh fact
+          refreshProfileHeaderText();   // updates the heading + flips Save → Update
+          $('#save-ok').textContent = 'Saved on this device.';
+        }, '#save-ok', true);
+      });
+      // Account email: change with OTP (keeps the SAME account — children,
+      // progress and entitlement are preserved).
+      let pendingNewEmail = '';
+      $('#change-email-btn').addEventListener('click', () => {
+        const box = $('#email-change');
+        const opening = box.classList.contains('hidden');
+        show('#email-change', opening);
+        $('#change-email-btn').textContent = opening ? 'Cancel' : 'Change';
+        show('#email-otp-row', false);
+        $('#email-err').textContent = ''; $('#email-ok').textContent = '';
+        $('#new-email').value = '';
+      });
+      $('#send-email-otp').addEventListener('click', async () => {
+        const ne = $('#new-email').value.trim();
+        $('#email-err').textContent = ''; $('#email-ok').textContent = '';
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ne)) { $('#email-err').textContent = 'Please enter a valid email.'; return; }
+        await guarded('#send-email-otp', async () => {
+          // Supabase sends a confirmation code to the NEW address.
+          const { error } = await supabase.auth.updateUser({ email: ne });
+          if (error) throw error;
+          pendingNewEmail = ne;
+          show('#email-otp-row', true);
+          $('#email-ok').textContent = `Code sent to ${ne}.`;
+        }, '#email-err');
+      });
+      $('#verify-email-otp').addEventListener('click', async () => {
+        const token = $('#email-otp').value.trim();
+        $('#email-err').textContent = '';
+        if (token.length < 4) { $('#email-err').textContent = 'Enter the code from your new email.'; return; }
+        await guarded('#verify-email-otp', async () => {
+          const { error } = await supabase.auth.verifyOtp({ email: pendingNewEmail, token, type: 'email_change' });
+          if (error) throw error;
+          await store.set(L.email, pendingNewEmail);
+          await renderAccountEmail();   // updates the #reg-email box
+          show('#email-change', false);
+          $('#change-email-btn').textContent = 'Change';
+          $('#email-ok').textContent = ''; $('#email-otp').value = '';
+          $('#save-ok').textContent = 'Email updated ✓';
+        }, '#email-err');
+      });
+
+      // Collapsible profile: tap the heading to show/hide the form.
+      $('#profile-head').addEventListener('click', () => {
+        const willCollapse = !$('#profile-form').classList.contains('hidden');
+        setProfileCollapsed(willCollapse);
+      });
+
+      // Boundaries sliders
+      const wireSlider = (sliderId, valId, key, extKey) => {
+        const save = async () => {
+          $(valId).textContent = $(sliderId).value + 'm';
+          await store.set(key, $(sliderId).value);
+          // Changing the limit clears any leftover "+15 min" grant from a previous
+          // Grown-Up Override — otherwise it would silently override the new limit.
+          await store.set(extKey, '0');
+          $('#bound-ok').textContent = 'Limits saved on this device.';
+        };
+        // Save on input AND change — some touch WebViews fire only one of them.
+        $(sliderId).addEventListener('input', save);
+        $(sliderId).addEventListener('change', save);
+      };
+      wireSlider('#slider-game', '#val-game', L.limGame, 'gulsabi_ext_game_min');
+      wireSlider('#slider-video', '#val-video', L.limVideo, 'gulsabi_ext_video_min');
+
+      // Kid Mode: open phone security settings (for "Ask for PIN before unpinning")
+      $('#kidmode-settings').addEventListener('click', async () => {
+        const KidLock = window.Capacitor?.Plugins?.KidLock;
+        if (KidLock?.openSettings) { try { await KidLock.openSettings(); } catch (_) {} }
+        else { $('#kidmode-ok').textContent = 'On your phone: Settings → Security → App pinning → “Ask for PIN before unpinning.”'; }
+      });
+      // Kid Mode toggle
+      $('#kidmode-toggle').addEventListener('click', async () => {
+        const KidLock = window.Capacitor?.Plugins?.KidLock;
+        const on = (await store.get(L.kidMode)) === '1';
+        if (on) {
+          await store.set(L.kidMode, '0');
+          try { await KidLock?.exit(); } catch (_) {}
+          $('#kidmode-ok').textContent = 'Kid Mode is off — you can leave the app.';
+        } else {
+          // Confirm on enable, stating the exit route up front so no one feels stuck.
+          if (!confirm('Turn on Kid Mode?\n\nThe phone will lock into Gulsabi.\n\nTo exit later:\n•  Open Parents → Turn off Kid Mode, OR\n•  Hold Back + Recents (and enter your phone PIN if you set that up).')) return;
+          await store.set(L.kidMode, '1');
+          try { await KidLock?.enter(); } catch (_) {}
+          $('#kidmode-ok').textContent = window.Capacitor
+            ? 'Kid Mode is on — the app is now locked.'
+            : 'Kid Mode is on (takes effect on the phone).';
+        }
+        await renderKidMode();
+      });
+
+      // Delete
+      $('#delete').addEventListener('click', async () => {
+        if (!confirm('Delete your child’s profile, progress and limits from this device, and remove your parent email? This cannot be undone.')) return;
+        $('#action-err').textContent = '';
+        await guarded('#delete', async () => {
+          // Try to erase the parent email from the cloud (best-effort).
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) await fetch(`${cfg.SUPABASE_URL}/functions/v1/delete-account`,
+              { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}` } });
+          } catch (_) {}
+          try { await supabase.auth.signOut(); } catch (_) {}
+          // Wipe ALL local child data + provisioning + PIN + limits.
+          for (const k of Object.values(L)) await store.remove(k);
+          // Clear local play/watch counters too (set by the shell).
+          for (const k of ['gulsabi_daily_game_sec','gulsabi_daily_video_sec','gulsabi_time_reset_day',
+                           'gulsabi_ext_game_min','gulsabi_ext_video_min','gulsabi_game_start_ts']) {
+            await store.remove(k);
+          }
+          try { await window.Capacitor?.Plugins?.KidLock?.exit(); } catch (_) {} // release the lock
+          alert('Your data has been deleted from this device.');
+          window.location.href = '/app/index.html';
+        }, '#action-err');
+      });
+
+      // Math gate
+      $('#math-go').addEventListener('click', () => checkMath());
+      $('#math-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') checkMath(); });
+    }
+
+    // After OTP verify during provisioning: mark provisioned, then consent → profile.
+    async function afterVerify() {
+      // Forgot-PIN reset path re-uses this; if already provisioned, just set new PIN.
+      if (pendingPinReset) { pendingPinReset = false; setupPin(() => goDashboard()); return; }
+      await store.set(L.prov, '1');
+      await store.set(L.email, email || '');
+      // Pre-fill profile from any existing local values.
+      $('#ps-name').value = (await store.get(L.cName)) || '';
+      $('#ps-nick').value = (await store.get(L.cNick)) || '';
+      $('#ps-age').value = (await store.get(L.cAge)) || '';
+      hideAll();
+      show('#view-profile-setup', true);
+      // Consent must be agreed before the profile is usable.
+      if ((await store.get(L.consent)) !== (cfg.CONSENT_VERSION || '1')) $('#consent-modal').classList.add('active');
+    }
+
+    async function saveProfile(advance) {
+      $('#ps-err').textContent = '';
+      await guarded('#ps-continue', async () => {
+        await store.set(L.cName, $('#ps-name').value.trim());
+        await store.set(L.cNick, $('#ps-nick').value.trim());
+        await store.set(L.cAge, $('#ps-age').value);
+        if (advance) await finishOnboarding();
+      }, '#ps-err');
+    }
+
+    async function finishOnboarding() {
+      if (!(await pinIsSet())) setupPin(() => goDashboard());
+      else goDashboard();
+    }
+
+    // ---- Everyday gate (biometric → PIN, or math gate when no PIN) -------
+    let pendingPinReset = false;
+    async function enterEveryday() {
+      const bioOn = (await biometricOn()) && (await biometricAvailable());
+      if (bioOn && await biometricVerify()) { await resetFails(); goDashboard(); return; }
+      if (await pinIsSet()) showUnlock(bioOn);
+      else showMath(bioOn);
+    }
+
+    async function showUnlock(bioOn) {
+      showPin({
+        title: 'Enter your PIN', subtitle: 'Unlock the Parents area.',
+        showBiometric: bioOn, showForgot: true,
+        onPin: async (pin) => {
+          if (await checkPin(pin)) { await resetFails(); goDashboard(); return; }
+          const n = await recordFail();
+          if (n >= 5) forgotPin('Too many tries. Verify by email to continue.');
+          else pinError(`Wrong PIN — ${5 - n} ${5 - n === 1 ? 'try' : 'tries'} left.`);
+        },
+        onBiometric: async () => { if (await biometricVerify()) { await resetFails(); goDashboard(); } },
+        onForgot: () => forgotPin(),
+      });
+    }
+
+    // Math gate (used when no PIN is configured)
+    let mathA = 0, mathB = 0;
+    async function showMath(bioOn) {
+      hideAll();
+      mathA = 2 + Math.floor(Math.random() * 8); // 2..9
+      mathB = 2 + Math.floor(Math.random() * 8);
+      $('#math-q').textContent = `${mathA} × ${mathB} = ?`;
+      $('#math-input').value = ''; $('#math-err').textContent = '';
+      show('#math-bio', !!bioOn);
+      $('#math-bio').onclick = async () => { if (await biometricVerify()) goDashboard(); };
+      show('#view-math', true);
+      setTimeout(() => $('#math-input').focus(), 60);
+    }
+    function checkMath() {
+      if (parseInt($('#math-input').value, 10) === mathA * mathB) goDashboard();
+      else { $('#math-err').textContent = 'Not quite — try again.'; showMath(false); }
+    }
+
+    function forgotPin(msg) {
+      pendingPinReset = true;
+      hideAll();
+      show('#step-email', true); show('#step-code', false);
+      $('#email').value = ''; $('#auth-ok').textContent = '';
+      $('#auth-err').textContent = msg || '';
+      $('#adult').checked = true; // already a verified parent
+      show('#view-provision', true);
+    }
+
+    // ---- Dashboard ------------------------------------------------------
+    async function goDashboard() {
+      hideAll();
+      // Opening the dashboard clears any temporary "+15 min" Grown-Up Override
+      // grants — the parent is back in control, so the sliders are the source of
+      // truth. (A slider that's already at its value won't fire a change event,
+      // so we can't rely on the slider handler alone.)
+      await store.set('gulsabi_ext_game_min', '0');
+      await store.set('gulsabi_ext_video_min', '0');
+      await renderAccountEmail();   // shows the account email in the #reg-email box
+      $('#child-name').value = (await store.get(L.cName)) || '';
+      $('#child-nick').value = (await store.get(L.cNick)) || '';
+      $('#age-band').value = (await store.get(L.cAge)) || '';
+      renderProfileHeader(); // heading shows the nickname; form collapsed if data exists
+      $('#slider-game').value = (await store.get(L.limGame)) ?? 30;
+      $('#slider-video').value = (await store.get(L.limVideo)) ?? 45;
+      $('#val-game').textContent = $('#slider-game').value + 'm';
+      $('#val-video').textContent = $('#slider-video').value + 'm';
+      await showFact();
+      await renderProgress();
+      await renderLanguages();
+      await renderSecurity();
+      await renderKidMode();
+      ['#view-fact','#view-dashboard','#view-languages','#view-boundaries','#view-kidmode','#view-progress','#view-security','#view-notices','#view-actions','#view-privacy']
+        .forEach(id => show(id, true));
+      loadNotices(); // async, non-blocking
+    }
+
+    async function renderProgressLabel() {
+      const nick = (await store.get(L.cNick)) || '', name = (await store.get(L.cName)) || '';
+      const display = nick || name;
+      $('#progress-for').textContent = display ? `For ${display}` : 'For your child';
+    }
+
+    // ---- Account email (authoritative = the signed-in auth session) ------
+    async function renderAccountEmail() {
+      let em = '';
+      try { const { data } = await supabase.auth.getSession(); em = data?.session?.user?.email || ''; } catch (_) {}
+      if (!em) em = (await store.get(L.email)) || '';
+      $('#reg-email').textContent = em || 'Not signed in';
+    }
+
+    // ---- Collapsible child-profile header --------------------------------
+    function profileHasData() {
+      return !!((($('#child-name').value || '').trim()) || (($('#child-nick').value || '').trim()) || $('#age-band').value);
+    }
+    function setProfileCollapsed(collapsed) {
+      $('#profile-form').classList.toggle('hidden', collapsed);
+      $('#profile-chevron').classList.toggle('open', !collapsed);
+    }
+    function refreshProfileHeaderText() {
+      const nick = ($('#child-nick').value || '').trim(), name = ($('#child-name').value || '').trim();
+      const display = nick || name;
+      $('#profile-name').textContent = display ? `👶 ${display}` : '👶 Your child';
+      $('#profile-hint').textContent = profileHasData() ? 'Tap to view or edit profile' : 'Tap to add a name, nickname & age';
+      $('#save-child').textContent = profileHasData() ? 'Update' : 'Save';
+    }
+    function renderProfileHeader() {
+      refreshProfileHeaderText();
+      setProfileCollapsed(profileHasData()); // collapsed by default once there's data; open for first-timers
+    }
+
+    async function renderKidMode() {
+      const on = (await store.get(L.kidMode)) === '1';
+      $('#kidmode-toggle').textContent = on ? 'Turn off Kid Mode' : 'Turn on Kid Mode';
+      $('#kidmode-toggle').className = 'btn ' + (on ? 'btn-ghost' : 'btn-coral');
+    }
+    function localProgressSummary() {
+      let stars = 0, badges = 0, streak = 0;
+      for (const n of [3, 4, 5]) {
+        try { (JSON.parse(localStorage.getItem('gulsabi_game' + n + '_stars') || '[]') || []).forEach(s => stars += (+s || 0)); } catch (_) {}
+        try { badges += (JSON.parse(localStorage.getItem('gulsabi_game' + n + '_achievements') || '[]') || []).length; } catch (_) {}
+        try { streak = Math.max(streak, parseInt(localStorage.getItem('gulsabi_game' + n + '_streak') || '0', 10) || 0); } catch (_) {}
+      }
+      return { stars, badges, streak };
+    }
+    // Languages — mounts the SAME shared picker component as first-run.
+    let _langHandle = null;
+    async function renderLanguages() {
+      const L8 = window.GulsabiLang;
+      if (!L8) return;                          // bundle not loaded
+      // real entitlement (server-side; the parents session can read its own row)
+      let entitled = false;
+      try {
+        const { data } = await supabase.from('entitlements').select('active,expires_at').maybeSingle();
+        entitled = !!(data && data.active && (!data.expires_at || new Date(data.expires_at) > new Date()));
+      } catch (_) {}
+      const cur = L8.savedOrDefault([...(navigator.languages || ['en'])]);
+      await L8.initI18n(cur.primary);
+      const msg = $('#parent-lang-msg');
+      _langHandle = L8.renderLanguagePicker({
+        grid: $('#parent-lang-grid'),
+        initial: L8.initState(cur.languages, cur.primary),
+        entitled,
+        onUpgrade: () => { location.href = '/app/parents/learn.html'; },  // upgrade surface
+        onChange: async (s) => {
+          if (!L8.canContinue(s)) return;
+          const norm = L8.normalizeSelection(s.selected, s.primary, entitled);
+          await store.set('gulsabi_learn_languages', JSON.stringify(norm));
+          // mirror to the child's row (same consent-gated children table)
+          try {
+            const { data: kids } = await supabase.from('children').select('id').limit(1);
+            if (kids && kids[0]) await supabase.from('children').update(
+              { languages: norm.languages, primary_language: norm.primary }).eq('id', kids[0].id);
+          } catch (_) {}
+          msg.textContent = 'Saved ✓';
+          setTimeout(() => { if (msg.textContent === 'Saved ✓') msg.textContent = ''; }, 1500);
+        },
+      });
+    }
+
+    async function renderProgress() {
+      const s = localProgressSummary();
+      $('#stat-stars').textContent = s.stars; $('#stat-badges').textContent = s.badges; $('#stat-streak').textContent = s.streak;
+      await renderProgressLabel();
+    }
+
+    // ---- Step 4: Did You Know -------------------------------------------
+    const FACTS = {
+      '3-4': [
+        "At this age, a child’s vocabulary multiplies so fast that they learn an average of 4 to 6 brand-new words every single day!",
+        "Three-year-olds are just beginning to grasp the abstract concept of \"yesterday\" and \"tomorrow\" — to them, everything in the past is often just \"yesterday\"!",
+        "Asking \"Why?\" isn't an attempt to annoy you; it is a vital neurological mechanism they use to build cognitive cause-and-effect maps.",
+        "Children this age use \"mirror neurons\" to mimic your emotional reactions. How you handle a mistake teaches them how to handle theirs.",
+        "Their brains naturally mix fantasy with reality. If they believe a blanket makes them invisible, their brain genuinely processes it as a possibility!",
+        "Brain scans show that 3-year-olds spend a massive percentage of sleep in REM mode, structurally processing their daily discoveries.",
+        "Jumping with both feet off the ground requires an incredibly complex sequence of bilateral brain coordination that they are just mastering now.",
+        "Their drawings progress from random scribbles to intentional circles — this marks the exact moment their brain connects inner thoughts to hand control.",
+      ],
+      '5-6': [
+        "Five-year-olds love absurd humor and silly jokes because their brains have mastered what is normal, allowing them to find the abnormal hilarious!",
+        "Their brain's left and right hemispheres are rapidly building a thick connective bridge (the corpus callosum), making physical coordination much smoother.",
+        "Around age 6, children develop a deep, rigid obsession with rules and \"fairness.\" It’s a healthy sign their moral reasoning centers are waking up.",
+        "They are transitioning from talking out loud while playing to thinking silently. This \"private speech\" is how they learn long-term self-regulation.",
+        "Their working memory can now comfortably hold about 3 pieces of instructions at once — like \"take off shoes, wash hands, and choose a book.\"",
+        "The neural pathways connecting their brain to their fingers are maturing rapidly, which is why complex block building and tracing become favorite tasks.",
+        "They are moving from \"parallel play\" (playing near each other) to \"cooperative play\" (negotiating roles and shared imaginary goals).",
+        "Their brains are actively developing the \"Theory of Mind\" — the brilliant leap where they realize other people have entirely different thoughts than they do.",
+      ],
+      '7-8': [
+        "At seven, their questions mature from \"What is that?\" to \"How does that work?\" as they actively look for underlying mechanical laws.",
+        "By age 8, a child's brain has reached roughly 90% of its adult structural size, though it will keep refining its network connections for decades.",
+        "Their brains love classifying things. Collecting rocks, cards, or shells trains their parietal lobe to organize abstract information logically.",
+        "They are finally mastering the cognitive abstractness of reading an analog clock and understanding the exact duration of an hour.",
+        "Their prefrontal cortex is mature enough to start comparing their work to others. Providing gentle reassurance here builds lifelong resilience.",
+        "They can now feel two conflicting emotions at the exact same time — like being simultaneously excited and terrified about trying a new game.",
+        "Their frontal lobes are beginning to project steps into the future, which is why strategic games like simplified chess suddenly become highly engaging.",
+        "Their brains are making a massive cognitive shift from \"learning to read\" to \"reading to learn,\" using text to unlock entirely new concepts.",
+        "Their structural spatial awareness is peaking; they can mentally rotate a 3D block puzzle layout before physically moving the pieces.",
+      ],
+    };
+    async function showFact() {
+      const age = (await store.get(L.cAge)) || '';
+      const pool = FACTS[age] || [...FACTS['3-4'], ...FACTS['5-6'], ...FACTS['7-8']];
+      $('#fact-text').textContent = pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    // ---- Step 5: Notice board (clean anonymous GET) ---------------------
+    async function loadNotices() {
+      const box = $('#notices-list');
+      let data = null;
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 4000);
+        // No tokens, UUIDs or device params — a clean, anonymous content read.
+        const res = await fetch(NOTICES_URL, { cache: 'no-cache', signal: ctrl.signal });
+        clearTimeout(t);
+        if (res.ok) data = await res.json();
+      } catch (_) {}
+      const notices = Array.isArray(data) ? data : (data && Array.isArray(data.notices) ? data.notices : null);
+      box.innerHTML = '';
+      if (!notices || notices.length === 0) {
+        box.innerHTML = '<p class="muted" style="text-align:left;">📭 No new notices right now (or you’re offline). Check back soon!</p>';
+        return;
+      }
+      notices.forEach(n => {
+        const a = document.createElement('button');
+        a.className = 'notice';
+        a.innerHTML = `<b></b><span></span>`;
+        a.querySelector('b').textContent = n.title || n.headline || 'Notice';
+        a.querySelector('span').textContent = n.summary || '';
+        if (n.url || n.link) a.addEventListener('click', () => window.open(n.url || n.link, '_system'));
+        box.appendChild(a);
+      });
+    }
+
+    // Disable a button while its async action runs.
+    async function guarded(btnSel, fn, errSel) {
+      const btn = $(btnSel); if (btn) btn.classList.add('spin');
+      try { await fn(); }
+      catch (e) { if (errSel) $(errSel).textContent = (e && e.message) ? e.message : 'Something went wrong.'; }
+      finally { if (btn) btn.classList.remove('spin'); }
+    }
+
+    // ====================================================================
+    //  PIN + biometric (local only)
+    // ====================================================================
+    const toHex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+    const randSalt = () => { const a = new Uint8Array(16); crypto.getRandomValues(a); return toHex(a); };
+    const hashPin = async (pin, salt) => toHex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pin)));
+    async function pinIsSet() { return !!(await store.get(L.hash)); }
+    async function savePin(pin) { const salt = randSalt(); await store.set(L.salt, salt); await store.set(L.hash, await hashPin(pin, salt)); await store.set(L.fails, '0'); }
+    async function checkPin(pin) { const salt = await store.get(L.salt), hash = await store.get(L.hash); return !!(salt && hash) && (await hashPin(pin, salt)) === hash; }
+    async function removePinAll() { for (const k of [L.salt, L.hash, L.bio, L.fails]) await store.remove(k); }
+    async function recordFail() { const n = (+(await store.get(L.fails)) || 0) + 1; await store.set(L.fails, String(n)); return n; }
+    async function resetFails() { await store.set(L.fails, '0'); }
+    const Bio = window.Capacitor?.Plugins?.NativeBiometric;
+    async function biometricAvailable() { try { const r = await Bio?.isAvailable(); return !!(r && r.isAvailable); } catch (_) { return false; } }
+    async function biometricOn() { return (await store.get(L.bio)) === '1'; }
+    async function biometricVerify() { try { await Bio.verifyIdentity({ title: 'Gulsabi', subtitle: 'Parents area', reason: 'Unlock' }); return true; } catch (_) { return false; } }
+
+    let pinDigits = '', pinOpts = {};
+    function showPin(opts) {
+      pinOpts = opts; pinDigits = '';
+      hideAll();
+      $('#pin-title').textContent = opts.title || 'Enter your PIN';
+      $('#pin-sub').textContent = opts.subtitle || '';
+      $('#pin-err').textContent = '';
+      renderDots(); buildKeypad();
+      show('#pin-bio', !!opts.showBiometric);
+      show('#pin-forgot', !!opts.showForgot);
+      show('#pin-cancel', !!opts.showCancel);
+      show('#view-pin', true);
+    }
+    function renderDots() { $('#pin-dots').querySelectorAll('span').forEach((s, i) => s.classList.toggle('on', i < pinDigits.length)); }
+    function buildKeypad() {
+      const kp = $('#keypad'); kp.innerHTML = '';
+      ['1','2','3','4','5','6','7','8','9','','0','⌫'].forEach((label) => {
+        const b = document.createElement('button');
+        if (label === '') b.className = 'blank';
+        else if (label === '⌫') { b.textContent = label; b.addEventListener('click', () => { pinDigits = pinDigits.slice(0, -1); renderDots(); }); }
+        else { b.textContent = label; b.addEventListener('click', () => pinPush(label)); }
+        kp.appendChild(b);
+      });
+    }
+    function pinPush(d) {
+      if (pinDigits.length >= 4) return;
+      pinDigits += d; $('#pin-err').textContent = ''; renderDots();
+      if (pinDigits.length === 4) { const pin = pinDigits; setTimeout(() => pinOpts.onPin && pinOpts.onPin(pin), 130); }
+    }
+    function pinError(msg) {
+      $('#pin-err').textContent = msg; pinDigits = ''; renderDots();
+      const d = $('#pin-dots'); d.classList.add('shake'); setTimeout(() => d.classList.remove('shake'), 360);
+    }
+    $('#pin-bio').addEventListener('click', () => pinOpts.onBiometric && pinOpts.onBiometric());
+    $('#pin-forgot').addEventListener('click', () => pinOpts.onForgot && pinOpts.onForgot());
+    $('#pin-cancel').addEventListener('click', () => pinOpts.onCancel && pinOpts.onCancel());
+
+    function setupPin(onDone) {
+      showPin({
+        title: 'Create a PIN', subtitle: 'Choose a 4-digit PIN for quick access.',
+        showCancel: true, onCancel: onDone,
+        onPin: (pin1) => showPin({
+          title: 'Confirm PIN', subtitle: 'Enter it again.', showCancel: true, onCancel: () => setupPin(onDone),
+          onPin: async (pin2) => {
+            if (pin2 !== pin1) { pinError('PINs don’t match — try again.'); return; }
+            await savePin(pin1); await maybeOfferBiometric(); onDone();
+          },
+        }),
+      });
+    }
+    async function maybeOfferBiometric() {
+      if (!(await biometricAvailable())) return;
+      if (confirm('Enable fingerprint / face unlock for quick access?')) { if (await biometricVerify()) await store.set(L.bio, '1'); }
+    }
+    function backToDashboard(msg) { goDashboard().then(() => { if (msg) $('#security-ok').textContent = msg; }); }
+    async function changePin() {
+      const bio = (await biometricOn()) && (await biometricAvailable());
+      showPin({
+        title: 'Enter current PIN', subtitle: 'Verify it’s you before changing it.',
+        showBiometric: bio, showForgot: true, showCancel: true,
+        onForgot: () => forgotPin(), onCancel: () => backToDashboard(),
+        onBiometric: async () => { if (await biometricVerify()) setNewPin(); },
+        onPin: async (cur) => { if (await checkPin(cur)) setNewPin(); else pinError('Wrong PIN.'); },
+      });
+    }
+    function setNewPin() {
+      showPin({
+        title: 'New PIN', subtitle: 'Choose a new 4-digit PIN.', showCancel: true, onCancel: () => backToDashboard(),
+        onPin: (pin1) => showPin({
+          title: 'Confirm new PIN', subtitle: 'Enter it again.', showCancel: true, onCancel: () => backToDashboard(),
+          onPin: async (pin2) => {
+            if (pin2 !== pin1) { pinError('PINs don’t match — try again.'); return; }
+            await savePin(pin1); backToDashboard('PIN changed.');
+          },
+        }),
+      });
+    }
+    function secBtn(text, cls, onClick) { const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = text; b.addEventListener('click', onClick); return b; }
+    async function renderSecurity() {
+      const box = $('#security-controls'); box.innerHTML = ''; $('#security-ok').textContent = '';
+      if (!(await pinIsSet())) {
+        box.appendChild(secBtn('Set up a PIN', 'btn-coral', () => setupPin(() => backToDashboard('PIN set.'))));
+        return;
+      }
+      box.appendChild(secBtn('Change PIN', 'btn-navy', changePin));
+      if (await biometricAvailable()) {
+        const on = await biometricOn();
+        box.appendChild(secBtn(on ? 'Disable fingerprint / face' : 'Enable fingerprint / face', 'btn-ghost', async () => {
+          if (on) { await store.set(L.bio, '0'); renderSecurity(); }
+          else { if (await biometricVerify()) await store.set(L.bio, '1'); renderSecurity(); }
+        }));
+      }
+      box.appendChild(secBtn('Remove PIN', 'btn-danger', async () => {
+        if (confirm('Remove your PIN? You’ll use the math grown-up check instead.')) { await removePinAll(); backToDashboard('PIN removed.'); }
+      }));
+    }
+
+    start();
+  </script>
+</body>
+</html>

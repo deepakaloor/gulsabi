@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <title>Gulsabi — Write</title>
+  <link rel="icon" href="/images/gulsabi-app-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{ --navy:#15324B; --coral:#FF6B7A; --green:#34A853; --gold:#FBBC04;
+      --bg:#EEF3FA; --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px); }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
+    html,body{margin:0;height:100%;font-family:'Fredoka',system-ui,sans-serif;background:var(--bg);color:var(--navy);overscroll-behavior:none;touch-action:none;}
+    #app{display:flex;flex-direction:column;height:100%;}
+    header{flex:0 0 auto;display:flex;align-items:center;gap:12px;
+      padding:calc(12px + var(--safe-top)) 16px 12px;
+      background:linear-gradient(120deg,#2E6FB0,#15324B);color:#fff;}
+    header .back{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:20px;cursor:pointer;}
+    header .title{font-weight:700;font-size:18px;}
+    header .stars{margin-left:auto;font-weight:700;font-size:16px;background:rgba(255,255,255,.18);padding:6px 12px;border-radius:999px;}
+    main{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:14px 16px calc(14px + var(--safe-bottom));overflow:hidden;}
+    .theme{font-size:15px;font-weight:600;color:#5b7186;margin-bottom:6px;}
+    .prompt{font-size:17px;font-weight:600;color:var(--navy);margin-bottom:10px;}
+    .prompt b{color:var(--coral);}
+    .board{position:relative;width:100%;max-width:360px;aspect-ratio:1/1;
+      background:#fff;border-radius:26px;box-shadow:0 10px 26px rgba(21,50,75,.14);overflow:hidden;}
+    .board canvas{position:absolute;inset:0;width:100%;height:100%;}
+    #guide{z-index:1;} #trace{z-index:2;touch-action:none;}
+    .controls{display:flex;gap:12px;margin-top:16px;width:100%;max-width:360px;}
+    .btn{flex:1;min-height:54px;border:none;border-radius:16px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+    .btn:active{transform:scale(.97);}
+    .btn-clear{background:#E4EBF4;color:var(--navy);}
+    .btn-check{background:var(--coral);color:#fff;box-shadow:0 6px 16px rgba(255,107,122,.35);}
+    /* Feedback overlay */
+    #fb{position:absolute;inset:0;z-index:5;display:none;flex-direction:column;align-items:center;justify-content:center;
+      background:rgba(255,255,255,.95);border-radius:26px;text-align:center;padding:24px;}
+    #fb.show{display:flex;animation:pop .25s ease;}
+    @keyframes pop{from{transform:scale(.9);opacity:0;}to{transform:none;opacity:1;}}
+    #fb .big{font-size:64px;line-height:1;margin-bottom:8px;}
+    #fb h2{margin:0 0 4px;font-size:24px;color:var(--navy);}
+    #fb p{margin:0 0 18px;color:#5b7186;font-weight:600;}
+    #fb .fbbtn{min-height:54px;padding:0 30px;border:none;border-radius:16px;font-family:inherit;font-weight:700;font-size:17px;cursor:pointer;background:var(--green);color:#fff;}
+    #fb.retry .fbbtn{background:var(--coral);}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <button class="back" id="back" aria-label="Back">‹</button>
+      <span class="title" id="title">Trace</span>
+      <span class="stars" id="stars">⭐ 0</span>
+    </header>
+    <main>
+      <div class="theme" id="theme">🐘 Animals</div>
+      <div class="prompt">Trace the letter <b id="glyph">A</b></div>
+      <div class="board">
+        <canvas id="guide"></canvas>
+        <canvas id="trace"></canvas>
+        <div id="fb">
+          <div class="big" id="fb-emoji">🎉</div>
+          <h2 id="fb-title">Brilliant!</h2>
+          <p id="fb-sub">You traced it!</p>
+          <button class="fbbtn" id="fb-next">Next →</button>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn btn-clear" id="clear">↺ Clear</button>
+        <button class="btn btn-check" id="check">✓ Check</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+    // Local-first storage (localStorage shared across the app's pages).
+    const pref = () => window.Capacitor?.Plugins?.Preferences;
+    const store = {
+      async set(k,v){ try{localStorage.setItem(k,String(v));}catch(_){} try{await pref()?.set({key:k,value:String(v)});}catch(_){} },
+      async get(k){ try{const ls=localStorage.getItem(k); if(ls!=null) return ls;}catch(_){} try{const r=await pref()?.get({key:k}); return r?.value??null;}catch(_){return null;} },
+    };
+
+    $('#back').addEventListener('click', () => { window.location.href = '/app/index.html'; });
+
+    // ---- Content (Phase 1: uppercase, doc build order) -------------------
+    const LETTERS = ['L','T','I','E','F','H','D','P','B','R','K','C','O','Q','G','S','U','J','A','V','W','X','Y','Z','M','N'];
+    const THEMES = [
+      { emoji:'🐘', name:'Animals' }, { emoji:'🚀', name:'Space' }, { emoji:'🐠', name:'Ocean' },
+      { emoji:'🌴', name:'Jungle' }, { emoji:'🍎', name:'Food' }, { emoji:'🎉', name:'Festival' },
+    ];
+    const MASTERY_REPS = 3; // clean reps to "master" a glyph (per the assessment bank)
+
+    let idx = 0, theme = 0, stars = 0;
+
+    // ---- Canvas setup ----------------------------------------------------
+    const guide = $('#guide'), trace = $('#trace');
+    const gctx = guide.getContext('2d'), tctx = trace.getContext('2d');
+    let band = null, bandTotal = 0, W = 0, H = 0, dpr = 1;
+
+    function sizeCanvas() {
+      const r = guide.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = Math.round(r.width); H = Math.round(r.height);
+      [guide, trace].forEach(c => { c.width = W * dpr; c.height = H * dpr; });
+      gctx.setTransform(dpr,0,0,dpr,0,0); tctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+
+    // Render the faint guide glyph + a dashed outline; build the scoring band.
+    function renderGlyph(ch) {
+      sizeCanvas();
+      gctx.clearRect(0,0,W,H); tctx.clearRect(0,0,W,H);
+      const fontPx = Math.round(H * 0.72);
+      const setFont = (ctx) => { ctx.font = `700 ${fontPx}px Fredoka, sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; };
+      // Guide layer: faint fill + dashed stroke so the child can see where to trace.
+      setFont(gctx);
+      gctx.fillStyle = '#dbe6f2'; gctx.fillText(ch, W/2, H/2 + fontPx*0.04);
+      gctx.lineWidth = 3; gctx.setLineDash([2,7]); gctx.strokeStyle = '#9fb6cd';
+      gctx.strokeText(ch, W/2, H/2 + fontPx*0.04); gctx.setLineDash([]);
+      // Scoring band: thick rendering = the acceptable "trace inside here" area.
+      const off = document.createElement('canvas'); off.width = W; off.height = H;
+      const octx = off.getContext('2d'); setFont(octx);
+      octx.lineJoin = 'round'; octx.lineWidth = Math.max(28, fontPx*0.22);
+      octx.strokeStyle = '#000'; octx.strokeText(ch, W/2, H/2 + fontPx*0.04);
+      octx.fillStyle = '#000'; octx.fillText(ch, W/2, H/2 + fontPx*0.04);
+      const data = octx.getImageData(0,0,W,H).data;
+      band = new Uint8Array(W*H); bandTotal = 0;
+      for (let i=0;i<W*H;i++){ if (data[i*4+3] > 40){ band[i]=1; bandTotal++; } }
+    }
+
+    // ---- Drawing / capture ----------------------------------------------
+    let drawing = false, last = null, traced = null, tracedCount = 0, onBand = 0, didDraw = false;
+    function pos(e){ const r = trace.getBoundingClientRect(); const t = e.touches? e.touches[0]:e;
+      return { x: (t.clientX - r.left), y: (t.clientY - r.top) }; }
+    function mark(x,y){ // record trace coverage into the band grid
+      const xi = Math.round(x), yi = Math.round(y);
+      const rad = 9;
+      for (let dy=-rad; dy<=rad; dy+=3) for (let dx=-rad; dx<=rad; dx+=3){
+        const px=xi+dx, py=yi+dy; if(px<0||py<0||px>=W||py>=H) continue;
+        const i=py*W+px;
+        if(!traced[i]){ traced[i]=1; tracedCount++; if(band&&band[i]) onBand++; }
+      }
+    }
+    function startDraw(e){ e.preventDefault(); if($('#fb').classList.contains('show')) return;
+      drawing=true; didDraw=true; last=pos(e); mark(last.x,last.y);
+      tctx.lineCap='round'; tctx.lineJoin='round'; tctx.lineWidth=14; tctx.strokeStyle='#FF6B7A'; }
+    function moveDraw(e){ if(!drawing) return; e.preventDefault(); const p=pos(e);
+      tctx.beginPath(); tctx.moveTo(last.x,last.y); tctx.lineTo(p.x,p.y); tctx.stroke();
+      // sample along the segment
+      const steps=Math.max(1,Math.hypot(p.x-last.x,p.y-last.y)/4);
+      for(let s=0;s<=steps;s++){ mark(last.x+(p.x-last.x)*s/steps, last.y+(p.y-last.y)*s/steps); }
+      last=p; }
+    function endDraw(){ drawing=false; }
+    trace.addEventListener('pointerdown', startDraw);
+    trace.addEventListener('pointermove', moveDraw);
+    window.addEventListener('pointerup', endDraw);
+
+    function resetTrace(){ tctx.clearRect(0,0,W,H); traced=new Uint8Array(W*H); tracedCount=0; onBand=0; didDraw=false; }
+
+    // ---- Scoring ---------------------------------------------------------
+    function score(){
+      if(!didDraw || bandTotal===0) return { coverage:0, accuracy:0 };
+      // coverage: how much of the letter band was traced
+      let covered=0; for(let i=0;i<W*H;i++){ if(band[i] && traced[i]) covered++; }
+      const coverage = covered / bandTotal;
+      const accuracy = tracedCount ? onBand / tracedCount : 0; // how much of the trace stayed on the letter
+      return { coverage, accuracy };
+    }
+
+    // ---- Round flow ------------------------------------------------------
+    function loadRound(){
+      const ch = LETTERS[idx % LETTERS.length];
+      $('#glyph').textContent = ch;
+      $('#theme').textContent = `${THEMES[theme].emoji} ${THEMES[theme].name}`;
+      $('#fb').classList.remove('show','retry');
+      renderGlyph(ch);
+      resetTrace();
+    }
+
+    $('#clear').addEventListener('click', () => { resetTrace(); });
+
+    $('#check').addEventListener('click', async () => {
+      const { coverage, accuracy } = score();
+      const pass = coverage >= 0.42 && accuracy >= 0.38; // forgiving for little fingers ("no fail states")
+      if (pass) {
+        stars++; $('#stars').textContent = `⭐ ${stars}`;
+        await recordRep(LETTERS[idx % LETTERS.length]);
+        await store.set('gulsabi_write_stars', stars);
+        showFeedback(true, coverage);
+      } else {
+        showFeedback(false, coverage);
+      }
+    });
+
+    function showFeedback(pass, coverage){
+      const fb = $('#fb');
+      if (pass){
+        fb.classList.remove('retry');
+        $('#fb-emoji').textContent = coverage > 0.8 ? '🌟' : '🎉';
+        $('#fb-title').textContent = coverage > 0.8 ? 'Perfect!' : 'Brilliant!';
+        $('#fb-sub').textContent = 'You traced it beautifully!';
+        $('#fb-next').textContent = 'Next →';
+      } else {
+        fb.classList.add('retry');
+        $('#fb-emoji').textContent = '✏️';
+        $('#fb-title').textContent = 'Almost!';
+        $('#fb-sub').textContent = 'Stay on the letter — let’s try again.';
+        $('#fb-next').textContent = 'Try again';
+      }
+      fb.classList.add('show');
+    }
+
+    $('#fb-next').addEventListener('click', () => {
+      const retry = $('#fb').classList.contains('retry');
+      if (!retry) { idx++; theme = (theme + 1) % THEMES.length; } // advance + reskin theme
+      loadRound();
+    });
+
+    // ---- Local progress / mastery ---------------------------------------
+    async function recordRep(ch){
+      // store clean-rep count per glyph; mastery at MASTERY_REPS (assessment-bank rule)
+      const key = 'gulsabi_write_reps';
+      let reps = {};
+      try { reps = JSON.parse((await store.get(key)) || '{}') || {}; } catch(_){}
+      reps[ch] = (reps[ch] || 0) + 1;
+      await store.set(key, JSON.stringify(reps));
+      const mastered = Object.values(reps).filter(n => n >= MASTERY_REPS).length;
+      await store.set('gulsabi_write_mastered', mastered);
+    }
+
+    // ---- Boot ------------------------------------------------------------
+    (async function boot(){
+      stars = parseInt((await store.get('gulsabi_write_stars')) || '0', 10) || 0;
+      $('#stars').textContent = `⭐ ${stars}`;
+      window.addEventListener('resize', () => loadRound());
+      loadRound();
+    })();
+  </script>
+</body>
+</html>

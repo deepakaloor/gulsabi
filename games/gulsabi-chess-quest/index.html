@@ -1282,5 +1282,29 @@ function makeBotMove(){
 })();
 // expose a few for inline onclick handlers (module-free script — already global)
 </script>
+    <script>
+      /* In the Gulsabi app (Capacitor), "← All Games" / brand / home links must
+         return to the app shell (/app/) — not the website (Capacitor serves the
+         marketing homepage for extensionless paths) — and so the shell tallies
+         this game's playtime on return. No-op on the website. */
+      (function () {
+        if (!window.Capacitor) return;
+        function isEscape(h) {
+          return h === '/' || h === '/games' || h === '/games/' ||
+                 h === '/games/gulsabi-chess-quest/' ||
+                 (h && h.indexOf('/games/explore.html') === 0);
+        }
+        function fix() {
+          document.querySelectorAll('a[href]').forEach(function (a) {
+            if (isEscape(a.getAttribute('href'))) a.setAttribute('href', '/app/index.html');
+          });
+        }
+        if (document.readyState !== 'loading') fix(); else document.addEventListener('DOMContentLoaded', fix);
+        document.addEventListener('click', function (e) {
+          var a = e.target && e.target.closest ? e.target.closest('a') : null;
+          if (a && isEscape(a.getAttribute('href'))) { e.preventDefault(); window.location.href = '/app/index.html'; }
+        }, true);
+      })();
+    </script>
 </body>
 </html>

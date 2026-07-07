@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <title>Gulsabi — Learn</title>
+  <link rel="icon" href="/images/gulsabi-app-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@500;700&family=Noto+Sans+Malayalam:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{ --navy:#15324B; --coral:#FF6B7A; --green:#34A853; --gold:#FBBC04;
+      --bg:#EEF3FA; --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px); }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
+    html,body{margin:0;height:100%;font-family:'Fredoka',system-ui,sans-serif;background:var(--bg);color:var(--navy);overscroll-behavior:none;touch-action:none;}
+    /* Theme = ambience, not a heading: per-theme page wash + floating emojis
+       behind the board. The board itself stays white for tracing contrast. */
+    body{transition:background 1s ease;}
+    body.theme-animals{background:linear-gradient(160deg,#FFF3DC,#FFE2B8);}
+    body.theme-space{background:linear-gradient(160deg,#E8E6FB,#C9D4F7);}
+    body.theme-ocean{background:linear-gradient(160deg,#DFF6FA,#BCE7F2);}
+    body.theme-jungle{background:linear-gradient(160deg,#EAF7E4,#CDEBC4);}
+    body.theme-food{background:linear-gradient(160deg,#FFF0E8,#FFDFD1);}
+    #theme-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    #theme-bg span{position:absolute;font-size:64px;opacity:.22;animation:drift 7s ease-in-out infinite;}
+    #theme-bg span:nth-child(1){top:9%;left:6%;}
+    #theme-bg span:nth-child(2){top:13%;right:7%;animation-delay:1.4s;}
+    #theme-bg span:nth-child(3){bottom:17%;left:5%;animation-delay:2.8s;font-size:54px;}
+    #theme-bg span:nth-child(4){bottom:12%;right:6%;animation-delay:4.2s;font-size:72px;}
+    @keyframes drift{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-14px) rotate(5deg);}}
+    #app{position:relative;z-index:1;}
+    #app{display:flex;flex-direction:column;height:100%;}
+    header{flex:0 0 auto;display:flex;align-items:center;gap:12px;
+      padding:calc(12px + var(--safe-top)) 16px 12px;
+      background:linear-gradient(120deg,#2E6FB0,#15324B);color:#fff;}
+    header .back{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:20px;cursor:pointer;}
+    header .title{font-weight:700;font-size:18px;}
+    header .help{margin-left:auto;width:38px;height:38px;border-radius:50%;border:none;
+      background:rgba(255,255,255,.18);color:#fff;font-size:19px;font-weight:700;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;}
+    header .help:active{transform:scale(.94);}
+    header .stars{font-weight:700;font-size:16px;background:rgba(255,255,255,.18);padding:6px 12px;border-radius:999px;}
+    main{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:14px 16px calc(14px + var(--safe-bottom));overflow:hidden;}
+    /* PORTRAIT (default): prompt on top, board, controls — keep that order
+       while .side passes its children straight into main's column flow. */
+    .side{display:contents;}
+    .stage{order:0;display:flex;justify-content:center;width:100%;flex:0 0 auto;}
+    .prompt{order:-1;}
+    .controls{order:1;}
+    /* square sized to the SMALLER of width- and height-bounds so it always
+       fits fully (width+height set explicitly — aspect-ratio alone collapsed
+       to 0 inside the landscape flex row). */
+    .board{width:min(380px, 92vw, 60vh);height:min(380px, 92vw, 60vh);}
+
+    /* LANDSCAPE / horizontally-flipped phones: board on the left, prompt +
+       controls stacked on the right, so the square fits the short height. */
+    @media (orientation: landscape) and (max-height: 600px){
+      main{flex-direction:row;gap:20px;justify-content:center;align-items:center;
+        padding:8px 18px calc(8px + var(--safe-bottom));}
+      .stage{order:-1;width:auto;flex:0 0 auto;}
+      .board{width:min(86vh, 48vw);height:min(86vh, 48vw);max-width:none;}
+      .side{display:flex;flex-direction:column;justify-content:center;gap:12px;
+        max-width:280px;flex:1 1 auto;}
+      .prompt{margin:0;font-size:16px;}
+      .controls{margin-top:0;flex-direction:column;width:100%;max-width:240px;}
+      .controls .btn{min-height:50px;}
+    }
+    .theme{font-size:15px;font-weight:600;color:#5b7186;margin-bottom:6px;}
+    .prompt{font-size:17px;font-weight:600;color:var(--navy);margin-bottom:10px;}
+    .prompt b{color:var(--coral);}
+    .board{position:relative;width:100%;max-width:380px;aspect-ratio:1/1;
+      background:#fff;border-radius:26px;box-shadow:0 10px 26px rgba(21,50,75,.14);overflow:hidden;}
+    .board canvas{position:absolute;inset:0;width:100%;height:100%;}
+    /* Persistent hero: Gulsabi peeks from the board's lower corner, present
+       through every trace. Pointer-events off so he never blocks drawing. */
+    /* Buddy sits OPPOSITE the start dot so his point always reads INTO the
+       board toward it, never off-screen. .at-right = bottom-left, points right. */
+    #buddy{position:absolute;bottom:-4px;width:74px;height:74px;z-index:4;
+      pointer-events:none;filter:drop-shadow(0 3px 6px rgba(21,50,75,.22));
+      transition:left .35s ease, right .35s ease, transform .3s ease, opacity .3s ease;
+      opacity:.96;}
+    #buddy.at-left{right:-6px;left:auto;}   /* start on left → buddy bottom-right */
+    #buddy.at-right{left:-6px;right:auto;}  /* start on right → buddy bottom-left */
+    #buddy.cheer{transform:translateY(-6px) scale(1.08);}
+    @keyframes buddyBob{0%,100%{transform:translateY(4px);}50%{transform:translateY(-2px);}}
+    #buddy.bob{animation:buddyBob 2.4s ease-in-out infinite;}
+    .board.nudge{animation:nudge .4s ease;}
+    @keyframes nudge{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}55%{transform:translateX(6px);}80%{transform:translateX(-3px);}}
+    #lane{z-index:1;} #ink{z-index:2;} #fx{z-index:3;touch-action:none;}
+    /* count_and_write strip */
+    #countstrip{display:none;flex-wrap:wrap;justify-content:center;gap:6px;max-width:380px;margin-bottom:10px;min-height:0;}
+    #countstrip.show{display:flex;}
+    #countstrip span{font-size:34px;animation:countPop .4s backwards;}
+    @keyframes countPop{from{transform:scale(0);opacity:0;}to{transform:none;opacity:1;}}
+    /* recognition picker */
+    #picker{position:fixed;inset:0;z-index:38;display:none;flex-direction:column;align-items:center;justify-content:center;
+      background:rgba(21,50,75,.55);backdrop-filter:blur(4px);padding:22px;}
+    #picker.show{display:flex;animation:pop .3s ease;}
+    #picker .box{background:#fff;border-radius:26px;padding:22px;max-width:380px;width:100%;text-align:center;
+      box-shadow:0 18px 44px rgba(21,50,75,.3);}
+    #picker .pk-title{font-size:21px;font-weight:700;color:var(--navy);margin-bottom:16px;}
+    #picker .pk-title b{color:var(--coral);}
+    #picker-cards{display:flex;gap:12px;justify-content:center;}
+    .pick-card{flex:1;max-width:104px;aspect-ratio:1/1;border:3px solid #E4EBF4;border-radius:18px;background:#F8FBFF;
+      cursor:pointer;padding:0;transition:transform .12s ease, border-color .2s ease, background .2s ease;}
+    .pick-card canvas{width:100%;height:100%;display:block;}
+    .pick-card:active{transform:scale(.95);}
+    .pick-card.right{border-color:var(--green);background:#E7F6EC;animation:pickRight .4s ease;}
+    .pick-card.wrong{border-color:var(--coral);animation:pickWrong .4s ease;}
+    @keyframes pickRight{0%,100%{transform:none;}40%{transform:scale(1.12);}}
+    @keyframes pickWrong{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+    .controls{display:flex;gap:12px;margin-top:16px;width:100%;max-width:380px;}
+    .btn{flex:1;min-height:54px;border:none;border-radius:16px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+    .btn:active{transform:scale(.97);}
+    .btn-clear{background:#E4EBF4;color:var(--navy);}
+    .btn-check{background:var(--coral);color:#fff;box-shadow:0 6px 16px rgba(255,107,122,.35);}
+    /* Feedback overlay */
+    #fb{position:absolute;inset:0;z-index:5;display:none;flex-direction:column;align-items:center;justify-content:center;
+      background:rgba(255,255,255,.95);border-radius:26px;text-align:center;padding:24px;}
+    #fb.show{display:flex;animation:pop .25s ease;}
+    @keyframes pop{from{transform:scale(.9);opacity:0;}to{transform:none;opacity:1;}}
+    #fb img.big{width:128px;height:128px;object-fit:contain;margin-bottom:6px;animation:cheerPop .4s cubic-bezier(.3,1.4,.5,1);}
+    @keyframes cheerPop{from{transform:scale(.5) rotate(-8deg);opacity:0;}to{transform:none;opacity:1;}}
+    #fb h2{margin:0 0 4px;font-size:24px;color:var(--navy);}
+    #fb p{margin:0 0 18px;color:#5b7186;font-weight:600;}
+    #fb .fbbtn{min-height:54px;padding:0 30px;border:none;border-radius:16px;font-family:inherit;font-weight:700;font-size:17px;cursor:pointer;background:var(--green);color:#fff;}
+    #fb.retry .fbbtn{background:var(--coral);}
+    /* Age picker (first run) */
+    #agepick{position:fixed;inset:0;z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;
+      background:rgba(21,50,75,.55);backdrop-filter:blur(4px);padding:24px;}
+    #agepick.show{display:flex;}
+    #agepick .box{background:#fff;border-radius:24px;padding:26px 22px;max-width:340px;width:100%;text-align:center;}
+    #agepick h2{margin:0 0 6px;font-size:22px;}
+    #agepick p{margin:0 0 16px;color:#5b7186;font-weight:600;font-size:14px;}
+    #agepick .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+    #agepick button{min-height:56px;border:none;border-radius:14px;background:#EEF3FA;color:var(--navy);
+      font-family:inherit;font-weight:700;font-size:20px;cursor:pointer;}
+    #agepick button:active{background:var(--gold);}
+    /* Coming-soon */
+    #comingsoon{position:fixed;inset:0;z-index:44;display:none;flex-direction:column;align-items:center;justify-content:center;
+      background:linear-gradient(160deg,#1A2C4E,#0E1A30);color:#fff;text-align:center;padding:28px;}
+    #comingsoon.show{display:flex;}
+    #comingsoon .cs-hero{width:130px;height:130px;object-fit:contain;margin-bottom:8px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.3));}
+    #comingsoon h2{margin:6px 0;font-size:24px;}
+    #comingsoon p{margin:0 0 20px;color:#AFC3DE;font-weight:500;line-height:1.5;max-width:320px;}
+    #comingsoon .btn{max-width:280px;}
+    /* Language picker */
+    #langpicker{position:fixed;inset:0;z-index:42;display:none;flex-direction:column;align-items:center;justify-content:center;
+      background:rgba(21,50,75,.6);backdrop-filter:blur(5px);padding:22px;}
+    #langpicker.show{display:flex;animation:pop .3s ease;}
+    #langpicker .box{background:#fff;border-radius:26px;padding:22px 20px 18px;max-width:380px;width:100%;text-align:center;
+      max-height:94vh;overflow:auto;box-shadow:0 18px 44px rgba(21,50,75,.3);}
+    #langpicker h2{margin:0 0 4px;font-size:23px;color:var(--navy);}
+    #langpicker #lang-sub{margin:0 0 16px;color:#5b7186;font-size:13.5px;font-weight:500;line-height:1.45;}
+    #lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .lang-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;
+      min-height:78px;justify-content:center;border:2.5px solid #E4EBF4;border-radius:16px;background:#F8FBFF;
+      font-family:inherit;cursor:pointer;padding:12px 8px;transition:border-color .15s,background .15s,transform .1s;}
+    .lang-card:active{transform:scale(.97);}
+    .lang-card.selected{border-color:var(--green);background:#E7F6EC;}
+    .lang-card.locked{background:#FBFCFE;border-style:dashed;}
+    .lang-card.primary{border-color:var(--gold);background:#FFFBEA;box-shadow:0 0 0 2px rgba(251,188,4,.25);}
+    .lang-native{font-size:21px;font-weight:700;color:var(--navy);line-height:1.1;}
+    .lang-sub{font-size:11.5px;color:#7990a3;font-weight:600;}
+    .lang-tick{position:absolute;top:6px;right:8px;color:var(--green);font-weight:700;font-size:15px;}
+    .lang-badge{position:absolute;top:6px;right:6px;font-size:10px;font-weight:700;color:#9a7b1f;background:#FFF3DA;border-radius:999px;padding:2px 7px;}
+    .lang-star{position:absolute;bottom:5px;right:7px;font-size:11px;font-weight:700;color:#b9a14a;}
+    .lang-star.on{color:#E0A100;}
+    #lang-msg{min-height:18px;color:var(--coral);font-size:13px;font-weight:600;margin:12px 0 4px;}
+    #langpicker .btn-coral{width:100%;}
+    #langpicker .btn-coral:disabled{opacity:.45;}
+    /* How-to-play overlay */
+    #howto{position:fixed;inset:0;z-index:40;display:none;flex-direction:column;align-items:center;justify-content:center;
+      background:rgba(21,50,75,.6);backdrop-filter:blur(5px);padding:22px;}
+    #howto.show{display:flex;animation:pop .3s ease;}
+    #howto .box{background:#fff;border-radius:26px;padding:18px 22px;max-width:360px;width:100%;text-align:center;
+      box-shadow:0 18px 44px rgba(21,50,75,.3);max-height:94vh;overflow:auto;}
+    #howto .hero{width:96px;height:96px;object-fit:contain;margin:2px auto 0;display:block;
+      filter:drop-shadow(0 5px 10px rgba(21,50,75,.22));animation:buddyBob 2.4s ease-in-out infinite;}
+    #howto h2{margin:0 0 10px;font-size:23px;color:var(--navy);}
+    #howto .demo{background:#F4F8FD;border-radius:16px;padding:6px 10px;margin-bottom:12px;}
+    #ht-trace{stroke-dasharray:240;stroke-dashoffset:240;animation:htDraw 3s ease-in-out infinite;}
+    #ht-finger{animation:htFinger 3s ease-in-out infinite;}
+    @keyframes htDraw{0%{stroke-dashoffset:240;}45%,100%{stroke-dashoffset:0;}}
+    @keyframes htFinger{
+      0%{transform:translate(0,0);} 15%{transform:translate(40px,-50px);}
+      30%{transform:translate(80px,0);} 45%{transform:translate(120px,-50px);}
+      55%,100%{transform:translate(120px,-50px);opacity:1;} }
+    #howto .steps{list-style:none;padding:0;margin:0 0 16px;text-align:left;}
+    #howto .steps li{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:var(--navy);
+      padding:7px 0;}
+    #howto .steps .dot{font-size:20px;width:26px;text-align:center;flex:0 0 auto;}
+    #howto .steps b{color:var(--coral);}
+    #howto .btn-coral{width:100%;}
+    #howto .ht-skip{margin-top:8px;background:none;border:none;color:#8aa0b8;font-family:inherit;
+      font-weight:600;font-size:14px;cursor:pointer;padding:8px;}
+    /* Halfway toast */
+    #toast{position:fixed;left:50%;top:calc(70px + var(--safe-top));transform:translateX(-50%) translateY(-20px);
+      background:var(--navy);color:#fff;font-weight:600;font-size:15px;padding:12px 20px;border-radius:999px;
+      opacity:0;pointer-events:none;transition:all .35s ease;z-index:25;white-space:nowrap;}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    /* Rest screen + grown-up gate */
+    #rest{position:fixed;inset:0;z-index:30;display:none;flex-direction:column;align-items:center;justify-content:center;
+      background:linear-gradient(160deg,#1A2C4E,#0E1A30);color:#fff;text-align:center;padding:28px;}
+    #rest.show{display:flex;}
+    #rest .sleep{width:150px;height:150px;object-fit:contain;animation:snore 2.8s ease-in-out infinite;
+      filter:drop-shadow(0 6px 14px rgba(0,0,0,.3));}
+    @keyframes snore{0%,100%{transform:scale(1) rotate(-3deg);}50%{transform:scale(1.06) rotate(3deg);}}
+    #rest h2{margin:14px 0 6px;font-size:26px;}
+    #rest p{margin:0 0 22px;color:#AFC3DE;font-weight:500;line-height:1.5;}
+    #rest button{min-height:54px;padding:0 26px;border:none;border-radius:16px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;background:var(--gold);color:var(--navy);}
+    #rest .gate{margin-top:18px;background:rgba(255,255,255,.08);border-radius:18px;padding:18px;width:min(320px,86vw);}
+    #rest .gate .q{font-size:26px;font-weight:700;margin-bottom:10px;}
+    #rest .gate input{width:110px;text-align:center;font-size:22px;font-family:inherit;font-weight:700;
+      border:none;border-radius:12px;min-height:48px;margin-bottom:8px;}
+    #rest .gate .err{color:#FF9B9B;font-size:13px;font-weight:600;min-height:18px;margin-bottom:6px;}
+  </style>
+</head>
+<body>
+  <div id="theme-bg"></div>
+  <div id="app">
+    <header>
+      <button class="back" id="back" aria-label="Back">‹</button>
+      <span class="title">Learn</span>
+      <button class="help" id="help" aria-label="How to play">?</button>
+      <span class="stars" id="stars">⭐ 0</span>
+    </header>
+    <main>
+      <div class="stage">
+        <!-- count_and_write: a strip of theme objects to count -->
+        <div id="countstrip"></div>
+        <div class="board">
+          <canvas id="lane"></canvas>
+          <canvas id="ink"></canvas>
+          <canvas id="fx"></canvas>
+          <img id="buddy" class="bob at-left" src="/app/learn/img/gulsabi-point.png" alt="Gulsabi" />
+          <div id="fb">
+            <img class="big" id="fb-img" src="/app/learn/img/gulsabi-cheer.png" alt="Gulsabi cheering" />
+            <h2 id="fb-title">Gul Gul Gulsabi!</h2>
+            <p id="fb-sub">You traced it!</p>
+            <button class="fbbtn" id="fb-next">Next →</button>
+          </div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="prompt" id="prompt">Trace!</div>
+        <div class="controls">
+          <button class="btn btn-clear" id="clear">↺ Clear</button>
+          <button class="btn btn-check" id="check">✓ Done</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Halfway toast (session arc) -->
+  <div id="toast"></div>
+
+  <!-- Rest screen: Gulsabi takes a break; a grown-up math gate restarts -->
+  <div id="rest">
+    <img class="sleep" id="rest-gulsabi" src="/app/learn/img/gulsabi-think.png" alt="Gulsabi resting" />
+    <h2>Gulsabi needs a break!</h2>
+    <p>Great practising today! Time for a stretch and some water.<br/>A grown-up can bring Gulsabi back.</p>
+    <button id="rest-wake">🧑 I'm a grown-up</button>
+    <div class="gate" id="rest-gate" hidden>
+      <div class="q" id="gate-q">3 + 4 = ?</div>
+      <input id="gate-input" type="number" inputmode="numeric" autocomplete="off" />
+      <div class="err" id="gate-err"></div>
+      <button id="gate-ok">Go</button>
+    </div>
+  </div>
+
+  <!-- Recognition picker: tap_target / find_and_trace (tap the right glyph) -->
+  <div id="picker">
+    <div class="box">
+      <div class="pk-title" id="picker-title">Tap the letter A!</div>
+      <div id="picker-cards"></div>
+    </div>
+  </div>
+
+  <!-- How-to-play instructions (first run auto; replay via the ? button) -->
+  <div id="howto">
+    <div class="box">
+      <img class="hero" src="/app/learn/img/gulsabi-front.png" alt="Gulsabi" />
+      <h2>How to play</h2>
+      <!-- animated mini-demo: a finger follows a dotted path from a green dot -->
+      <div class="demo">
+        <svg viewBox="0 0 200 90" width="100%" height="90" aria-hidden="true">
+          <path id="ht-path" d="M30 70 L70 20 L110 70 L150 20" fill="none"
+                stroke="#C7D6E8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <path id="ht-trace" d="M30 70 L70 20 L110 70 L150 20" fill="none"
+                stroke="#FF6B7A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="30" cy="70" r="8" fill="#34A853"/>
+          <text id="ht-finger" x="30" y="70" font-size="26">👆</text>
+        </svg>
+      </div>
+      <ol class="steps">
+        <li><span class="dot">🟢</span> Touch the <b>green dot</b> to start</li>
+        <li><span class="dot">✏️</span> Follow the <b>dotted path</b> with your finger</li>
+        <li><span class="dot">🎉</span> Lift your finger — Gulsabi cheers!</li>
+      </ol>
+      <button class="btn btn-coral" id="ht-go">Let's go! →</button>
+    </div>
+  </div>
+
+  <!-- Coming-soon: chosen language has no verified letters yet -->
+  <div id="comingsoon">
+    <img class="cs-hero" src="/app/learn/img/gulsabi-think.png" alt="Gulsabi" />
+    <h2><span id="cs-lang"></span> letters are coming soon!</h2>
+    <p>Gulsabi is carefully learning to write them the right way. Check back soon! 🌱</p>
+    <button class="btn btn-coral" id="cs-english" hidden>✏️ Practise in English</button>
+    <button class="btn" id="cs-back" style="background:rgba(255,255,255,.2);color:#fff;">← Back</button>
+  </div>
+
+  <!-- First-run LANGUAGE picker (also reused in Parents) -->
+  <div id="langpicker">
+    <div class="box">
+      <h2 id="lang-title">Which languages?</h2>
+      <p id="lang-sub">Pick one or more — a grown-up can change this anytime.</p>
+      <div id="lang-grid"></div>
+      <div id="lang-msg"></div>
+      <button class="btn btn-coral" id="lang-continue">Let's go!</button>
+    </div>
+  </div>
+
+  <!-- First-run age picker (a grown-up taps once; "age is a starting point, not a cage") -->
+  <div id="agepick">
+    <div class="box">
+      <img src="/app/learn/img/gulsabi-front.png" alt="Gulsabi"
+           style="width:108px;height:108px;object-fit:contain;margin:-6px auto 4px;display:block;
+                  filter:drop-shadow(0 4px 10px rgba(21,50,75,.18));" />
+      <h2>How old is the learner?</h2>
+      <p>A grown-up can change this anytime in Parents.</p>
+      <div class="grid">
+        <button data-age="3">3</button><button data-age="4">4</button><button data-age="5">5</button>
+        <button data-age="6">6</button><button data-age="7">7</button><button data-age="8">8</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- kids-project public config (RLS-gated anon key) — used only for the
+       optional, parent-consented Tier-2 progress mirror -->
+  <script src="/app/parents/config.js"></script>
+  <script src="/app/learn/learn.js"></script>
+  <!-- Tier-1 ANONYMOUS analytics bridge — the same first-party pipeline the
+       games use (anon browser id, PII-stripped, queue-on-offline). Strictly
+       Tier 1: no child identifiers, physically separate from the kids
+       project (Non-Negotiables §3.5 / data-tier separation). -->
+  <script type="module">
+    import { trackEvent, startGameSession, endGameSession } from '/js/analytics.js';
+    let gs = null;
+    window.addEventListener('learn-analytics', async (e) => {
+      const { type, data } = e.detail || {};
+      try {
+        if (type === 'session_start') {
+          gs = await startGameSession('learn', 'Learn — Writing');
+        } else if (type === 'session_end') {
+          if (gs) await endGameSession(gs, data || {});
+          gs = null;
+        } else {
+          await trackEvent('learn_' + type, { game_id: 'learn', game_session_id: gs, metadata: data || {} });
+        }
+      } catch (_) { /* analytics must never break practice */ }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <title>Gulsabi</title>
+  <link rel="icon" href="/images/gulsabi-app-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== Gulsabi app shell — bright, Google-for-kids look. =====
+       Self-contained (repo convention). Clean white surfaces, soft shadows,
+       Google accent colours per game, big rounded touch targets. */
+    :root {
+      --navy:#15324B; --ink:#1F3A53; --muted:#6B7F95;
+      --bg:#EEF3FA; --surface:#FFFFFF;
+      --g-blue:#4285F4; --g-red:#EA4335; --g-yellow:#FBBC04; --g-green:#34A853;
+      --g-purple:#9B6DF3; --g-teal:#00BFA5; --coral:#FF6B7A; --gold:#F5DF33;
+      --tabbar-h:74px;
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{margin:0;height:100%;font-family:'Fredoka',system-ui,sans-serif;
+      background:var(--bg);color:var(--ink);overscroll-behavior:none;
+      user-select:none;-webkit-user-select:none;}
+    #app{display:flex;flex-direction:column;height:100%;}
+
+    /* Header — friendly blue gradient so the logo pops */
+    header{flex:0 0 auto;position:relative;
+      padding:calc(14px + var(--safe-top)) 16px 14px;
+      display:flex;align-items:center;justify-content:space-between;
+      background:linear-gradient(120deg,#2E6FB0 0%,#15324B 100%);}
+    header img{height:32px;}
+    header .spacer{width:42px;}
+    header .parents-btn{width:42px;height:42px;border-radius:50%;border:none;
+      background:rgba(255,255,255,.18);color:#fff;font-size:19px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;}
+    header .parents-btn:active{transform:scale(.92);}
+
+    /* Content */
+    main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+      background:var(--bg);
+      padding:20px 16px calc(26px + var(--tabbar-h) + var(--safe-bottom));}
+    .pane{display:none;animation:fade .28s ease;}
+    .pane.active{display:block;}
+    @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+    .h1{font-size:25px;font-weight:700;color:var(--navy);margin:2px 2px 14px;}
+    .sub{font-size:14px;font-weight:600;color:var(--muted);margin:22px 4px 12px;
+      text-transform:uppercase;letter-spacing:.04em;}
+
+    /* Featured hero tile */
+    .featured{position:relative;width:100%;height:188px;border-radius:26px;
+      overflow:hidden;cursor:pointer;box-shadow:0 12px 26px rgba(21,50,75,.20);}
+    .featured:active{transform:scale(.985);}
+    .featured img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+    .featured .scrim{position:absolute;inset:0;
+      background:linear-gradient(180deg,rgba(0,0,0,0) 28%,rgba(10,22,38,.86) 100%);}
+    .featured .pill{position:absolute;top:14px;left:14px;
+      background:rgba(255,255,255,.92);color:var(--navy);font-weight:700;
+      font-size:12px;padding:6px 12px;border-radius:999px;display:flex;gap:5px;align-items:center;}
+    .featured .meta{position:absolute;left:18px;right:18px;bottom:16px;color:#fff;}
+    .featured .meta h2{margin:0 0 2px;font-size:24px;font-weight:700;
+      text-shadow:0 2px 8px rgba(0,0,0,.35);}
+    .featured .meta p{margin:0 0 12px;font-size:14px;font-weight:500;opacity:.95;
+      text-shadow:0 1px 6px rgba(0,0,0,.4);}
+    .featured .play{display:inline-flex;align-items:center;gap:7px;
+      background:#fff;color:var(--navy);font-weight:700;font-size:15px;
+      padding:11px 20px;border-radius:999px;box-shadow:0 6px 16px rgba(0,0,0,.25);}
+
+    /* Game grid */
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+    .game{background:var(--surface);border:none;border-radius:22px;overflow:hidden;
+      box-shadow:0 6px 16px rgba(21,50,75,.10);cursor:pointer;padding:0;
+      text-align:left;display:flex;flex-direction:column;transition:transform .12s ease;}
+    .game:active{transform:scale(.95);}
+    .game .thumbwrap{position:relative;width:100%;aspect-ratio:1/1;background:#dde6f0;}
+    .game .thumbwrap img{width:100%;height:100%;object-fit:cover;display:block;}
+    .game .accent{height:5px;width:100%;}
+    .game .label{padding:11px 13px 14px;font-weight:600;font-size:15px;color:var(--navy);
+      display:flex;align-items:center;gap:7px;}
+    .game .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+
+    /* Watch library — in-app browse; playback opens externally */
+    .vtoggle{display:flex;gap:10px;justify-content:center;margin-bottom:18px;}
+    .vtoggle-btn{min-height:44px;padding:0 26px;border:none;border-radius:999px;
+      font-family:inherit;font-weight:700;font-size:15px;background:#E4EBF4;color:var(--navy);cursor:pointer;}
+    .vtoggle-btn.active{background:var(--coral);color:#fff;box-shadow:0 6px 14px rgba(255,107,122,.35);}
+    .shortsgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+    .videosgrid{display:grid;grid-template-columns:1fr;gap:14px;}
+    .vtile{position:relative;border:none;border-radius:18px;overflow:hidden;cursor:pointer;
+      padding:0;background:#1C3D5A;box-shadow:0 6px 16px rgba(21,50,75,.12);transition:transform .12s;}
+    .vtile:active{transform:scale(.97);}
+    .shortsgrid .vtile{aspect-ratio:9/16;}
+    .videosgrid .vtile{aspect-ratio:16/9;}
+    .vtile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+    .vscrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(10,22,38,.82) 100%);}
+    .vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;
+      border-radius:50%;background:rgba(255,255,255,.92);color:var(--coral);display:flex;
+      align-items:center;justify-content:center;font-size:19px;padding-left:3px;}
+    .vtitle{position:absolute;left:0;right:0;bottom:0;padding:9px 10px;color:#fff;font-size:12.5px;
+      font-weight:600;text-align:left;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;
+      -webkit-box-orient:vertical;overflow:hidden;}
+
+    /* Empty / coming-soon */
+    .empty{text-align:center;padding:44px 22px;background:var(--surface);
+      border-radius:24px;box-shadow:0 6px 16px rgba(21,50,75,.08);}
+    .empty .big{font-size:54px;line-height:1;margin-bottom:14px;}
+    .empty h2{margin:0 0 6px;font-size:20px;color:var(--navy);}
+    .empty p{margin:0;color:var(--muted);font-weight:500;}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      min-height:54px;padding:0 24px;border:none;border-radius:16px;
+      font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;transition:transform .12s;}
+    .btn:active{transform:scale(.96);}
+    .btn-coral{background:var(--coral);color:#fff;box-shadow:0 6px 16px rgba(255,107,122,.35);}
+    .btn-ghost{background:#E4EBF4;color:var(--navy);}
+    .center-row{display:flex;justify-content:center;margin-top:22px;}
+
+    /* Bottom nav */
+    nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;
+      height:calc(var(--tabbar-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);
+      background:var(--surface);display:flex;align-items:stretch;
+      box-shadow:0 -2px 18px rgba(21,50,75,.12);border-radius:22px 22px 0 0;}
+    nav.tabbar button{flex:1;background:none;border:none;color:#9AAABD;cursor:pointer;
+      font-family:inherit;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:3px;font-size:11.5px;font-weight:600;position:relative;}
+    nav.tabbar button svg{width:25px;height:25px;fill:currentColor;transition:transform .15s;}
+    nav.tabbar button .ico{display:flex;align-items:center;justify-content:center;
+      width:52px;height:30px;border-radius:999px;transition:background .2s;}
+    nav.tabbar button.active{color:var(--g-blue);}
+    nav.tabbar button.active .ico{background:rgba(66,133,244,.14);}
+    nav.tabbar button.active svg{transform:translateY(-1px) scale(1.05);}
+
+    /* In-app video popup (YouTube embed) */
+    #ytbox{position:fixed;inset:0;z-index:70;background:rgba(8,16,28,.93);display:none;
+      align-items:center;justify-content:center;padding:16px;}
+    #ytbox.active{display:flex;}
+    #ytbox .frame{position:relative;width:100%;max-width:430px;}
+    #ytbox.short .frame{max-width:300px;}
+    #ytbox .ratio{position:relative;width:100%;border-radius:18px;overflow:hidden;background:#000;
+      box-shadow:0 18px 40px rgba(0,0,0,.5);}
+    #ytbox.short .ratio{aspect-ratio:9/16;}
+    #ytbox.long .ratio{aspect-ratio:16/9;}
+    #ytbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+    #ytbox .close{position:absolute;top:-54px;right:0;width:46px;height:46px;border-radius:50%;
+      background:rgba(255,255,255,.2);color:#fff;border:none;font-size:21px;cursor:pointer;}
+
+    /* Banana Break lock — covers the locked module, leaves the tab bar usable */
+    #banana{position:fixed;left:0;right:0;top:0;z-index:55;
+      bottom:calc(var(--tabbar-h) + var(--safe-bottom));
+      background:linear-gradient(160deg,#FFE08A,#FFC23D);display:none;
+      flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;}
+    #banana.active{display:flex;}
+    #banana .emoji{font-size:72px;margin-bottom:8px;}
+    #banana h2{font-size:26px;color:#7a4f00;margin:0 0 10px;font-weight:700;}
+    #banana p{font-size:16px;color:#6b4a08;font-weight:600;line-height:1.5;max-width:340px;margin:0 0 22px;}
+    #banana button{min-height:54px;padding:0 26px;border:none;border-radius:16px;font-family:inherit;
+      font-weight:700;font-size:16px;background:#15324B;color:#fff;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.2);}
+    #banana button:active{transform:scale(.97);}
+    /* Parental gate */
+    #gate{position:fixed;inset:0;z-index:80;background:rgba(21,50,75,.74);
+      display:none;align-items:center;justify-content:center;padding:24px;}
+    #gate.active{display:flex;}
+    #gate .box{background:#fff;border-radius:26px;padding:28px 24px;max-width:340px;
+      width:100%;text-align:center;}
+    #gate .box h2{margin:0 0 4px;color:var(--navy);}
+    #gate .box p{margin:0 0 16px;color:var(--muted);font-weight:500;}
+    #gate .q{font-size:27px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+    #gate input{width:130px;text-align:center;font-family:inherit;font-size:24px;
+      font-weight:700;padding:11px;border:2px solid #D6E0EC;border-radius:14px;color:var(--navy);}
+    #gate .row{display:flex;gap:10px;margin-top:18px;}
+    #gate .row .btn{flex:1;min-height:50px;}
+    #gate .err{color:var(--coral);font-weight:600;min-height:20px;margin-top:8px;font-size:14px;}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <span class="spacer"></span>
+      <img src="/images/gulsabi-logo.png" alt="Gulsabi" />
+      <button class="parents-btn" id="parents-btn" aria-label="Parents">👤</button>
+    </header>
+    <main>
+      <!-- PLAY (default) -->
+      <section class="pane active" id="pane-play">
+        <div class="h1">Play</div>
+        <div id="featured"></div>
+        <div class="sub">More games</div>
+        <div class="grid" id="play-grid"></div>
+      </section>
+
+      <!-- WATCH -->
+      <section class="pane" id="pane-watch">
+        <div class="h1">Watch</div>
+        <div id="watch-content"><div class="empty"><div class="big">🎬</div><h2>Loading…</h2></div></div>
+      </section>
+
+      <!-- WORKSHEETS -->
+      <section class="pane" id="pane-sheets">
+        <div class="h1">Learn</div>
+        <div id="sheets-content"><div class="empty"><div class="big">📝</div><h2>Checking…</h2></div></div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="tabbar">
+    <button data-tab="play" class="active">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66A3.996 3.996 0 0 0 16.53 5H7.47C5.48 5 3.79 6.46 3.51 8.43l-1.09 7.66C2.2 17.63 3.39 19 4.94 19c.68 0 1.32-.27 1.8-.75L9 15h6l2.25 3.25c.48.48 1.13.75 1.81.75 1.55 0 2.74-1.37 2.52-2.91zM11 11H9v2H8v-2H6v-1h2V8h1v2h2v1zm4.5 1.5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2-3c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg></span>
+      Play
+    </button>
+    <button data-tab="watch">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.11-.9-2-2-2zM10 14.5v-5l5 2.5-5 2.5z"/></svg></span>
+      Watch
+    </button>
+    <button data-tab="sheets">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></span>
+      Learn
+    </button>
+  </nav>
+
+  <!-- In-app video popup (YouTube embed) -->
+  <div id="ytbox">
+    <div class="frame">
+      <button class="close" aria-label="Close">✕</button>
+      <div class="ratio">
+        <iframe id="ytframe" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banana Break lock (Daily Boundaries) -->
+  <div id="banana">
+    <div class="emoji">🍌</div>
+    <h2>Banana Break!</h2>
+    <p>Gulsabi is taking a banana break to recharge! 🍌 Time to stretch your muscles, look out a window, or ask a grown-up to unlock a few more minutes.</p>
+    <button id="banana-override">🧑 Grown-Up Override</button>
+  </div>
+
+  <!-- Parental gate -->
+  <div id="gate">
+    <div class="box">
+      <h2>Ask a grown-up</h2>
+      <p id="gate-sub">Just checking — this is for grown-ups.</p>
+      <div class="q" id="gate-q">3 + 4 = ?</div>
+      <input id="gate-input" type="number" inputmode="numeric" autocomplete="off" />
+      <div class="err" id="gate-err"></div>
+      <div class="row">
+        <button class="btn btn-ghost" id="gate-cancel">Cancel</button>
+        <button class="btn btn-coral" id="gate-ok">Go</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---- Content sources (hybrid by change-rate) --------------------------
+    // Shell + games bundled. Videos + worksheets load LIVE from gulsabi.com,
+    // falling back to bundled when offline/slow/down. Every live fetch is
+    // time-boxed so a slow/down site never hangs the UI.
+    const CONTENT = { liveBase: 'https://gulsabi.com', timeoutMs: 3500 };
+
+    async function fetchOk(url, ms) {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), ms);
+      try {
+        const res = await fetch(url, { cache: 'no-cache', signal: ctrl.signal });
+        return res && res.ok ? res : null;
+      } catch (_) { return null; }
+      finally { clearTimeout(t); }
+    }
+    async function liveFirst(path) {
+      return (await fetchOk(CONTENT.liveBase + path, CONTENT.timeoutMs))
+          || (await fetchOk(path, CONTENT.timeoutMs));
+    }
+
+    // Link to the explicit index.html — Capacitor's local server serves the ROOT
+    // index.html for any extensionless path (SPA fallback), which would load the
+    // marketing homepage instead of the game.
+    const GAMES = [
+      { title:'Sky Adventure', href:'/games/sky-adventure/index.html',       thumb:'/games/game1.jpg', color:'#4285F4' },
+      { title:'Cannon Colors', href:'/games/cannon-color-range/index.html',  thumb:'/games/game2.jpg', color:'#EA4335' },
+      { title:'Odd One Out',   href:'/games/odd-one-out/index.html',         thumb:'/games/game3.jpg', color:'#34A853' },
+      { title:'Memory Match',  href:'/games/memory-match/index.html',        thumb:'/games/game4.jpg', color:'#FBBC04' },
+      { title:'Quiz Time',     href:'/games/quiz-time/index.html',           thumb:'/games/game5.jpg', color:'#9B6DF3' },
+      { title:'Chess Quest',   href:'/games/gulsabi-chess-quest/index.html', thumb:'/assets/chess/gulsabi-chess-quest-thumbnail.png', color:'#00BFA5', featured:true, blurb:'Learn chess with Gulsabi!' },
+    ];
+
+    const $ = (s, r = document) => r.querySelector(s);
+    const el = (tag, props = {}) => Object.assign(document.createElement(tag), props);
+    const navTo = (href) => { window.location.href = href; };
+    // Launching an actual game records a session-start timestamp and respects the
+    // daily game limit (Banana Break). General navigation uses navTo directly.
+    async function launchGame(href) {
+      if (await isOver('game')) { showBanana('game'); return; }
+      await tstore.set(TKEYS.gameStart, String(Date.now()));
+      navTo(href);
+    }
+
+    // ---- Tabs -------------------------------------------------------------
+    const DEFAULT_TAB = 'play';
+    function showTab(name) {
+      document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + name));
+      document.querySelectorAll('nav.tabbar button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+      $('main').scrollTop = 0;
+      enforceTab(name); // re-assert the Banana Break lock for the new tab
+    }
+    document.querySelectorAll('nav.tabbar button').forEach(b =>
+      b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+    // The Parents page gates itself (PIN/biometric unlock, or OTP for the
+    // first time), so we navigate straight there.
+    $('#parents-btn').addEventListener('click', () => navTo('/app/parents/index.html'));
+
+    // ---- Play (featured + grid) -------------------------------------------
+    (function buildPlay() {
+      const feat = GAMES.find(g => g.featured) || GAMES[0];
+      const host = $('#featured');
+      const card = el('div', { className: 'featured' });
+      const img = el('img', { src: feat.thumb, alt: feat.title });
+      img.onerror = () => { img.style.display = 'none'; card.style.background = 'linear-gradient(135deg,#4285F4,#15324B)'; };
+      card.appendChild(img);
+      card.appendChild(el('div', { className: 'scrim' }));
+      const pill = el('div', { className: 'pill' }); pill.innerHTML = '⭐ Featured';
+      card.appendChild(pill);
+      const meta = el('div', { className: 'meta' });
+      meta.appendChild(el('h2', { textContent: feat.title }));
+      meta.appendChild(el('p', { textContent: feat.blurb || 'Tap to play' }));
+      const play = el('span', { className: 'play' }); play.innerHTML = '▶ Play now';
+      meta.appendChild(play);
+      card.appendChild(meta);
+      card.addEventListener('click', () => launchGame(feat.href));
+      host.appendChild(card);
+
+      const grid = $('#play-grid');
+      GAMES.filter(g => !g.featured).forEach(g => {
+        const c = el('button', { className: 'game' });
+        const tw = el('div', { className: 'thumbwrap' });
+        const im = el('img', { src: g.thumb, alt: g.title, loading: 'lazy' });
+        im.onerror = () => { tw.style.background = g.color; im.style.display = 'none'; };
+        tw.appendChild(im);
+        c.appendChild(tw);
+        const accent = el('div', { className: 'accent' }); accent.style.background = g.color;
+        c.appendChild(accent);
+        const label = el('div', { className: 'label' });
+        const dot = el('span', { className: 'dot' }); dot.style.background = g.color;
+        label.appendChild(dot); label.appendChild(el('span', { textContent: g.title }));
+        c.appendChild(label);
+        c.addEventListener('click', () => launchGame(g.href));
+        grid.appendChild(c);
+      });
+    })();
+
+    // ---- Watch (in-app Shorts/Videos library; playback opens externally) ---
+    // Browsing (the thumbnail grid) is in-app. Tapping a video opens THAT one
+    // video in the SYSTEM browser, so YouTube's player never runs inside the kid
+    // WebView (Designed-for-Families safe). The first external open per session
+    // passes the parental gate. Data is live-first (gulsabi.com) then bundled.
+    const CHANNEL_DATA_URL = '/content/channel-videos.json';
+    let watchData = null, watchTab = 'shorts';
+
+    async function buildWatch() {
+      if (!watchData) {
+        try { const res = await liveFirst(CHANNEL_DATA_URL); if (res) watchData = await res.json(); } catch (_) {}
+        if (!watchData) watchData = { shorts: [], videos: [] };
+      }
+      renderWatch();
+    }
+
+    function renderWatch() {
+      const box = $('#watch-content');
+      box.innerHTML = '';
+      const toggle = el('div', { className: 'vtoggle' });
+      [['shorts', 'Shorts'], ['videos', 'Videos']].forEach(([key, label]) => {
+        const b = el('button', {
+          className: 'vtoggle-btn' + (watchTab === key ? ' active' : ''), textContent: label,
+        });
+        b.addEventListener('click', () => { watchTab = key; renderWatch(); });
+        toggle.appendChild(b);
+      });
+      box.appendChild(toggle);
+
+      const items = watchData[watchTab] || [];
+      if (items.length === 0) {
+        box.appendChild(emptyState('🎬',
+          watchTab === 'videos' ? 'Coming soon' : 'No videos yet',
+          watchTab === 'videos' ? 'Longer Gulsabi videos are on the way!' : 'Check back soon!'));
+        return;
+      }
+      const grid = el('div', { className: watchTab === 'shorts' ? 'shortsgrid' : 'videosgrid' });
+      items.forEach(v => {
+        const card = el('button', { className: 'vtile' });
+        const img = el('img', { src: `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`, alt: v.name || '', loading: 'lazy' });
+        img.onerror = () => { img.style.opacity = '0'; };
+        card.append(img, el('div', { className: 'vscrim' }),
+          el('div', { className: 'vplay', textContent: '▶' }),
+          el('div', { className: 'vtitle', textContent: v.name || 'Video' }));
+        card.addEventListener('click', () => openVideo(v.id, watchTab === 'shorts'));
+        grid.appendChild(card);
+      });
+      box.appendChild(grid);
+    }
+
+    // In-app popup playback (YouTube embed). nocookie + rel=0 + modestbranding
+    // keep it as contained as YouTube allows.
+    const ytbox = $('#ytbox'), ytframe = $('#ytframe');
+    async function openVideo(id, isShort) {
+      if (await isOver('video')) { showBanana('video'); return; } // daily watch limit
+      ytbox.classList.toggle('short', isShort);
+      ytbox.classList.toggle('long', !isShort);
+      ytframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3`;
+      ytbox.classList.add('active');
+      startVideoTracking();
+    }
+    function closeVideo() {
+      stopVideoTracking();
+      ytframe.src = 'about:blank';
+      ytbox.classList.remove('active', 'short', 'long');
+    }
+    $('#ytbox .close').addEventListener('click', closeVideo);
+    ytbox.addEventListener('click', (e) => { if (e.target === ytbox) closeVideo(); });
+
+    function emptyState(big, title, sub) {
+      const d = el('div', { className: 'empty' });
+      d.append(el('div', { className: 'big', textContent: big }),
+               el('h2', { textContent: title }),
+               el('p', { textContent: sub }));
+      return d;
+    }
+
+    // ---- Worksheets (live-first) ------------------------------------------
+    async function resolveWorksheetsUrl() {
+      const live = CONTENT.liveBase + '/worksheet-maker/';
+      if (await fetchOk(live, CONTENT.timeoutMs)) return live;
+      if (await fetchOk('/worksheet-maker/index.html', CONTENT.timeoutMs)) return '/worksheet-maker/index.html';
+      return null;
+    }
+    function buildSheets() {
+      const box = $('#sheets-content');
+      box.innerHTML = '';
+      box.appendChild(emptyState('✏️', 'Trace & learn',
+        'Letters, numbers and shapes — Gulsabi guides every stroke, with new activities every day.'));
+      const row = el('div', { className: 'center-row' });
+      const start = el('button', { className: 'btn btn-coral', textContent: '✏️ Start learning' });
+      start.addEventListener('click', () => navTo('/app/learn/index.html'));
+      row.appendChild(start);
+      box.appendChild(row);
+    }
+
+    // ---- Parental gate ----------------------------------------------------
+    const gate = $('#gate');
+    let gateA = 0, gateB = 0, gatePass = null;
+    function parentalGate(onPass, subtitle) {
+      $('#gate-sub').textContent = subtitle || 'Just checking — this is for grown-ups.';
+      gateA = 2 + Math.floor(Math.random() * 6);
+      gateB = 2 + Math.floor(Math.random() * 6);
+      $('#gate-q').textContent = gateA + ' + ' + gateB + ' = ?';
+      $('#gate-input').value = ''; $('#gate-err').textContent = '';
+      gatePass = onPass; gate.classList.add('active');
+      setTimeout(() => $('#gate-input').focus(), 50);
+    }
+    function closeGate() { gate.classList.remove('active'); gatePass = null; }
+    $('#gate-cancel').addEventListener('click', closeGate);
+    $('#gate-ok').addEventListener('click', () => {
+      if (parseInt($('#gate-input').value, 10) === gateA + gateB) {
+        const cb = gatePass; closeGate(); if (cb) cb();
+      } else { $('#gate-err').textContent = 'Not quite — try again.'; $('#gate-input').value = ''; }
+    });
+
+    // ---- External links (always native, never in the kid WebView) ---------
+    function openExternal(url) { window.open(url, '_system'); }
+
+    // ---- Android hardware back --------------------------------------------
+    function wireBackButton() {
+      if (!(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App)) return;
+      window.Capacitor.Plugins.App.addListener('backButton', () => {
+        if (gate.classList.contains('active')) { closeGate(); return; }
+        if (ytbox.classList.contains('active')) { closeVideo(); return; }
+        const active = document.querySelector('nav.tabbar button.active')?.dataset.tab;
+        if (active !== DEFAULT_TAB) { showTab(DEFAULT_TAB); return; }
+        window.Capacitor.Plugins.App.minimizeApp();
+      });
+    }
+
+    // ===== Step 3: Daily Boundaries — local time tracking + Banana Break =====
+    // Dual-write: localStorage (always shared with the Parents page, same origin)
+    // + Capacitor Preferences (durability). Read localStorage first so the shell
+    // always sees the limits the Parents page set — even if the Preferences proxy
+    // isn't available in a plain static page.
+    const _tpref = () => window.Capacitor?.Plugins?.Preferences;
+    const tstore = {
+      async set(k, v) {
+        try { localStorage.setItem(k, String(v)); } catch (_) {}
+        try { await _tpref()?.set({ key: k, value: String(v) }); } catch (_) {}
+      },
+      async get(k) {
+        try { const ls = localStorage.getItem(k); if (ls != null) return ls; } catch (_) {}
+        try { const r = await _tpref()?.get({ key: k }); return (r && r.value != null) ? r.value : null; } catch (_) { return null; }
+      },
+      async remove(k) {
+        try { localStorage.removeItem(k); } catch (_) {}
+        try { await _tpref()?.remove({ key: k }); } catch (_) {}
+      },
+    };
+    const TKEYS = {
+      prov: 'gulsabi_provisioned',
+      limGame: 'gulsabi_limit_game_min', limVideo: 'gulsabi_limit_video_min',
+      secGame: 'gulsabi_daily_game_sec', secVideo: 'gulsabi_daily_video_sec',
+      extGame: 'gulsabi_ext_game_min', extVideo: 'gulsabi_ext_video_min',
+      resetDay: 'gulsabi_time_reset_day', gameStart: 'gulsabi_game_start_ts',
+    };
+    const DEF_LIMIT = { game: 30, video: 45 };
+    const banana = $('#banana');
+
+    async function tnum(k, def = 0) { const v = await tstore.get(k); return (v == null || v === '') ? def : (parseInt(v, 10) || 0); }
+    async function limitSec(which) {
+      const lim = await tnum(which === 'game' ? TKEYS.limGame : TKEYS.limVideo, DEF_LIMIT[which]);
+      const ext = await tnum(which === 'game' ? TKEYS.extGame : TKEYS.extVideo, 0);
+      return (lim + ext) * 60;
+    }
+    async function spentSec(which) { return await tnum(which === 'game' ? TKEYS.secGame : TKEYS.secVideo, 0); }
+    async function isOver(which) { return (await spentSec(which)) >= (await limitSec(which)); }
+
+    async function midnightFlush() {
+      const today = new Date().toISOString().slice(0, 10);
+      if ((await tstore.get(TKEYS.resetDay)) !== today) {
+        for (const k of [TKEYS.secGame, TKEYS.secVideo, TKEYS.extGame, TKEYS.extVideo]) await tstore.set(k, '0');
+        await tstore.set(TKEYS.resetDay, today);
+      }
+    }
+    // Game time is tallied per session: start stamped on launch, added on return.
+    async function resolveGameSession() {
+      const ts = await tstore.get(TKEYS.gameStart);
+      if (ts) {
+        const elapsed = Math.floor((Date.now() - parseInt(ts, 10)) / 1000);
+        if (elapsed > 0 && elapsed < 6 * 3600) await tstore.set(TKEYS.secGame, (await spentSec('game')) + elapsed);
+        await tstore.remove(TKEYS.gameStart);
+      }
+    }
+
+    // Banana Break overlay — un-dismissible except via grown-up override.
+    // Gentle Gulsabi voice on the Banana Break (uses the Learn module's
+    // generated line if present; silent fallback otherwise). One play only.
+    let _bananaSpoke = false;
+    function bananaVoice() {
+      if (_bananaSpoke) return; _bananaSpoke = true;
+      try {
+        const a = new Audio('/app/learn/audio/vo_learn_break_banana.mp3');
+        a.play().catch(() => {});
+      } catch (_) {}
+      setTimeout(() => { _bananaSpoke = false; }, 4000);
+    }
+    function showBanana(which) {
+      banana.dataset.which = which;
+      const wasActive = banana.classList.contains('active');
+      banana.classList.add('active');
+      if (!wasActive) bananaVoice();
+    }
+    function hideBanana() { banana.classList.remove('active'); }
+    async function enforceTab(name) {
+      if (name === 'play' && await isOver('game')) showBanana('game');
+      else if (name === 'watch' && await isOver('video')) showBanana('video');
+      else hideBanana();
+    }
+    $('#banana-override').addEventListener('click', async () => {
+      const which = banana.dataset.which || 'game';
+      const Bio = window.Capacitor?.Plugins?.NativeBiometric;
+      try { const a = await Bio?.isAvailable(); if (a?.isAvailable) { await Bio.verifyIdentity({ title: 'Gulsabi', subtitle: 'Grown-up override', reason: 'Unlock more time' }); return grantExtension(which); } } catch (_) {}
+      parentalGate(() => grantExtension(which), 'Solve to unlock 15 more minutes.');
+    });
+    async function grantExtension(which) {
+      const k = which === 'game' ? TKEYS.extGame : TKEYS.extVideo;
+      await tstore.set(k, (await tnum(k, 0)) + 15);
+      hideBanana();
+    }
+
+    // Video watch-time: accumulate in memory, persist every 5s + on stop.
+    let vBase = 0, vSession = 0, vLimit = 0, vTimer = null;
+    async function startVideoTracking() {
+      vBase = await spentSec('video'); vLimit = await limitSec('video'); vSession = 0;
+      clearInterval(vTimer);
+      vTimer = setInterval(async () => {
+        vSession++;
+        if (vSession % 5 === 0) await tstore.set(TKEYS.secVideo, vBase + vSession);
+        if (vBase + vSession >= vLimit) { await stopVideoTracking(); closeVideo(); showBanana('video'); }
+      }, 1000);
+    }
+    async function stopVideoTracking() {
+      if (vTimer) { clearInterval(vTimer); vTimer = null; await tstore.set(TKEYS.secVideo, vBase + vSession); }
+    }
+    window.addEventListener('pagehide', () => { stopVideoTracking(); });
+
+    // Re-assert Daily Boundaries whenever we (re)enter the app — boot only runs
+    // on a fresh load, but the parent changes limits on a SEPARATE page and
+    // returns (often a bfcache restore / resume that skips boot). pageshow +
+    // visibilitychange catch the return; the interval catches mid-session changes.
+    function enforceCurrentTab() {
+      const active = document.querySelector('nav.tabbar button.active')?.dataset.tab || DEFAULT_TAB;
+      return enforceTab(active);
+    }
+    window.addEventListener('pageshow', () => enforceCurrentTab());
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) enforceCurrentTab(); });
+    setInterval(() => enforceCurrentTab(), 3000);
+
+    // ---- Boot -------------------------------------------------------------
+    (async function boot() {
+      // Step 1: block the child interface until the device is provisioned.
+      if ((await tstore.get(TKEYS.prov)) !== '1') { navTo('/app/parents/index.html'); return; }
+      await midnightFlush();
+      await resolveGameSession();
+      // Kid Mode: lock the device into the app (screen pinning) if enabled.
+      try { if ((await tstore.get('gulsabi_kid_mode')) === '1') window.Capacitor?.Plugins?.KidLock?.enter(); } catch (_) {}
+      buildWatch();
+      buildSheets();
+      wireBackButton();
+      await enforceTab(DEFAULT_TAB);
+    })();
+  </script>
+</body>
+</html>

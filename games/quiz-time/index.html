@@ -1043,5 +1043,28 @@
         }
     </script>
     <script type="module" src="./js/main.js"></script>
+    <script>
+      /* In the Gulsabi app (Capacitor), "back to all games" / home / Games-tab
+         links must return to the app shell (/app/) — NOT the website games hub.
+         This fixes two things at once: (1) avoids the marketing homepage that
+         Capacitor's local server serves for extensionless paths, and (2) routes
+         back through the shell so it tallies this game's playtime. No-op on web. */
+      (function () {
+        if (!window.Capacitor) return;
+        // Website routes a kid could escape to from a game — all return to /app/.
+        var ESCAPE = { 'games/': 1, '/games': 1, '/games/': 1, '/': 1,
+                       '/videos': 1, '/videos/': 1, '/about': 1, '/about/': 1, '/companion': 1, '/companion/': 1 };
+        function fix() {
+          document.querySelectorAll('a[href]').forEach(function (a) {
+            if (ESCAPE[a.getAttribute('href')]) a.setAttribute('href', '/app/index.html');
+          });
+        }
+        if (document.readyState !== 'loading') fix(); else document.addEventListener('DOMContentLoaded', fix);
+        document.addEventListener('click', function (e) {
+          var a = e.target && e.target.closest ? e.target.closest('a') : null;
+          if (a && ESCAPE[a.getAttribute('href')]) { e.preventDefault(); window.location.href = '/app/index.html'; }
+        }, true);
+      })();
+    </script>
 </body>
 </html>

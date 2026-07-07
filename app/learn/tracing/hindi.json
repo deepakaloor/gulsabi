@@ -1,0 +1,9 @@
+{
+  "script": "devanagari",
+  "profile": {
+    "id": "devanagari", "font": "NotoSansDevanagari",
+    "metrics": { "baseline": 0.82 },
+    "calibration": { "laneWidthScale": 0.85, "emaAlphaScale": 1.0, "passThresholdDelta": -5, "formationToleranceScale": 1.15 }
+  },
+  "glyphs": []
+}

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Gulsabi — Learn Insights</title>
+  <link rel="icon" href="/images/gulsabi-app-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{ --navy:#15324B; --coral:#FF6B7A; --green:#34A853; --gold:#FBBC04; --blue:#2E6FB0;
+      --bg:#EEF3FA; --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px); }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{margin:0;min-height:100%;font-family:'Fredoka',system-ui,sans-serif;background:var(--bg);color:var(--navy);}
+    header{display:flex;align-items:center;gap:12px;padding:calc(12px + var(--safe-top)) 16px 12px;
+      background:linear-gradient(120deg,#2E6FB0,#15324B);color:#fff;position:sticky;top:0;z-index:5;}
+    header .back{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:20px;cursor:pointer;}
+    header .title{font-weight:700;font-size:18px;}
+    main{max-width:560px;margin:0 auto;padding:18px 16px calc(30px + var(--safe-bottom));}
+    .card{background:#fff;border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 6px 18px rgba(21,50,75,.08);}
+    .card h2{margin:0 0 4px;font-size:17px;}
+    .card .sub{color:#5b7186;font-size:13.5px;font-weight:500;margin:0 0 12px;line-height:1.45;}
+    .muted{color:#5b7186;font-size:13px;}
+    .pill{display:inline-block;background:#EEF3FA;border-radius:999px;padding:5px 12px;font-weight:600;font-size:13px;margin:2px 4px 2px 0;}
+    .pill.good{background:#E7F6EC;color:#1E7B3C;}
+    .big-stat{font-size:34px;font-weight:700;line-height:1.1;}
+    .row{display:flex;gap:12px;align-items:center;}
+    .bar{position:relative;height:12px;border-radius:999px;background:#E4EBF4;overflow:hidden;flex:1;}
+    .bar i{position:absolute;left:0;top:0;display:block;height:100%;border-radius:999px;}
+    .bar i.started{background:#BFE0CC;}
+    .bar i.mastered{background:linear-gradient(90deg,#4FB06D,#34A853);}
+    .domrow{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:13.5px;font-weight:600;}
+    .domrow .name{width:78px;text-transform:capitalize;}
+    .domrow .n{width:118px;text-align:right;color:#5b7186;font-weight:500;font-size:11.5px;}
+    .lock{border:2px dashed #D3DFEE;background:linear-gradient(160deg,#FFFDF4,#FFF6F7);}
+    .lock h2{display:flex;align-items:center;gap:8px;}
+    .plans{display:flex;gap:10px;margin-top:12px;}
+    .plan{flex:1;border:2px solid #E4EBF4;border-radius:16px;padding:14px;text-align:center;}
+    .plan.hero{border-color:var(--gold);background:#FFFBEA;position:relative;}
+    .plan.hero .tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);
+      color:var(--navy);font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap;}
+    .plan .price{font-size:22px;font-weight:700;}
+    .plan .per{font-size:12px;color:#5b7186;font-weight:600;}
+    .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;margin-top:12px;
+      border:none;border-radius:14px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;}
+    .btn-coral{background:var(--coral);color:#fff;}
+    .btn-ghost{background:#E4EBF4;color:var(--navy);}
+    .spark{display:flex;align-items:flex-end;gap:4px;height:90px;margin:10px 0 4px;}
+    .spark .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;}
+    .spark .bar-v{width:100%;max-width:34px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,#7CC6F2,#2E6FB0);}
+    .spark .lbl{font-size:10.5px;color:#5b7186;font-weight:600;}
+    #signin{display:none;}
+    .err{color:#C62828;font-size:13px;font-weight:600;min-height:16px;}
+    .hidden{display:none !important;}
+    table.exp{width:100%;font-size:12.5px;border-collapse:collapse;}
+    /* tier banner */
+    #tier-banner{border-radius:18px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-weight:700;}
+    #tier-banner.premium{background:linear-gradient(120deg,#FFF6DA,#FFE7A6);color:#7A5A00;border:2px solid var(--gold);}
+    #tier-banner.free{background:#fff;color:var(--navy);box-shadow:0 6px 18px rgba(21,50,75,.08);}
+    #tier-banner .b-emoji{font-size:22px;}
+    #tier-banner .b-text{flex:1;font-size:15px;}
+    #tier-banner .b-sub{font-weight:500;font-size:12.5px;color:#9a7b1f;}
+    #tier-banner.free .b-sub{color:#5b7186;}
+    #tier-banner .b-cta{background:var(--coral);color:#fff;border:none;border-radius:12px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer;}
+    /* blurred free preview: a short peek-header that fades out, then the
+       upsell flows NORMALLY below (no absolute overlay → nothing clips) */
+    .lockwrap{position:relative;overflow:hidden;padding:0;}
+    .lockwrap .blurred{position:relative;height:118px;overflow:hidden;padding:16px 18px 0;
+      filter:blur(3px);opacity:.55;pointer-events:none;user-select:none;}
+    .lockwrap .blurred::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;
+      background:linear-gradient(180deg,rgba(255,255,255,0),#fff);}
+    .lockwrap .lockover{position:relative;text-align:center;padding:0 22px 22px;margin-top:-26px;}
+    .lockover .lockbadge{font-size:34px;margin-bottom:2px;}
+    .lockover h2{margin:0 0 6px;}
+    .lockover .plans{width:100%;}
+    .spark.sample{height:54px;}
+    .spark.sample .bar-v{background:linear-gradient(180deg,#BFD3EA,#8FB0D6);}
+    /* per-skill grid */
+    .chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;background:#E4EBF4;color:#5b7186;}
+    .chip.good{background:#E7F6EC;color:#1E7B3C;}
+    .chip.muted2{background:#F1F4F8;color:#9aa8b8;}
+    #skill-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+    #skill-grid .sk{width:30px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:14px;border:2px solid #E4EBF4;background:#F8FBFF;color:#9aa8b8;}
+    #skill-grid .sk.practising{border-color:#9FC6E6;background:#EAF3FB;color:#2E6FB0;}
+    #skill-grid .sk.mastered{border-color:var(--green);background:#E7F6EC;color:#1E7B3C;}
+    #skill-grid .sk-group{width:100%;font-size:12px;font-weight:700;color:#5b7186;margin:8px 0 2px;text-transform:capitalize;}
+  </style>
+</head>
+<body>
+  <header>
+    <button class="back" onclick="location.href='/app/parents/index.html'" aria-label="Back">‹</button>
+    <span class="title">Learn — Insights</span>
+  </header>
+  <main>
+    <!-- needs parent sign-in -->
+    <div class="card" id="signin">
+      <h2>Sign in to see insights</h2>
+      <p class="sub">Learn insights live safely in your parent account. Sign in on the Parents screen first — practice on the child side never needs an account.</p>
+      <button class="btn btn-coral" onclick="location.href='/app/parents/index.html'">Open Parents</button>
+    </div>
+
+    <div id="dash" class="hidden">
+      <!-- Tier banner — set by JS (premium gold vs free) -->
+      <div id="tier-banner"></div>
+
+      <!-- FREE + PREMIUM: practised today -->
+      <div class="card">
+        <h2>This week</h2>
+        <p class="sub" id="practised-line">Loading…</p>
+        <div class="row">
+          <div><div class="big-stat" id="stat-days">–</div><div class="muted">days practised</div></div>
+          <div style="width:18px"></div>
+          <div><div class="big-stat" id="stat-mins">–</div><div class="muted">minutes</div></div>
+          <div style="width:18px"></div>
+          <div><div class="big-stat" id="stat-items">–</div><div class="muted">activities</div></div>
+        </div>
+      </div>
+
+      <!-- FREE: one sample insight -->
+      <div class="card" id="sample-card">
+        <h2>A peek inside ✨</h2>
+        <p class="sub" id="sample-line">Loading…</p>
+      </div>
+
+      <!-- GATED AREA (free tier): blurred previews of the real premium
+           insights + the upgrade offer, so the value is tangible. -->
+      <div id="locked" class="hidden">
+        <div class="card lockwrap">
+          <div class="blurred" aria-hidden="true">
+            <h2>Writing Readiness</h2>
+            <div class="spark sample">
+              <div class="col"><div class="bar-v" style="height:38%"></div><div class="lbl">Mon</div></div>
+              <div class="col"><div class="bar-v" style="height:52%"></div><div class="lbl">Tue</div></div>
+              <div class="col"><div class="bar-v" style="height:47%"></div><div class="lbl">Wed</div></div>
+              <div class="col"><div class="bar-v" style="height:63%"></div><div class="lbl">Thu</div></div>
+              <div class="col"><div class="bar-v" style="height:58%"></div><div class="lbl">Fri</div></div>
+              <div class="col"><div class="bar-v" style="height:71%"></div><div class="lbl">Sat</div></div>
+              <div class="col"><div class="bar-v" style="height:66%"></div><div class="lbl">Sun</div></div>
+            </div>
+            <div class="domrow"><span class="name">Uppercase</span><span class="bar"><i class="mastered" style="width:54%"></i></span><span class="n">14 / 26</span></div>
+            <div class="domrow"><span class="name">Numbers</span><span class="bar"><i class="mastered" style="width:70%"></i></span><span class="n">7 / 10</span></div>
+          </div>
+          <div class="lockover">
+            <div class="lockbadge">🔒</div>
+            <h2>See your child's real progress</h2>
+            <p class="sub">Unlock the <b>Writing Readiness</b> trend, <b>every-skill</b> mastery,
+              what to <b>practise next</b>, and a weekly report. Your child's practice stays
+              100% free, always.</p>
+            <div class="plans">
+              <div class="plan hero">
+                <span class="tag">BEST VALUE · 2 months free</span>
+                <div class="price">₹1,199</div>
+                <div class="per">per year</div>
+              </div>
+              <div class="plan">
+                <div class="price">₹199</div>
+                <div class="per">per month</div>
+              </div>
+            </div>
+            <button class="btn btn-coral" id="founding">Join the Founding Families list</button>
+            <p class="muted" style="margin:10px 0 0">Payments open soon. Founding Families get early
+              access — granted to your account manually, no card needed.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="insights" class="hidden">
+        <!-- Writing Readiness Index trend -->
+        <div class="card">
+          <h2>Writing Readiness</h2>
+          <p class="sub">A weekly blend of your child's clean, unassisted tracing —
+            formation, control, sizing and flow. It moves slowly; that's normal and healthy.</p>
+          <div class="spark" id="wri-spark"></div>
+          <p class="muted" id="wri-note"></p>
+        </div>
+
+        <!-- per-domain progress -->
+        <div class="card">
+          <h2>Domains</h2>
+          <p class="sub">Skills mastered in each area (3 clean tries across different days).</p>
+          <div id="domains"></div>
+        </div>
+
+        <!-- PREMIUM-only: per-skill mastery detail -->
+        <div class="card">
+          <h2>Every skill</h2>
+          <p class="sub">Exactly where your child is on each letter, number and shape —
+            <span class="chip good">mastered</span> <span class="chip">practising</span>
+            <span class="chip muted2">not started</span></p>
+          <div id="skill-grid"></div>
+        </div>
+
+        <!-- skill indicators → practise next -->
+        <div class="card">
+          <h2>What to practise next</h2>
+          <p class="sub">Friendly pointers from recent practice — every child grows on their
+            own schedule. 🌱</p>
+          <div id="practise-next"></div>
+        </div>
+      </div>
+
+      <!-- consent: Learn cloud sync is opt-in, parent-controlled -->
+      <div class="card">
+        <h2>Cloud sync</h2>
+        <p class="sub" id="sync-line">Checking…</p>
+        <button class="btn btn-ghost" id="sync-toggle">…</button>
+        <p class="muted" style="margin:8px 0 0">Sync sends only skills practised and
+          their scores — never a name or photo. Off = everything stays on the device.</p>
+      </div>
+
+      <!-- data rights: never paywalled -->
+      <div class="card">
+        <h2>Your data, your rules</h2>
+        <p class="sub">Export or erase everything Learn has stored for your family —
+          available to every account, subscribed or not.</p>
+        <button class="btn btn-ghost" id="export">⬇️ Export my data (JSON)</button>
+        <button class="btn btn-ghost" id="wipe" style="color:#C62828">🗑️ Delete Learn data</button>
+        <div class="err" id="data-err"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/app/parents/config.js"></script>
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const cfg = window.GULSABI_KIDS;
+    const $ = (s) => document.querySelector(s);
+    const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY,
+      { auth: { persistSession: true, autoRefreshToken: true } });
+
+    // Non-diagnostic copy map (Non-Negotiable §3.6): indicators are framed as
+    // "practise next", never as deficits. These are proxies, not assessments.
+    const INDICATORS = [
+      { key: 'formation',  name: 'Letter shapes',        proxy: 'visual-motor coordination', tip: (s) => `Tracing ${s} together is a lovely next step.` },
+      { key: 'sizing',     name: 'Size & lines',         proxy: 'spatial awareness',         tip: (s) => `Try "write it in the box" games with ${s}.` },
+      { key: 'fluency',    name: 'Steady strokes',       proxy: 'fine-motor control',        tip: (s) => `Slow, smooth tracing of ${s} builds steady hands.` },
+      { key: 'strokeOrder',name: 'Stroke steps',         proxy: 'motor planning',            tip: (s) => `Watch-then-trace rounds of ${s} make the steps stick.` },
+      { key: 'speed',      name: 'Easy pace',            proxy: 'automaticity',              tip: (s) => `A few relaxed repeats of ${s} will make it feel easy.` },
+    ];
+
+    async function boot() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { $('#signin').style.display = 'block'; return; }
+      $('#dash').classList.remove('hidden');
+
+      // ---- FREE: week summary (learn_sessions is not gated) ----
+      const weekAgo = new Date(Date.now() - 6 * 864e5); weekAgo.setHours(0, 0, 0, 0);
+      const { data: sessions } = await sb.from('learn_sessions')
+        .select('started_at,duration_s,items_completed')
+        .gte('started_at', weekAgo.toISOString())
+        .order('started_at', { ascending: false });
+      const days = new Set((sessions || []).map((s) => s.started_at.slice(0, 10)));
+      const mins = Math.round((sessions || []).reduce((a, s) => a + s.duration_s, 0) / 60);
+      const acts = (sessions || []).reduce((a, s) => a + s.items_completed, 0);
+      $('#stat-days').textContent = days.size;
+      $('#stat-mins').textContent = mins;
+      $('#stat-items').textContent = acts;
+      const today = new Date().toISOString().slice(0, 10);
+      $('#practised-line').textContent = days.has(today)
+        ? 'Your child practised today! 🎉'
+        : days.size > 0 ? 'Practice this week — nice rhythm!' : 'No practice yet this week — the Learn tab is one tap away.';
+
+      // ---- FREE: one sample insight (RPC works regardless of entitlement) ----
+      const { data: sample } = await sb.rpc('learn_sample_insight',
+        { p_child_id: (await childId()) });
+      if (sample && sample.length > 0) {
+        const s = sample[0];
+        $('#sample-line').innerHTML = `Most recent practice: <b>${esc(s.skill)}</b> — ${s.reps} unassisted ${s.reps == 1 ? 'try' : 'tries'}. Subscribers see the full trend for every skill.`;
+      } else {
+        $('#sample-line').textContent = 'Once your child traces a few letters, a sample insight appears here.';
+      }
+
+      // ---- entitlement: the client only REFLECTS; the data itself is gated
+      // by RLS server-side. Even a spoofed UI gets zero gated rows. ----
+      const { data: ent } = await sb.from('entitlements').select('active,plan,expires_at').maybeSingle();
+      const active = !!(ent && ent.active && (!ent.expires_at || new Date(ent.expires_at) > new Date()));
+      const banner = $('#tier-banner');
+      if (active) {
+        const plan = ent.plan === 'yearly' ? 'Yearly' : ent.plan === 'monthly' ? 'Monthly' : 'Premium';
+        banner.className = 'premium';
+        banner.innerHTML = `<span class="b-emoji">✨</span><span class="b-text">Premium Family
+          <div class="b-sub">${plan} plan · full insights unlocked</div></span>`;
+        $('#insights').classList.remove('hidden');
+        $('#sample-card').classList.add('hidden'); // premium gets the real thing, not the teaser
+        await renderInsights();
+      } else {
+        banner.className = 'free';
+        banner.innerHTML = `<span class="b-emoji">🔒</span><span class="b-text">Free plan
+          <div class="b-sub">Practice is 100% free · insights are Premium</div></span>
+          <button class="b-cta" onclick="document.querySelector('#locked').scrollIntoView({behavior:'smooth'})">Unlock</button>`;
+        $('#locked').classList.remove('hidden');
+      }
+
+      $('#founding').addEventListener('click', () => {
+        location.href = 'mailto:hello@pixnut.com?subject=Gulsabi%20Founding%20Families&body=I%27d%20love%20early%20access%20to%20Learn%20insights!';
+      });
+      $('#export').addEventListener('click', exportData);
+      $('#wipe').addEventListener('click', wipeData);
+
+      // Learn cloud-sync consent toggle (same flag the child app's sync
+      // layer checks; the dialog in Parents sets it at signup)
+      const renderSync = () => {
+        const on = localStorage.getItem('gulsabi_learn_sync_consent') === '1';
+        $('#sync-line').textContent = on
+          ? 'Progress sync is ON — practice mirrors to your account.'
+          : 'Progress sync is OFF — practice stays on this device only.';
+        $('#sync-toggle').textContent = on ? 'Turn sync off' : 'Turn sync on';
+      };
+      renderSync();
+      $('#sync-toggle').addEventListener('click', () => {
+        const on = localStorage.getItem('gulsabi_learn_sync_consent') === '1';
+        localStorage.setItem('gulsabi_learn_sync_consent', on ? '0' : '1');
+        renderSync();
+      });
+    }
+
+    let _childId = null;
+    async function childId() {
+      if (_childId) return _childId;
+      const { data } = await sb.from('children').select('id').limit(1);
+      _childId = data && data[0] ? data[0].id : null;
+      return _childId;
+    }
+
+    async function renderInsights() {
+      // gated rows — only arrive when RLS lets them through
+      const since = new Date(Date.now() - 28 * 864e5).toISOString();
+      const { data: reps } = await sb.from('learn_rep_metrics')
+        .select('skill,domain,is_assisted,scores,created_at')
+        .gte('created_at', since).order('created_at');
+      const clean = (reps || []).filter((r) => !r.is_assisted);
+
+      // Writing Readiness Index: weekly mean of a weighted sub-score blend,
+      // CLEAN REPS ONLY (assisted reps are provably excluded upstream too).
+      const wri = (r) => {
+        const s = r.scores?.scores || {};
+        return 0.35 * (s.formation ?? 0) + 0.15 * (s.completion ?? 0) + 0.15 * (s.fluency ?? 0)
+             + 0.15 * (s.sizing ?? 0) + 0.1 * (s.strokeOrder ?? 0) + 0.1 * (s.direction ?? 0);
+      };
+      // DAILY over the last 7 days (a weekly grid sat mostly empty for new
+      // families — daily fills the chart and updates every day).
+      const DAY = 'SMTWTFS';
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const buckets = Array.from({ length: 7 }, (_, k) => {
+        const d = new Date(today); d.setDate(today.getDate() - (6 - k));
+        return { d, label: DAY[d.getDay()], vals: [] };
+      });
+      for (const r of clean) {
+        const t = new Date(r.created_at); t.setHours(0, 0, 0, 0);
+        const idx = 6 - Math.round((today - t) / 864e5);
+        if (idx >= 0 && idx < 7) buckets[idx].vals.push(wri(r));
+      }
+      const spark = $('#wri-spark'); spark.innerHTML = '';
+      const anyData = buckets.some((b) => b.vals.length);
+      buckets.forEach((b, i) => {
+        const avg = b.vals.length ? b.vals.reduce((a, v) => a + v, 0) / b.vals.length : 0;
+        const col = document.createElement('div'); col.className = 'col';
+        const bar = document.createElement('div'); bar.className = 'bar-v';
+        // practised days get a real bar; rest days a faint stub so no gaps read as broken
+        bar.style.height = b.vals.length ? `${Math.max(8, avg * 0.9)}%` : '6%';
+        bar.style.opacity = b.vals.length ? '1' : '.35';
+        bar.title = b.vals.length ? `${avg.toFixed(0)} / 100` : 'rest day';
+        if (i === 6) bar.style.outline = '2px solid rgba(46,111,176,.35)'; // highlight today
+        const lbl = document.createElement('div'); lbl.className = 'lbl'; lbl.textContent = b.label;
+        col.appendChild(bar); col.appendChild(lbl); spark.appendChild(col);
+      });
+      $('#wri-note').textContent = anyData
+        ? `${clean.length} unassisted tries in the last 4 weeks. Rest days are normal — little and often wins.`
+        : 'The trend fills in as your child practises — a few minutes a day is plenty.';
+
+      // ---- PREMIUM: per-skill mastery grid ----
+      const { data: progRows } = await sb.from('learn_skill_progress').select('skill,state');
+      const stateBy = {}; for (const r of (progRows || [])) stateBy[r.skill] = r.state;
+      const GROUPS = [
+        { name: 'Uppercase', skills: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') },
+        { name: 'Lowercase', skills: 'abcdefghijklmnopqrstuvwxyz'.split('') },
+        { name: 'Numbers', skills: '0123456789'.split('') },
+        { name: 'Shapes', skills: ['square','triangle','rectangle','oval','star','diamond','heart','circle'] },
+      ];
+      const grid = $('#skill-grid'); grid.innerHTML = '';
+      for (const g of GROUPS) {
+        // only show a group once the child has touched it (keeps it relevant)
+        if (!g.skills.some((s) => stateBy[s])) continue;
+        const h = document.createElement('div'); h.className = 'sk-group'; h.textContent = g.name; grid.appendChild(h);
+        for (const s of g.skills) {
+          const st = stateBy[s];
+          const cell = document.createElement('div');
+          cell.className = 'sk' + (st === 'mastered' ? ' mastered' : (st === 'practising' || st === 'learning') ? ' practising' : '');
+          cell.textContent = s.length === 1 ? s : s[0].toUpperCase();
+          cell.title = `${s}: ${st || 'not started'}`;
+          grid.appendChild(cell);
+        }
+      }
+      if (!grid.children.length) grid.innerHTML = '<p class="muted">Practice will fill this in.</p>';
+
+      // per-domain progress. Show BOTH practising and mastered: mastery
+      // deliberately needs practice across several days, so a "0 mastered"
+      // bar after a big first session misreads the real progress. The bar
+      // fills lightly for practising skills, solid green for mastered.
+      const { data: prog } = await sb.from('learn_skill_progress').select('skill,state');
+      const domains = {};
+      for (const p of (prog || [])) {
+        const d = domainOf(p.skill);
+        domains[d] = domains[d] || { practising: 0, mastered: 0 };
+        if (p.state === 'mastered') domains[d].mastered++;
+        else if (p.state === 'practising' || p.state === 'learning') domains[d].practising++;
+      }
+      const dBox = $('#domains'); dBox.innerHTML = '';
+      const CAP = { 'pre-writing': 10, shape: 10, uppercase: 26, lowercase: 26, number: 10 };
+      const ORDER = ['pre-writing', 'shape', 'uppercase', 'lowercase', 'number'];
+      for (const d of ORDER) {
+        const v = domains[d];
+        if (!v) continue;
+        const cap = CAP[d] || 1;
+        const startedPct = Math.min(100, ((v.practising + v.mastered) / cap) * 100);
+        const masteredPct = Math.min(100, (v.mastered / cap) * 100);
+        const label = v.mastered > 0
+          ? `${v.mastered} mastered · ${v.practising} learning`
+          : `${v.practising} learning`;
+        dBox.insertAdjacentHTML('beforeend',
+          `<div class="domrow"><span class="name">${esc(d.replace('-', ' '))}</span>
+             <span class="bar">
+               <i class="started" style="width:${startedPct}%"></i>
+               <i class="mastered" style="width:${masteredPct}%"></i>
+             </span>
+             <span class="n">${label}</span></div>`);
+      }
+      if (!Object.keys(domains).length) dBox.innerHTML = '<p class="muted">Practice will fill this in.</p>';
+
+      // practise-next pointers: the indicator with the most headroom + the
+      // most recent skill it appeared on. Always growth-framed.
+      const pn = $('#practise-next'); pn.innerHTML = '';
+      const byKey = {};
+      for (const r of clean.slice(-60)) {
+        const s = r.scores?.scores || {};
+        for (const ind of INDICATORS) {
+          byKey[ind.key] = byKey[ind.key] || [];
+          if (s[ind.key] != null) byKey[ind.key].push({ v: s[ind.key], skill: r.skill });
+        }
+      }
+      const ranked = INDICATORS
+        .map((ind) => {
+          const xs = byKey[ind.key] || [];
+          const avg = xs.length ? xs.reduce((a, b) => a + b.v, 0) / xs.length : null;
+          return { ind, avg, last: xs.length ? xs[xs.length - 1].skill : null };
+        })
+        .filter((x) => x.avg != null)
+        .sort((a, b) => a.avg - b.avg)
+        .slice(0, 3);
+      for (const { ind, last } of ranked) {
+        pn.insertAdjacentHTML('beforeend',
+          `<p class="sub" style="margin:0 0 10px"><span class="pill good">${esc(ind.name)}</span>
+           ${esc(ind.tip(last ? `“${last}”` : 'favourite letters'))}</p>`);
+      }
+      if (!ranked.length) pn.innerHTML = '<p class="muted">Pointers appear after a few practice days.</p>';
+    }
+
+    function domainOf(skill) {
+      if (/^[A-Z]$/.test(skill)) return 'uppercase';
+      if (/^[a-z]$/.test(skill)) return 'lowercase';
+      if (/^\d$/.test(skill)) return 'number';
+      if (['square','triangle','rectangle','oval','star','diamond','cross shape','heart','x shape','half circle'].includes(skill)) return 'shape';
+      return 'pre-writing';
+    }
+
+    async function exportData() {
+      $('#data-err').textContent = '';
+      const { data, error } = await sb.rpc('learn_export_my_data');
+      if (error) { $('#data-err').textContent = 'Export failed — try again.'; return; }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'gulsabi-learn-data.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    async function wipeData() {
+      if (!confirm('Delete ALL Learn progress and insights for your family from the cloud? Practice on the device is kept.')) return;
+      $('#data-err').textContent = '';
+      const uid = (await sb.auth.getSession()).data.session.user.id;
+      const e1 = await sb.from('learn_rep_metrics').delete().eq('parent_id', uid);
+      const e2 = await sb.from('learn_skill_progress').delete().eq('parent_id', uid);
+      const e3 = await sb.from('learn_sessions').delete().eq('parent_id', uid);
+      if (e1.error || e2.error || e3.error) $('#data-err').textContent = 'Some data could not be deleted — try again.';
+      else alert('Learn cloud data deleted.');
+    }
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    boot();
+  </script>
+</body>
+</html>

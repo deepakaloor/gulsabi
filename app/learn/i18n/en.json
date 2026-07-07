@@ -1,0 +1,20 @@
+{
+  "_lang": "en",
+  "_status": "complete (reference catalog)",
+  "picker.title": "Which languages?",
+  "picker.subtitle": "Pick one or more — a grown-up can change this anytime.",
+  "picker.primary": "primary",
+  "picker.makePrimary": "Make primary",
+  "picker.premiumBadge": "Premium",
+  "picker.unlock": "Unlock with Premium",
+  "picker.continue": "Let's go!",
+  "picker.needOne": "Pick at least one language.",
+  "upgrade.title": "Unlock more languages",
+  "upgrade.body": "Hindi, Tamil and Telugu — and more to come. Your child's practice stays free.",
+  "upgrade.year": "₹1,199 / year",
+  "upgrade.month": "₹199 / month",
+  "upgrade.cta": "Join the Founding Families list",
+  "upgrade.close": "Maybe later",
+  "lang.heading": "Languages",
+  "common.save": "Save"
+}
