@@ -6,12 +6,14 @@
   <title>Gulsabi — Learn</title>
   <link rel="icon" href="/images/gulsabi-app-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@500;700&family=Noto+Sans+Malayalam:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Noto+Sans+Kannada:wght@500;700&family=Noto+Sans+Malayalam:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/ui/gulsabi-ui.css" />
   <style>
     :root{ --navy:#15324B; --coral:#FF6B7A; --green:#34A853; --gold:#FBBC04;
       --bg:#EEF3FA; --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px); }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
-    html,body{margin:0;height:100%;font-family:'Fredoka',system-ui,sans-serif;background:var(--bg);color:var(--navy);overscroll-behavior:none;touch-action:none;}
+    html,body{margin:0;height:100%;font-family:'Nunito',system-ui,sans-serif;background:var(--bg);color:var(--navy);overscroll-behavior:none;touch-action:none;}
+    h2{font-family:'Fredoka',system-ui,sans-serif;}
     /* Theme = ambience, not a heading: per-theme page wash + floating emojis
        behind the board. The board itself stays white for tracing contrast. */
     body{transition:background 1s ease;}
@@ -29,16 +31,16 @@
     @keyframes drift{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-14px) rotate(5deg);}}
     #app{position:relative;z-index:1;}
     #app{display:flex;flex-direction:column;height:100%;}
-    header{flex:0 0 auto;display:flex;align-items:center;gap:12px;
-      padding:calc(12px + var(--safe-top)) 16px 12px;
-      background:linear-gradient(120deg,#2E6FB0,#15324B);color:#fff;}
-    header .back{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:20px;cursor:pointer;}
-    header .title{font-weight:700;font-size:18px;}
-    header .help{margin-left:auto;width:38px;height:38px;border-radius:50%;border:none;
-      background:rgba(255,255,255,.18);color:#fff;font-size:19px;font-weight:700;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;}
-    header .help:active{transform:scale(.94);}
-    header .stars{font-weight:700;font-size:16px;background:rgba(255,255,255,.18);padding:6px 12px;border-radius:999px;}
+    /* App bar: translucent over the theme wash, Material back + help, stars chip */
+    header{flex:0 0 auto;display:flex;align-items:center;gap:4px;
+      padding:calc(4px + var(--safe-top)) 8px 4px;min-height:calc(56px + var(--safe-top));
+      background:rgba(255,255,255,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--g-text);}
+    header .back,header .help{width:48px;height:48px;border-radius:50%;border:none;background:transparent;color:var(--g-primary);
+      display:flex;align-items:center;justify-content:center;font-size:0;cursor:pointer;}
+    header .back svg,header .help svg{width:24px;height:24px;fill:currentColor;}
+    header .back:active,header .help:active{background:rgba(28,61,90,.08);}
+    header .title{font:var(--g-title);font-size:20px;flex:1 1 auto;}
+    header .stars{font:var(--g-label);font-size:14px;color:var(--g-on-accent);background:var(--g-accent);padding:7px 12px;border-radius:999px;margin-right:6px;}
     main{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
       padding:14px 16px calc(14px + var(--safe-bottom));overflow:hidden;}
     /* PORTRAIT (default): prompt on top, board, controls — keep that order
@@ -66,7 +68,9 @@
       .controls .btn{min-height:50px;}
     }
     .theme{font-size:15px;font-weight:600;color:#5b7186;margin-bottom:6px;}
-    .prompt{font-size:17px;font-weight:600;color:var(--navy);margin-bottom:10px;}
+    .topic{order:-2;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--navy);opacity:.5;margin-bottom:3px;}
+    .topic:empty{display:none;}
+    .prompt{font:var(--g-section);font-size:18px;color:var(--navy);margin-bottom:10px;text-align:center;}
     .prompt b{color:var(--coral);}
     .board{position:relative;width:100%;max-width:380px;aspect-ratio:1/1;
       background:#fff;border-radius:26px;box-shadow:0 10px 26px rgba(21,50,75,.14);overflow:hidden;}
@@ -110,10 +114,10 @@
     @keyframes pickRight{0%,100%{transform:none;}40%{transform:scale(1.12);}}
     @keyframes pickWrong{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
     .controls{display:flex;gap:12px;margin-top:16px;width:100%;max-width:380px;}
-    .btn{flex:1;min-height:54px;border:none;border-radius:16px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+    .btn{flex:1;min-height:52px;border:none;border-radius:999px;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
     .btn:active{transform:scale(.97);}
-    .btn-clear{background:#E4EBF4;color:var(--navy);}
-    .btn-check{background:var(--coral);color:#fff;box-shadow:0 6px 16px rgba(255,107,122,.35);}
+    .btn-clear{background:var(--g-primary-container);color:var(--g-on-primary-container);}
+    .btn-check{background:var(--g-cta);color:#fff;box-shadow:0 6px 16px rgba(240,110,112,.28);}
     /* Feedback overlay */
     #fb{position:absolute;inset:0;z-index:5;display:none;flex-direction:column;align-items:center;justify-content:center;
       background:rgba(255,255,255,.95);border-radius:26px;text-align:center;padding:24px;}
@@ -123,7 +127,7 @@
     @keyframes cheerPop{from{transform:scale(.5) rotate(-8deg);opacity:0;}to{transform:none;opacity:1;}}
     #fb h2{margin:0 0 4px;font-size:24px;color:var(--navy);}
     #fb p{margin:0 0 18px;color:#5b7186;font-weight:600;}
-    #fb .fbbtn{min-height:54px;padding:0 30px;border:none;border-radius:16px;font-family:inherit;font-weight:700;font-size:17px;cursor:pointer;background:var(--green);color:#fff;}
+    #fb .fbbtn{min-height:52px;padding:0 30px;border:none;border-radius:999px;font-family:inherit;font-weight:700;font-size:17px;cursor:pointer;background:var(--green);color:#fff;}
     #fb.retry .fbbtn{background:var(--coral);}
     /* Age picker (first run) */
     #agepick{position:fixed;inset:0;z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;
@@ -220,9 +224,9 @@
   <div id="theme-bg"></div>
   <div id="app">
     <header>
-      <button class="back" id="back" aria-label="Back">‹</button>
+      <button class="back" id="back" aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
       <span class="title">Learn</span>
-      <button class="help" id="help" aria-label="How to play">?</button>
+      <button class="help" id="help" aria-label="How to play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg></button>
       <span class="stars" id="stars">⭐ 0</span>
     </header>
     <main>
@@ -243,6 +247,7 @@
         </div>
       </div>
       <div class="side">
+        <div class="topic" id="topic"></div>
         <div class="prompt" id="prompt">Trace!</div>
         <div class="controls">
           <button class="btn btn-clear" id="clear">↺ Clear</button>
@@ -340,7 +345,7 @@
   <!-- kids-project public config (RLS-gated anon key) — used only for the
        optional, parent-consented Tier-2 progress mirror -->
   <script src="/app/parents/config.js"></script>
-  <script src="/app/learn/learn.js"></script>
+  <script src="/app/learn/learn.js?v=topic-dots-1"></script>
   <!-- Tier-1 ANONYMOUS analytics bridge — the same first-party pipeline the
        games use (anon browser id, PII-stripped, queue-on-offline). Strictly
        Tier 1: no child identifiers, physically separate from the kids
@@ -362,5 +367,6 @@
       } catch (_) { /* analytics must never break practice */ }
     });
   </script>
+<script>/* Gulsabi app: dark header → light status-bar icons (edge-to-edge WebView). No-op on the web. */try{var _sb=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SystemBars;_sb&&_sb.setStyle({style:"LIGHT"});}catch(e){}</script>
 </body>
 </html>

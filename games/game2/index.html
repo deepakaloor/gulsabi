@@ -27,11 +27,11 @@
         .ground{position:fixed;bottom:0;left:0;right:0;z-index:2;height:25vh;background:linear-gradient(180deg,#66BB6A 0%,#388E3C 100%);border-radius:50% 50% 0 0/2vh 2vh 0 0;}
 
         /* ── TIMER ── */
-        .twrap{width:100%;height:10px;position:fixed;top:0;z-index:900;background:rgba(0,0,0,.14);}
+        .twrap{width:100%;height:10px;position:fixed;top:env(safe-area-inset-top,0px);z-index:900;background:rgba(0,0,0,.14);}
         .tbar{height:100%;width:100%;background:#69F0AE;transition:width .1s linear;}
 
         /* ── HEADER ── */
-        .hdr{width:100%;padding:clamp(10px, 2vh, 15px);display:flex;justify-content:space-between;position:relative;z-index:800;pointer-events:none;}
+        .hdr{width:100%;padding:calc(clamp(10px, 2vh, 15px) + env(safe-area-inset-top,0px)) clamp(10px, 2vh, 15px) clamp(10px, 2vh, 15px);display:flex;justify-content:space-between;position:relative;z-index:800;pointer-events:none;}
         .pill{background:rgba(255,255,255,.93);padding:.4em .8em;border-radius:2em;border:3px solid white;pointer-events:auto;font-size:0.85rem;box-shadow:0 4px 14px rgba(0,0,0,.15); display: flex; align-items: center; gap: 4px;}
 
         /* ── CARD ZONE ── */
@@ -518,5 +518,6 @@ setInterval(() => {
   }
 }, 5000);
 </script>
+<script>/* Gulsabi app: light page → dark status-bar icons (edge-to-edge WebView). No-op on the web. */try{var _sb=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SystemBars;_sb&&_sb.setStyle({style:"LIGHT"});}catch(e){}</script>
 </body>
 </html>

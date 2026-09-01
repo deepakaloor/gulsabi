@@ -1,0 +1,23 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Gulsabi — Malayalam tracing (test)</title>
+<!--
+  TEST-ONLY launcher. Seeds the Learn language selection to Malayalam, then
+  redirects into the tracing page. Lets a returning visitor (who already picked
+  another language) jump straight to Malayalam without the first-run picker.
+  Remove together with the local Malayalam test override.
+-->
+<style>
+  html,body{margin:0;height:100%;display:grid;place-items:center;
+    font-family:system-ui,sans-serif;background:#1C3D5A;color:#fff}
+  .b{text-align:center}.m{font-size:48px}
+</style>
+<div class="b"><div class="m">മലയാളം</div><p>Loading Malayalam tracing…</p></div>
+<script>
+  try {
+    localStorage.setItem('gulsabi_learn_languages',
+      JSON.stringify({ languages: ['ml'], primary: 'ml' }));
+  } catch (e) {}
+  location.replace('./');
+</script>

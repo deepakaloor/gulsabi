@@ -7,127 +7,124 @@
   <link rel="icon" href="/images/gulsabi-app-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@500;700&family=Noto+Sans+Malayalam:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/ui/gulsabi-ui.css" />
   <style>
-    :root {
-      --navy:#1C3D5A; --gold:#F5DF33; --coral:#F06E70; --ink:#20364a;
-      --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px);
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-    html,body{margin:0;min-height:100%;font-family:'Fredoka',system-ui,sans-serif;background:var(--navy);color:var(--ink);}
-    body{padding:calc(14px + var(--safe-top)) 0 calc(24px + var(--safe-bottom));}
-    .top{display:flex;align-items:center;gap:12px;padding:4px 18px 16px;}
-    .top .back{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:20px;}
-    .top h1{color:#fff;font-size:20px;margin:0;font-weight:700;}
-    .wrap{padding:0 18px;}
-    .card{background:#fff;border-radius:22px;padding:22px 20px;box-shadow:0 8px 22px rgba(0,0,0,.18);margin-bottom:16px;}
-    .card h2{margin:0 0 6px;color:var(--navy);font-size:20px;}
-    .card p{margin:0 0 14px;color:#5b7186;font-weight:500;line-height:1.45;}
-    label{display:block;font-weight:600;color:var(--navy);margin:12px 0 6px;font-size:14px;}
-    input,select{width:100%;font-family:inherit;font-size:16px;font-weight:500;padding:13px 14px;border:2px solid #d4deea;border-radius:14px;color:var(--navy);background:#fff;}
-    .btn{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:0 22px;border:none;border-radius:16px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;margin-top:14px;}
-    .btn:active{transform:scale(.98);}
-    .btn-coral{background:var(--coral);color:#fff;}
-    .btn-navy{background:var(--navy);color:#fff;}
-    .btn-ghost{background:#eaf0f7;color:var(--navy);}
-    .btn-danger{background:#fff;color:#c0392b;border:2px solid #f0c9c4;}
-    .muted{font-size:13px;color:#7990a3;font-weight:500;text-align:center;margin-top:10px;}
-    .err{color:var(--coral);font-weight:600;min-height:20px;font-size:14px;margin-top:8px;}
-    .ok{color:#15805a;font-weight:600;font-size:14px;margin-top:8px;}
-    ul.what{margin:0 0 14px;padding-left:18px;color:#41566a;font-weight:500;line-height:1.6;}
-    ul.what b{color:var(--navy);}
-    a.link{color:var(--navy);font-weight:600;cursor:pointer;}
-    a.link + a.link{margin-left:18px;}
+    /* Parents — the grown-up surface: calmer, denser, Android settings conventions.
+       Same tokens as the child screens, less decoration. Class names are the
+       original ones so the page logic is untouched. */
+    :root { --navy: var(--g-primary); --gold: var(--g-accent); --coral: var(--g-cta); --ink: var(--g-text);
+      --safe-top: var(--g-safe-top); --safe-bottom: var(--g-safe-bottom); }
+    html, body { min-height: 100%; }
+    body { padding: 0 0 calc(24px + var(--safe-bottom)); background: var(--g-ground); color: var(--g-text); }
+    .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 4px;
+      min-height: calc(56px + var(--safe-top)); padding: var(--safe-top) 8px 0; background: var(--g-ground); }
+    .top .back { width: 48px; height: 48px; border-radius: 50%; border: none; background: transparent; color: var(--g-primary); font-size: 0; display: flex; align-items: center; justify-content: center; }
+    .top .back svg { width: 24px; height: 24px; fill: currentColor; }
+    .top .back:active { background: rgba(28,61,90,.08); }
+    .top h1 { font: var(--g-title); font-size: 20px; margin: 0; color: var(--g-text); }
+    .wrap { padding: 8px var(--g-margin) 0; max-width: 560px; margin: 0 auto; }
+    .card { background: var(--g-surface); border-radius: var(--g-r-md); padding: 18px 16px; box-shadow: var(--g-e1); margin-bottom: 12px; }
+    .card h2 { font: var(--g-section); margin: 0 0 4px; color: var(--g-text); }
+    .card p { margin: 0 0 12px; color: var(--g-text-2); font: var(--g-support); font-size: 13.5px; }
+    label { display: block; font: var(--g-label); color: var(--g-text); margin: 12px 0 6px; }
+    input, select { width: 100%; min-height: 52px; font: 600 16px/1 var(--g-font-body); padding: 0 14px; border: 1.5px solid var(--g-outline); border-radius: var(--g-r-sm); color: var(--g-text); background: var(--g-surface); }
+    input:focus, select:focus { outline: none; border-color: var(--g-secondary); box-shadow: 0 0 0 3px rgba(46,111,176,.18); }
+    select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235B7186'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 22px; }
+    .btn { display: flex; width: 100%; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px; border: none; border-radius: var(--g-r-full); font: 700 15px/1 var(--g-font-body); cursor: pointer; margin-top: 12px; position: relative; overflow: hidden; }
+    .btn:active { transform: scale(.98); }
+    .btn-coral, .btn-navy { background: var(--g-primary); color: var(--g-on-primary); }
+    .btn-ghost { background: var(--g-primary-container); color: var(--g-on-primary-container); }
+    .btn-danger { background: var(--g-error-bg); color: var(--g-error); }
+    #kidmode-toggle { background: var(--g-secondary); color: #fff; }
+    .muted { font: var(--g-support); color: var(--g-text-2); text-align: center; margin-top: 10px; }
+    .err { color: var(--g-error); font: var(--g-label); min-height: 20px; margin-top: 8px; }
+    .ok { color: var(--g-success); font: var(--g-label); margin-top: 8px; }
+    ul.what { margin: 0 0 14px; padding-left: 18px; color: var(--g-text-2); font: var(--g-support); font-size: 13.5px; }
+    ul.what b { color: var(--g-text); }
+    a.link { color: var(--g-secondary); font: var(--g-label); cursor: pointer; text-decoration: none; display: inline-block; padding: 8px 0; }
+    a.link + a.link { margin-left: 18px; }
     /* Grown-ups gate */
-    .gate-hero{font-size:26px;font-weight:700;color:var(--navy);margin:0 0 8px;line-height:1.15;}
-    .adult-check{display:flex;gap:10px;align-items:flex-start;background:#fff7d6;border:2px solid #f3e08a;
-      border-radius:16px;padding:13px 14px;margin:14px 0 4px;cursor:pointer;}
-    .adult-check input{width:22px;height:22px;flex:0 0 auto;margin-top:1px;accent-color:var(--coral);}
-    .adult-check span{font-size:13px;font-weight:600;color:#5a4b10;line-height:1.4;}
+    .gate-hero { font: var(--g-title); color: var(--g-text); margin: 0 0 8px; }
+    .adult-check { display: flex; gap: 10px; align-items: flex-start; background: var(--g-warning-bg); border-radius: var(--g-r-sm); padding: 12px 14px; margin: 14px 0 4px; cursor: pointer; }
+    .adult-check input { width: 22px; height: 22px; min-height: 0; flex: 0 0 auto; margin-top: 1px; accent-color: var(--g-primary); }
+    .adult-check span { font: var(--g-support); color: #5C4400; }
     /* PIN pad */
-    .pin-dots{display:flex;gap:16px;justify-content:center;margin:20px 0 6px;}
-    .pin-dots span{width:16px;height:16px;border-radius:50%;border:2px solid #c4d2e2;transition:background .12s;}
-    .pin-dots span.on{background:var(--navy);border-color:var(--navy);}
-    .pin-dots.shake{animation:shake .35s;}
-    @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-9px);}60%{transform:translateX(9px);}}
-    .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;}
-    .keypad button{height:62px;border:none;border-radius:16px;background:#f1f5fa;color:var(--navy);
-      font-family:inherit;font-size:24px;font-weight:700;cursor:pointer;}
-    .keypad button:active{background:#e2eaf3;transform:scale(.96);}
-    .keypad button.blank{background:transparent;pointer-events:none;}
-    .pin-foot{text-align:center;margin-top:14px;}
+    .pin-dots { display: flex; gap: 16px; justify-content: center; margin: 20px 0 6px; }
+    .pin-dots span { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--g-outline); transition: background .12s; }
+    .pin-dots span.on { background: var(--g-primary); border-color: var(--g-primary); }
+    .pin-dots.shake { animation: shake .35s; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 60% { transform: translateX(9px); } }
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .keypad button { height: 60px; border: none; border-radius: var(--g-r-md); background: var(--g-surface-2); color: var(--g-text); font: 700 24px/1 var(--g-font-body); cursor: pointer; }
+    .keypad button:active { background: var(--g-surface-3); }
+    .keypad button.blank { background: transparent; pointer-events: none; }
+    .pin-foot { text-align: center; margin-top: 10px; }
     /* Math gate */
-    .math-q{font-size:30px;font-weight:700;color:var(--navy);text-align:center;margin:14px 0 6px;}
-    #math-input{text-align:center;font-size:26px;letter-spacing:2px;}
+    .math-q { font: var(--g-display); color: var(--g-text); text-align: center; margin: 14px 0 6px; }
+    #math-input { text-align: center; font-size: 24px; letter-spacing: 2px; }
     /* Did You Know */
-    .fact-card{background:linear-gradient(135deg,#fff4cf,#ffe7b3);border-radius:22px;padding:20px;
-      margin-bottom:16px;box-shadow:0 8px 22px rgba(0,0,0,.12);}
-    .fact-card h2{margin:0 0 8px;color:#7a5a00;font-size:18px;}
-    .fact-card p{margin:0;color:#5a4b10;font-weight:600;line-height:1.5;}
+    .fact-card { background: var(--g-warning-bg); border-radius: var(--g-r-md); padding: 16px; margin-bottom: 12px; }
+    .fact-card h2 { margin: 0 0 6px; color: #5C4400; font: var(--g-section); }
+    .fact-card p { margin: 0; color: #5C4400; font: var(--g-body); font-size: 14px; }
     /* Sliders */
-    .slider-row{margin:16px 0;}
-    .slider-row .lbl{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;color:var(--navy);font-size:15px;}
-    .slider-row .val{color:var(--coral);font-weight:700;}
-    input[type=range]{-webkit-appearance:none;width:100%;height:8px;border-radius:8px;background:#e2eaf3;margin-top:10px;padding:0;}
-    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--coral);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25);}
-    .slider-sub{font-size:12px;color:#7990a3;font-weight:500;margin-top:4px;}
+    .slider-row { margin: 14px 0 6px; }
+    .slider-row .lbl { display: flex; justify-content: space-between; align-items: baseline; font: var(--g-label); color: var(--g-text); font-size: 14px; }
+    .slider-row .val { color: var(--g-secondary); font-variant-numeric: tabular-nums; }
+    input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; min-height: 0; height: 6px; border-radius: 999px; background: var(--g-surface-3); margin: 14px 0 4px; padding: 0; border: none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--g-secondary); border: 3px solid #fff; box-shadow: 0 1px 4px rgba(28,46,66,.3); }
+    input[type=range]:focus { box-shadow: none; }
+    .slider-sub { font: var(--g-support); color: var(--g-text-3); margin-top: 2px; }
     /* Notice board */
-    .notice{display:block;text-align:left;width:100%;background:#f6f9fc;border:1px solid #e2eaf3;border-radius:16px;
-      padding:13px 14px;margin-bottom:10px;cursor:pointer;}
-    .notice b{display:block;color:var(--navy);font-size:15px;font-weight:700;margin-bottom:2px;}
-    .notice span{color:#5b7186;font-size:13px;font-weight:500;}
+    .notice { display: block; text-align: left; width: 100%; background: var(--g-surface-2); border: none; border-radius: var(--g-r-sm); padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
+    .notice b { display: block; color: var(--g-text); font: var(--g-card-title); font-size: 15px; margin-bottom: 2px; }
+    .notice span { color: var(--g-text-2); font: var(--g-support); }
     /* Privacy footer */
-    .privacy-footer{background:#eef7f0;border:2px solid #cfe9d6;border-radius:20px;padding:18px;margin-bottom:8px;}
-    .privacy-footer b{display:block;color:#15805a;font-size:16px;margin-bottom:6px;}
-    .privacy-footer p{margin:0;color:#3c6b50;font-weight:500;font-size:13px;line-height:1.5;}
+    .privacy-footer { background: var(--g-success-bg); border-radius: var(--g-r-md); padding: 16px; margin-bottom: 8px; }
+    .privacy-footer b { display: block; color: #164B33; font: var(--g-section); margin-bottom: 6px; }
+    .privacy-footer p { margin: 0; color: #2A5C43; font: var(--g-support); }
     /* Consent popup */
-    .modal{position:fixed;inset:0;z-index:90;background:rgba(28,61,90,.74);display:none;
-      align-items:center;justify-content:center;padding:18px;}
-    .modal.active{display:flex;}
-    .modal .box{background:#fff;border-radius:24px;padding:24px 20px;max-width:360px;width:100%;
-      max-height:88vh;overflow-y:auto;box-shadow:0 18px 44px rgba(0,0,0,.3);}
-    .modal .box h2{margin:0 0 6px;color:var(--navy);font-size:21px;}
-    .policy-links{margin:4px 0 6px;}
+    .modal { position: fixed; inset: 0; z-index: 90; background: var(--g-scrim); display: none; align-items: center; justify-content: center; padding: 18px; }
+    .modal.active { display: flex; }
+    .modal .box { background: var(--g-surface); border-radius: var(--g-r-lg); padding: 24px 20px; max-width: 360px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: var(--g-e3); }
+    .modal .box h2 { margin: 0 0 6px; font: var(--g-title); }
+    .modal .box p { color: var(--g-text-2); font: var(--g-support); font-size: 13.5px; margin: 0 0 10px; }
+    .policy-links { margin: 4px 0 6px; }
     /* Collapsible child-profile header */
-    .profile-head{display:flex;width:100%;align-items:center;justify-content:space-between;
-      background:none;border:none;padding:0;cursor:pointer;text-align:left;font-family:inherit;}
-    .acct-box{background:#f4f8fd;border-radius:14px;padding:12px 14px;margin:6px 0 14px;}
-    .acct-row{display:flex;align-items:center;gap:10px;}
-    .acct-label{font-size:11.5px;font-weight:600;color:#7990a3;}
-    .acct-email{font-size:15px;font-weight:700;color:var(--navy);word-break:break-all;}
-    .acct-change{margin-left:auto;flex:0 0 auto;background:#fff;border:1.5px solid #cdd9e6;color:var(--navy);
-      border-radius:10px;padding:8px 14px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;}
-    .acct-change:active{transform:scale(.96);}
-    #email-change{margin-top:12px;}
+    .profile-head { display: flex; width: 100%; align-items: center; justify-content: space-between; background: none; border: none; padding: 0; cursor: pointer; text-align: left; font-family: inherit; min-height: 48px; }
+    .acct-box { background: var(--g-surface-2); border-radius: var(--g-r-sm); padding: 12px 14px; margin: 6px 0 14px; }
+    .acct-row { display: flex; align-items: center; gap: 10px; }
+    .acct-label { font: var(--g-support); color: var(--g-text-2); }
+    .acct-email { font: var(--g-card-title); font-size: 15px; color: var(--g-text); word-break: break-all; }
+    .acct-change { margin-left: auto; flex: 0 0 auto; background: var(--g-surface); border: 1.5px solid var(--g-outline); color: var(--g-primary); border-radius: var(--g-r-full); min-height: 36px; padding: 0 14px; font: var(--g-label); cursor: pointer; }
+    .acct-change:active { transform: scale(.96); }
+    #email-change { margin-top: 12px; }
     /* Language picker cards (shared look with the first-run picker) */
-    #parent-lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .lang-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:74px;
-      justify-content:center;border:2.5px solid #E4EBF4;border-radius:16px;background:#F8FBFF;font-family:inherit;
-      cursor:pointer;padding:12px 8px;transition:border-color .15s,background .15s,transform .1s;}
-    .lang-card:active{transform:scale(.97);}
-    .lang-card.selected{border-color:#15805a;background:#e7f6ec;}
-    .lang-card.locked{background:#fbfcfe;border-style:dashed;}
-    .lang-card.primary{border-color:var(--gold);background:#fffbea;box-shadow:0 0 0 2px rgba(245,223,51,.4);}
-    .lang-native{font-size:20px;font-weight:700;color:var(--navy);line-height:1.1;}
-    .lang-sub{font-size:11.5px;color:#7990a3;font-weight:600;}
-    .lang-tick{position:absolute;top:6px;right:8px;color:#15805a;font-weight:700;font-size:15px;}
-    .lang-badge{position:absolute;top:6px;right:6px;font-size:10px;font-weight:700;color:#9a7b1f;background:#fff3da;border-radius:999px;padding:2px 7px;}
-    .lang-star{position:absolute;bottom:5px;right:7px;font-size:11px;font-weight:700;color:#b9a14a;}
-    .lang-star.on{color:#E0A100;}
-    .profile-name{font-size:19px;font-weight:700;color:var(--navy);}
-    .profile-hint{font-size:12.5px;color:#7990a3;font-weight:500;margin-top:2px;}
-    .chevron{font-size:18px;color:#9aaabd;transition:transform .2s;}
-    .chevron.open{transform:rotate(180deg);}
-    .note{font-size:12.5px;color:#15805a;font-weight:600;margin-top:4px;}
-    .warn{background:#fff4e0;border:2px solid #f3d28a;border-radius:14px;padding:12px 14px;
-      margin:12px 0;font-size:13px;font-weight:600;color:#7a5a00;line-height:1.5;}
-    .warn b{color:#6b4a08;}
-    .hidden{display:none!important;}
-    .spin{opacity:.55;pointer-events:none;}
+    #parent-lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .lang-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 74px; justify-content: center; border: 2px solid var(--g-outline); border-radius: var(--g-r-md); background: var(--g-surface); font-family: inherit; cursor: pointer; padding: 12px 8px; transition: border-color .15s, background .15s, transform .1s; }
+    .lang-card:active { transform: scale(.97); }
+    .lang-card.selected { border-color: var(--g-success); background: var(--g-success-bg); }
+    .lang-card.locked { background: var(--g-ground); border-style: dashed; }
+    .lang-card.primary { border-color: var(--g-accent); background: #FFFBEA; box-shadow: 0 0 0 2px rgba(245,223,51,.4); }
+    .lang-native { font-size: 20px; font-weight: 700; color: var(--g-text); line-height: 1.1; }
+    .lang-sub { font: var(--g-support); color: var(--g-text-2); }
+    .lang-tick { position: absolute; top: 6px; right: 8px; color: var(--g-success); font-weight: 700; font-size: 15px; }
+    .lang-badge { position: absolute; top: 6px; right: 6px; font-size: 10px; font-weight: 700; color: #9a7b1f; background: #fff3da; border-radius: 999px; padding: 2px 7px; }
+    .lang-star { position: absolute; bottom: 5px; right: 7px; font-size: 11px; font-weight: 700; color: #b9a14a; }
+    .lang-star.on { color: #E0A100; }
+    .profile-name { font: var(--g-section); color: var(--g-text); }
+    .profile-hint { font: var(--g-support); color: var(--g-text-2); margin-top: 2px; }
+    .chevron { font-size: 18px; color: var(--g-text-3); transition: transform .2s; }
+    .chevron.open { transform: rotate(180deg); }
+    .note { font: var(--g-support); color: var(--g-success); margin-top: 4px; }
+    .warn { background: var(--g-warning-bg); border-radius: var(--g-r-sm); padding: 12px 14px; margin: 12px 0; font: var(--g-support); color: #5C4400; }
+    .warn b { color: #4A3700; }
+    .hidden { display: none !important; }
+    .spin { opacity: .55; pointer-events: none; }
   </style>
 </head>
 <body>
   <div class="top">
-    <button class="back" id="back" aria-label="Back">‹</button>
+    <button class="back" id="back" aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
     <h1>Parents</h1>
   </div>
   <div class="wrap">
@@ -156,6 +153,28 @@
       </div>
       <div class="err" id="auth-err"></div>
       <div class="ok" id="auth-ok"></div>
+    </div>
+
+    <!-- Account sign-in is separate from the on-device grown-up PIN. The PIN
+         unlocks this device; Insights needs a real parent account because its
+         data and Premium entitlement are enforced by Supabase RLS. -->
+    <div class="card hidden" id="view-account-signin">
+      <div class="gate-hero">Sign in to your parent account</div>
+      <p>Learn progress is safely linked to your parent account. We’ll return you to Learn insights as soon as you confirm the code.</p>
+      <div id="insight-step-email">
+        <label for="insight-email">Your parent email</label>
+        <input id="insight-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+        <button class="btn btn-coral" id="insight-send-code">Email me a code</button>
+      </div>
+      <div id="insight-step-code" class="hidden">
+        <label for="insight-code">Enter the code from your email</label>
+        <input id="insight-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456" />
+        <button class="btn btn-coral" id="insight-verify-code">Continue to Learn insights</button>
+        <button class="btn btn-ghost" id="insight-change-email">Use a different email</button>
+      </div>
+      <button class="btn btn-ghost" id="insight-cancel">Not now</button>
+      <div class="err" id="insight-auth-err"></div>
+      <div class="ok" id="insight-auth-ok"></div>
     </div>
 
     <!-- Reusable PIN pad -->
@@ -256,8 +275,8 @@
         <button class="btn btn-navy" id="save-child">Save</button>
         <div class="ok" id="save-ok"></div>
       </div>
-      <button class="btn btn-navy" style="margin-top:12px"
-        onclick="location.href='/app/parents/learn.html'">✏️ Learn — progress &amp; insights</button>
+      <button class="btn btn-navy" style="margin-top:12px" id="open-learn-insights">
+        ✏️ Learn — progress &amp; insights</button>
     </div>
 
     <!-- Languages (reuses the first-run picker component) -->
@@ -278,12 +297,12 @@
       <div class="slider-row">
         <div class="lbl"><span>🎮 Interactive Play (Games)</span><span class="val" id="val-game">30m</span></div>
         <input type="range" id="slider-game" min="0" max="120" step="5" value="30" />
-        <div class="slider-sub">0 = no games · 120 = 2 hours</div>
+        <div class="slider-sub">Off = no daily limit · 120m = 2 hours</div>
       </div>
       <div class="slider-row">
         <div class="lbl"><span>📺 Curiosity Watch (Videos)</span><span class="val" id="val-video">45m</span></div>
         <input type="range" id="slider-video" min="0" max="120" step="5" value="45" />
-        <div class="slider-sub">0 = no videos · 120 = 2 hours</div>
+        <div class="slider-sub">Off = no daily limit · 120m = 2 hours</div>
       </div>
       <div class="ok" id="bound-ok"></div>
     </div>
@@ -326,7 +345,7 @@
           <div style="font-size:10.5px;color:#9aa8b8;margin-top:2px;line-height:1.3;">days in a row your child showed up</div>
         </div>
       </div>
-      <button class="btn btn-navy" style="margin-top:14px" onclick="location.href='/app/parents/learn.html'">
+      <button class="btn btn-navy" style="margin-top:14px" id="open-learn-insights-detail">
         📈 See detailed Learn progress</button>
       <p class="muted" style="text-align:left;margin-top:10px;line-height:1.5;">
         A quick motivation summary, kept only on this device. For what your child is
@@ -398,11 +417,14 @@
     </div>
   </div>
 
+  <script src="/app/ui/gulsabi-ui.js"></script>
   <script src="./config.js"></script>
   <!-- shared language picker component (same source as the first-run picker) -->
   <script src="/app/parents/languages.js"></script>
+  <script src="/vendor/supabase-js-2.106.2.umd.js"></script>
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    // supabase-js is bundled locally (public/vendor) so the Parents area never depends on a CDN at runtime.
+    const { createClient } = window.supabase;
 
     const $ = (s) => document.querySelector(s);
     const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
@@ -432,6 +454,16 @@
         try { await _pref()?.remove({ key: k }); } catch (_) {}
       },
     };
+    // Supabase defaults to localStorage, which is enough in a browser but can
+    // be cleared independently of Capacitor Preferences on Android. Keep its
+    // session in both stores: the same-origin Learn page and the child sync
+    // layer still see the standard localStorage key, while Preferences keeps
+    // the parent account alive across native WebView restarts.
+    const parentAuthStorage = {
+      getItem: (key) => store.get(key),
+      setItem: (key, value) => store.set(key, value),
+      removeItem: (key) => store.remove(key),
+    };
     const L = {
       prov: 'gulsabi_provisioned', email: 'gulsabi_parent_email', consent: 'gulsabi_consent_version',
       cName: 'gulsabi_child_name', cNick: 'gulsabi_child_nick', cAge: 'gulsabi_child_age',
@@ -441,16 +473,39 @@
     };
 
     let supabase, email = '';
+    const INSIGHTS_PATH = '/app/parents/learn.html';
+    const INSIGHTS_RETURN_KEY = 'gulsabi_parent_insights_return_until';
+    let pendingDestination = new URLSearchParams(location.search).get('continue') === 'learn-insights'
+      ? INSIGHTS_PATH : null;
+    // Race a backend call against a timeout so a dead/unreachable project can never
+    // leave the page blank (the S23 audit found getSession() hanging on retries).
+    const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
 
     // ====================================================================
     //  Entry: provisioning gate (first launch) OR everyday gate
     // ====================================================================
     async function start() {
       if (!configured) { showOnly('#view-provision'); $('#auth-err').textContent = 'Setup incomplete — see docs.'; return; }
-      supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+      supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, storage: parentAuthStorage },
+      });
       wireHandlers();
       if ((await store.get(L.prov)) !== '1') showProvision();
+      else if (consumeInsightsReturn()) goDashboard();
       else enterEveryday();
+    }
+
+    // A successful Insights view may return immediately to this parent page via
+    // Android Back. Consume a short-lived, same-WebView handoff once so that
+    // Back restores the parent surface rather than asking a second local PIN.
+    // It is never persisted to Capacitor Preferences and is unavailable after
+    // a cold app restart; Supabase identity remains independently required.
+    function consumeInsightsReturn() {
+      try {
+        const until = Number(sessionStorage.getItem(INSIGHTS_RETURN_KEY) || 0);
+        sessionStorage.removeItem(INSIGHTS_RETURN_KEY);
+        return until > Date.now();
+      } catch (_) { return false; }
     }
 
     function hideAll() {
@@ -495,6 +550,42 @@
           await afterVerify();
         }, '#auth-err');
       });
+
+      // This is deliberately account authentication, not another device PIN.
+      // A local PIN cannot prove ownership to Supabase and must never unlock
+      // Premium/RLS-gated learning data by itself.
+      $('#insight-send-code').addEventListener('click', async () => {
+        const accountEmail = $('#insight-email').value.trim();
+        $('#insight-auth-err').textContent = ''; $('#insight-auth-ok').textContent = '';
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(accountEmail)) {
+          $('#insight-auth-err').textContent = 'Please enter your parent email.'; return;
+        }
+        await guarded('#insight-send-code', async () => {
+          const { error } = await supabase.auth.signInWithOtp({ email: accountEmail, options: { shouldCreateUser: false } });
+          if (error) throw error;
+          email = accountEmail;
+          show('#insight-step-email', false); show('#insight-step-code', true);
+          $('#insight-auth-ok').textContent = 'Code sent — check your email.';
+        }, '#insight-auth-err');
+      });
+      $('#insight-change-email').addEventListener('click', () => {
+        show('#insight-step-code', false); show('#insight-step-email', true);
+        $('#insight-auth-err').textContent = ''; $('#insight-auth-ok').textContent = '';
+      });
+      $('#insight-verify-code').addEventListener('click', async () => {
+        const token = $('#insight-code').value.trim();
+        $('#insight-auth-err').textContent = '';
+        if (token.length < 4) { $('#insight-auth-err').textContent = 'Enter the code from your email.'; return; }
+        await guarded('#insight-verify-code', async () => {
+          const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+          if (error) throw error;
+          await store.set(L.email, email);
+          navigatePendingDestination();
+        }, '#insight-auth-err');
+      });
+      $('#insight-cancel').addEventListener('click', () => { pendingDestination = null; goDashboard(); });
+      $('#open-learn-insights').addEventListener('click', openLearnInsights);
+      $('#open-learn-insights-detail').addEventListener('click', openLearnInsights);
 
       // Consent + profile
       $('#agree').addEventListener('click', async () => {
@@ -570,7 +661,7 @@
       // Boundaries sliders
       const wireSlider = (sliderId, valId, key, extKey) => {
         const save = async () => {
-          $(valId).textContent = $(sliderId).value + 'm';
+          $(valId).textContent = Number($(sliderId).value) === 0 ? 'Off' : $(sliderId).value + 'm';
           await store.set(key, $(sliderId).value);
           // Changing the limit clears any leftover "+15 min" grant from a previous
           // Grown-Up Override — otherwise it would silently override the new limit.
@@ -600,7 +691,7 @@
           $('#kidmode-ok').textContent = 'Kid Mode is off — you can leave the app.';
         } else {
           // Confirm on enable, stating the exit route up front so no one feels stuck.
-          if (!confirm('Turn on Kid Mode?\n\nThe phone will lock into Gulsabi.\n\nTo exit later:\n•  Open Parents → Turn off Kid Mode, OR\n•  Hold Back + Recents (and enter your phone PIN if you set that up).')) return;
+          if (!(await GUI.confirm('The phone will lock into Gulsabi.\n\nTo exit later: open Parents → Turn off Kid Mode, or hold Back + Recents (and enter your phone PIN if you set that up).', { title: 'Turn on Kid Mode?', ok: 'Turn on' }))) return;
           await store.set(L.kidMode, '1');
           try { await KidLock?.enter(); } catch (_) {}
           $('#kidmode-ok').textContent = window.Capacitor
@@ -612,7 +703,7 @@
 
       // Delete
       $('#delete').addEventListener('click', async () => {
-        if (!confirm('Delete your child’s profile, progress and limits from this device, and remove your parent email? This cannot be undone.')) return;
+        if (!(await GUI.confirm('This removes your child’s profile, progress and limits from this device, and your parent email from our system. It cannot be undone.', { title: 'Delete my data?', ok: 'Delete', danger: true }))) return;
         $('#action-err').textContent = '';
         await guarded('#delete', async () => {
           // Try to erase the parent email from the cloud (best-effort).
@@ -630,7 +721,7 @@
             await store.remove(k);
           }
           try { await window.Capacitor?.Plugins?.KidLock?.exit(); } catch (_) {} // release the lock
-          alert('Your data has been deleted from this device.');
+          await GUI.alert('Your data has been deleted from this device.', { title: 'Deleted', ok: 'OK' });
           window.location.href = '/app/index.html';
         }, '#action-err');
       });
@@ -725,6 +816,10 @@
 
     // ---- Dashboard ------------------------------------------------------
     async function goDashboard() {
+      if (pendingDestination) {
+        if (await hasParentSession()) { navigatePendingDestination(); return; }
+        showAccountSignIn(); return;
+      }
       hideAll();
       // Opening the dashboard clears any temporary "+15 min" Grown-Up Override
       // grants — the parent is back in control, so the sliders are the source of
@@ -739,8 +834,8 @@
       renderProfileHeader(); // heading shows the nickname; form collapsed if data exists
       $('#slider-game').value = (await store.get(L.limGame)) ?? 30;
       $('#slider-video').value = (await store.get(L.limVideo)) ?? 45;
-      $('#val-game').textContent = $('#slider-game').value + 'm';
-      $('#val-video').textContent = $('#slider-video').value + 'm';
+      $('#val-game').textContent = Number($('#slider-game').value) === 0 ? 'Off' : $('#slider-game').value + 'm';
+      $('#val-video').textContent = Number($('#slider-video').value) === 0 ? 'Off' : $('#slider-video').value + 'm';
       await showFact();
       await renderProgress();
       await renderLanguages();
@@ -749,6 +844,35 @@
       ['#view-fact','#view-dashboard','#view-languages','#view-boundaries','#view-kidmode','#view-progress','#view-security','#view-notices','#view-actions','#view-privacy']
         .forEach(id => show(id, true));
       loadNotices(); // async, non-blocking
+    }
+
+    async function hasParentSession() {
+      try {
+        const { data } = await withTimeout(supabase.auth.getSession(), 3000);
+        return !!data?.session;
+      } catch (_) { return false; }
+    }
+
+    async function openLearnInsights() {
+      pendingDestination = INSIGHTS_PATH;
+      if (await hasParentSession()) { navigatePendingDestination(); return; }
+      showAccountSignIn();
+    }
+
+    async function showAccountSignIn() {
+      hideAll();
+      $('#insight-email').value = (await store.get(L.email)) || '';
+      $('#insight-code').value = '';
+      $('#insight-auth-err').textContent = ''; $('#insight-auth-ok').textContent = '';
+      show('#insight-step-email', true); show('#insight-step-code', false);
+      show('#view-account-signin', true);
+    }
+
+    function navigatePendingDestination() {
+      const destination = pendingDestination || INSIGHTS_PATH;
+      pendingDestination = null;
+      history.replaceState(null, '', '/app/parents/index.html');
+      location.href = destination;
     }
 
     async function renderProgressLabel() {
@@ -760,7 +884,9 @@
     // ---- Account email (authoritative = the signed-in auth session) ------
     async function renderAccountEmail() {
       let em = '';
-      try { const { data } = await supabase.auth.getSession(); em = data?.session?.user?.email || ''; } catch (_) {}
+      // Time-boxed: with the backend unreachable, supabase-js keeps retrying the
+      // token refresh and getSession() can hang — the dashboard must still render.
+      try { const { data } = await withTimeout(supabase.auth.getSession(), 3000); em = data?.session?.user?.email || ''; } catch (_) {}
       if (!em) em = (await store.get(L.email)) || '';
       $('#reg-email').textContent = em || 'Not signed in';
     }
@@ -807,7 +933,7 @@
       // real entitlement (server-side; the parents session can read its own row)
       let entitled = false;
       try {
-        const { data } = await supabase.from('entitlements').select('active,expires_at').maybeSingle();
+        const { data } = await withTimeout(supabase.from('entitlements').select('active,expires_at').maybeSingle(), 4000);
         entitled = !!(data && data.active && (!data.expires_at || new Date(data.expires_at) > new Date()));
       } catch (_) {}
       const cur = L8.savedOrDefault([...(navigator.languages || ['en'])]);
@@ -986,7 +1112,7 @@
     }
     async function maybeOfferBiometric() {
       if (!(await biometricAvailable())) return;
-      if (confirm('Enable fingerprint / face unlock for quick access?')) { if (await biometricVerify()) await store.set(L.bio, '1'); }
+      if (await GUI.confirm('Use your fingerprint or face to open the Parents area quickly.', { title: 'Enable quick unlock?', ok: 'Enable' })) { if (await biometricVerify()) await store.set(L.bio, '1'); }
     }
     function backToDashboard(msg) { goDashboard().then(() => { if (msg) $('#security-ok').textContent = msg; }); }
     async function changePin() {
@@ -1027,11 +1153,12 @@
         }));
       }
       box.appendChild(secBtn('Remove PIN', 'btn-danger', async () => {
-        if (confirm('Remove your PIN? You’ll use the math grown-up check instead.')) { await removePinAll(); backToDashboard('PIN removed.'); }
+        if (await GUI.confirm('You’ll use the maths grown-up check instead.', { title: 'Remove your PIN?', ok: 'Remove', danger: true })) { await removePinAll(); backToDashboard('PIN removed.'); }
       }));
     }
 
     start();
   </script>
+<script>/* Gulsabi app: dark header → light status-bar icons (edge-to-edge WebView). No-op on the web. */try{var _sb=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SystemBars;_sb&&_sb.setStyle({style:"LIGHT"});}catch(e){}</script>
 </body>
 </html>

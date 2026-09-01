@@ -6,19 +6,22 @@
   <title>Gulsabi — Learn Insights</title>
   <link rel="icon" href="/images/gulsabi-app-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/ui/gulsabi-ui.css" />
   <style>
-    :root{ --navy:#15324B; --coral:#FF6B7A; --green:#34A853; --gold:#FBBC04; --blue:#2E6FB0;
-      --bg:#EEF3FA; --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px); }
+    :root{ --navy:var(--g-primary); --coral:var(--g-cta); --green:var(--g-success); --gold:var(--g-accent); --blue:var(--g-secondary);
+      --bg:var(--g-ground); --safe-top:var(--g-safe-top); --safe-bottom:var(--g-safe-bottom); }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-    html,body{margin:0;min-height:100%;font-family:'Fredoka',system-ui,sans-serif;background:var(--bg);color:var(--navy);}
-    header{display:flex;align-items:center;gap:12px;padding:calc(12px + var(--safe-top)) 16px 12px;
-      background:linear-gradient(120deg,#2E6FB0,#15324B);color:#fff;position:sticky;top:0;z-index:5;}
-    header .back{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:20px;cursor:pointer;}
-    header .title{font-weight:700;font-size:18px;}
+    html,body{margin:0;min-height:100%;font-family:'Nunito',system-ui,sans-serif;background:var(--bg);color:var(--g-text);}
+    header{display:flex;align-items:center;gap:4px;padding:var(--safe-top) 8px 0;min-height:calc(56px + var(--safe-top));
+      background:var(--g-ground);color:var(--g-text);position:sticky;top:0;z-index:5;}
+    header .back{width:48px;height:48px;border-radius:50%;border:none;background:transparent;color:var(--g-primary);font-size:0;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    header .back svg{width:24px;height:24px;fill:currentColor;}
+    header .back:active{background:rgba(28,61,90,.08);}
+    header .title{font:var(--g-title);font-size:20px;}
     main{max-width:560px;margin:0 auto;padding:18px 16px calc(30px + var(--safe-bottom));}
-    .card{background:#fff;border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 6px 18px rgba(21,50,75,.08);}
-    .card h2{margin:0 0 4px;font-size:17px;}
+    .card{background:var(--g-surface);border-radius:var(--g-r-md);padding:16px;margin-bottom:12px;box-shadow:var(--g-e1);}
+    .card h2{margin:0 0 4px;font:var(--g-section);}
     .card .sub{color:#5b7186;font-size:13.5px;font-weight:500;margin:0 0 12px;line-height:1.45;}
     .muted{color:#5b7186;font-size:13px;}
     .pill{display:inline-block;background:#EEF3FA;border-radius:999px;padding:5px 12px;font-weight:600;font-size:13px;margin:2px 4px 2px 0;}
@@ -41,10 +44,10 @@
       color:var(--navy);font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap;}
     .plan .price{font-size:22px;font-weight:700;}
     .plan .per{font-size:12px;color:#5b7186;font-weight:600;}
-    .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;margin-top:12px;
-      border:none;border-radius:14px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;}
-    .btn-coral{background:var(--coral);color:#fff;}
-    .btn-ghost{background:#E4EBF4;color:var(--navy);}
+    .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;margin-top:12px;
+      border:none;border-radius:var(--g-r-full);font:700 15px/1 var(--g-font-body);cursor:pointer;}
+    .btn-coral{background:var(--g-primary);color:#fff;}
+    .btn-ghost{background:var(--g-primary-container);color:var(--g-on-primary-container);}
     .spark{display:flex;align-items:flex-end;gap:4px;height:90px;margin:10px 0 4px;}
     .spark .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;}
     .spark .bar-v{width:100%;max-width:34px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,#7CC6F2,#2E6FB0);}
@@ -84,12 +87,13 @@
       font-weight:700;font-size:14px;border:2px solid #E4EBF4;background:#F8FBFF;color:#9aa8b8;}
     #skill-grid .sk.practising{border-color:#9FC6E6;background:#EAF3FB;color:#2E6FB0;}
     #skill-grid .sk.mastered{border-color:var(--green);background:#E7F6EC;color:#1E7B3C;}
+    #skill-grid .sk.skill-name{width:auto;min-width:62px;padding:0 9px;font-size:12px;}
     #skill-grid .sk-group{width:100%;font-size:12px;font-weight:700;color:#5b7186;margin:8px 0 2px;text-transform:capitalize;}
   </style>
 </head>
 <body>
   <header>
-    <button class="back" onclick="location.href='/app/parents/index.html'" aria-label="Back">‹</button>
+    <button class="back" onclick="location.href='/app/parents/index.html'" aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
     <span class="title">Learn — Insights</span>
   </header>
   <main>
@@ -97,7 +101,13 @@
     <div class="card" id="signin">
       <h2>Sign in to see insights</h2>
       <p class="sub">Learn insights live safely in your parent account. Sign in on the Parents screen first — practice on the child side never needs an account.</p>
-      <button class="btn btn-coral" onclick="location.href='/app/parents/index.html'">Open Parents</button>
+      <button class="btn btn-coral" onclick="location.href='/app/parents/index.html?continue=learn-insights'">Open Parents</button>
+    </div>
+
+    <div class="card hidden" id="load-error">
+      <h2>Couldn't load learning progress.</h2>
+      <p class="sub">Check your connection and try again. Your child’s practice on this device is safe.</p>
+      <button class="btn btn-coral" onclick="location.reload()">Retry</button>
     </div>
 
     <div id="dash" class="hidden">
@@ -221,13 +231,36 @@
     </div>
   </main>
 
+  <script src="/app/ui/gulsabi-ui.js"></script>
   <script src="/app/parents/config.js"></script>
+  <script src="/vendor/supabase-js-2.106.2.umd.js"></script>
+  <script src="/app/learn/skill-metadata.js"></script>
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    // supabase-js is bundled locally (public/vendor) so the Parents area never depends on a CDN at runtime.
+    const { createClient } = window.supabase;
     const cfg = window.GULSABI_KIDS;
     const $ = (s) => document.querySelector(s);
+    const INSIGHTS_RETURN_KEY = 'gulsabi_parent_insights_return_until';
+    // Match the Parents page: localStorage keeps the standard Supabase key
+    // available to same-origin Learn sync, while Capacitor Preferences keeps
+    // the real parent session through native WebView restarts.
+    const pref = () => window.Capacitor?.Plugins?.Preferences;
+    const parentAuthStorage = {
+      async getItem(key) {
+        try { const value = localStorage.getItem(key); if (value != null) return value; } catch (_) {}
+        try { return (await pref()?.get({ key }))?.value ?? null; } catch (_) { return null; }
+      },
+      async setItem(key, value) {
+        try { localStorage.setItem(key, value); } catch (_) {}
+        try { await pref()?.set({ key, value }); } catch (_) {}
+      },
+      async removeItem(key) {
+        try { localStorage.removeItem(key); } catch (_) {}
+        try { await pref()?.remove({ key }); } catch (_) {}
+      },
+    };
     const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY,
-      { auth: { persistSession: true, autoRefreshToken: true } });
+      { auth: { persistSession: true, autoRefreshToken: true, storage: parentAuthStorage } });
 
     // Non-diagnostic copy map (Non-Negotiable §3.6): indicators are framed as
     // "practise next", never as deficits. These are proxies, not assessments.
@@ -239,17 +272,34 @@
       { key: 'speed',      name: 'Easy pace',            proxy: 'automaticity',              tip: (s) => `A few relaxed repeats of ${s} will make it feel easy.` },
     ];
 
+    function showLoadError(error) {
+      console.warn('[Learn insights] load failed', error);
+      $('#signin').style.display = 'none';
+      $('#dash').classList.add('hidden');
+      $('#load-error').classList.remove('hidden');
+    }
+
     async function boot() {
+      try { await loadInsights(); }
+      catch (error) { showLoadError(error); }
+    }
+
+    async function loadInsights() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { $('#signin').style.display = 'block'; return; }
+      // Let an immediate Android Back restore the already-unlocked Parents
+      // page once. This is scoped to the current WebView and expires quickly;
+      // it never supplies a cloud identity or survives a cold app restart.
+      try { sessionStorage.setItem(INSIGHTS_RETURN_KEY, String(Date.now() + 90_000)); } catch (_) {}
       $('#dash').classList.remove('hidden');
 
       // ---- FREE: week summary (learn_sessions is not gated) ----
       const weekAgo = new Date(Date.now() - 6 * 864e5); weekAgo.setHours(0, 0, 0, 0);
-      const { data: sessions } = await sb.from('learn_sessions')
+      const { data: sessions, error: sessionsError } = await sb.from('learn_sessions')
         .select('started_at,duration_s,items_completed')
         .gte('started_at', weekAgo.toISOString())
         .order('started_at', { ascending: false });
+      if (sessionsError) throw sessionsError;
       const days = new Set((sessions || []).map((s) => s.started_at.slice(0, 10)));
       const mins = Math.round((sessions || []).reduce((a, s) => a + s.duration_s, 0) / 60);
       const acts = (sessions || []).reduce((a, s) => a + s.items_completed, 0);
@@ -262,8 +312,9 @@
         : days.size > 0 ? 'Practice this week — nice rhythm!' : 'No practice yet this week — the Learn tab is one tap away.';
 
       // ---- FREE: one sample insight (RPC works regardless of entitlement) ----
-      const { data: sample } = await sb.rpc('learn_sample_insight',
+      const { data: sample, error: sampleError } = await sb.rpc('learn_sample_insight',
         { p_child_id: (await childId()) });
+      if (sampleError) throw sampleError;
       if (sample && sample.length > 0) {
         const s = sample[0];
         $('#sample-line').innerHTML = `Most recent practice: <b>${esc(s.skill)}</b> — ${s.reps} unassisted ${s.reps == 1 ? 'try' : 'tries'}. Subscribers see the full trend for every skill.`;
@@ -273,7 +324,8 @@
 
       // ---- entitlement: the client only REFLECTS; the data itself is gated
       // by RLS server-side. Even a spoofed UI gets zero gated rows. ----
-      const { data: ent } = await sb.from('entitlements').select('active,plan,expires_at').maybeSingle();
+      const { data: ent, error: entitlementError } = await sb.from('entitlements').select('active,plan,expires_at').maybeSingle();
+      if (entitlementError) throw entitlementError;
       const active = !!(ent && ent.active && (!ent.expires_at || new Date(ent.expires_at) > new Date()));
       const banner = $('#tier-banner');
       if (active) {
@@ -326,9 +378,10 @@
     async function renderInsights() {
       // gated rows — only arrive when RLS lets them through
       const since = new Date(Date.now() - 28 * 864e5).toISOString();
-      const { data: reps } = await sb.from('learn_rep_metrics')
+      const { data: reps, error: repsError } = await sb.from('learn_rep_metrics')
         .select('skill,domain,is_assisted,scores,created_at')
         .gte('created_at', since).order('created_at');
+      if (repsError) throw repsError;
       const clean = (reps || []).filter((r) => !r.is_assisted);
 
       // Writing Readiness Index: weekly mean of a weighted sub-score blend,
@@ -370,25 +423,29 @@
         : 'The trend fills in as your child practises — a few minutes a day is plenty.';
 
       // ---- PREMIUM: per-skill mastery grid ----
-      const { data: progRows } = await sb.from('learn_skill_progress').select('skill,state');
+      const { data: progRows, error: progressRowsError } = await sb.from('learn_skill_progress').select('skill,state');
+      if (progressRowsError) throw progressRowsError;
       const stateBy = {}; for (const r of (progRows || [])) stateBy[r.skill] = r.state;
+      const metadata = window.GulsabiLearnMetadata?.LEARN_SKILL_METADATA;
+      if (!Array.isArray(metadata)) throw new Error('Learn curriculum metadata is unavailable');
       const GROUPS = [
-        { name: 'Uppercase', skills: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') },
-        { name: 'Lowercase', skills: 'abcdefghijklmnopqrstuvwxyz'.split('') },
-        { name: 'Numbers', skills: '0123456789'.split('') },
-        { name: 'Shapes', skills: ['square','triangle','rectangle','oval','star','diamond','heart','circle'] },
+        { name: 'Uppercase', domain: 'uppercase' },
+        { name: 'Lowercase', domain: 'lowercase' },
+        { name: 'Numbers', domain: 'number' },
+        { name: 'Shapes', domain: 'shape' },
       ];
       const grid = $('#skill-grid'); grid.innerHTML = '';
       for (const g of GROUPS) {
+        const skills = metadata.filter((entry) => entry.domain === g.domain);
         // only show a group once the child has touched it (keeps it relevant)
-        if (!g.skills.some((s) => stateBy[s])) continue;
+        if (!skills.some(({ skill }) => stateBy[skill])) continue;
         const h = document.createElement('div'); h.className = 'sk-group'; h.textContent = g.name; grid.appendChild(h);
-        for (const s of g.skills) {
-          const st = stateBy[s];
+        for (const { skill, label } of skills) {
+          const st = stateBy[skill];
           const cell = document.createElement('div');
-          cell.className = 'sk' + (st === 'mastered' ? ' mastered' : (st === 'practising' || st === 'learning') ? ' practising' : '');
-          cell.textContent = s.length === 1 ? s : s[0].toUpperCase();
-          cell.title = `${s}: ${st || 'not started'}`;
+          cell.className = 'sk' + (skill.length > 1 ? ' skill-name' : '') + (st === 'mastered' ? ' mastered' : (st === 'practising' || st === 'learning') ? ' practising' : '');
+          cell.textContent = label;
+          cell.title = `${label}: ${st || 'not started'}`;
           grid.appendChild(cell);
         }
       }
@@ -398,7 +455,8 @@
       // deliberately needs practice across several days, so a "0 mastered"
       // bar after a big first session misreads the real progress. The bar
       // fills lightly for practising skills, solid green for mastered.
-      const { data: prog } = await sb.from('learn_skill_progress').select('skill,state');
+      const { data: prog, error: progressError } = await sb.from('learn_skill_progress').select('skill,state');
+      if (progressError) throw progressError;
       const domains = {};
       for (const p of (prog || [])) {
         const d = domainOf(p.skill);
@@ -477,19 +535,20 @@
     }
 
     async function wipeData() {
-      if (!confirm('Delete ALL Learn progress and insights for your family from the cloud? Practice on the device is kept.')) return;
+      if (!(await GUI.confirm('This deletes all Learn progress and insights for your family from the cloud. Practice on this device is kept.', { title: 'Delete cloud data?', ok: 'Delete', danger: true }))) return;
       $('#data-err').textContent = '';
       const uid = (await sb.auth.getSession()).data.session.user.id;
       const e1 = await sb.from('learn_rep_metrics').delete().eq('parent_id', uid);
       const e2 = await sb.from('learn_skill_progress').delete().eq('parent_id', uid);
       const e3 = await sb.from('learn_sessions').delete().eq('parent_id', uid);
       if (e1.error || e2.error || e3.error) $('#data-err').textContent = 'Some data could not be deleted — try again.';
-      else alert('Learn cloud data deleted.');
+      else await GUI.alert('Learn cloud data deleted.', { title: 'Deleted' });
     }
 
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
     boot();
   </script>
+<script>/* Gulsabi app: dark header → light status-bar icons (edge-to-edge WebView). No-op on the web. */try{var _sb=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SystemBars;_sb&&_sb.setStyle({style:"LIGHT"});}catch(e){}</script>
 </body>
 </html>

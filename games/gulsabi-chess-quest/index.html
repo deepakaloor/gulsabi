@@ -110,7 +110,7 @@
     background-attachment:fixed;
   }
   img{user-select:none;-webkit-user-drag:none;}
-  .wrap{max-width:760px;margin:0 auto;padding:18px 16px 56px;}
+  .wrap{max-width:760px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) 16px 56px;}
   .screen{display:none;}
   .screen.active{display:block;animation:fade .35s ease;}
   @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
@@ -1306,5 +1306,6 @@ function makeBotMove(){
         }, true);
       })();
     </script>
+<script>/* Gulsabi app: dark header → light status-bar icons (edge-to-edge WebView). No-op on the web. */try{var _sb=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SystemBars;_sb&&_sb.setStyle({style:"DARK"});}catch(e){}</script>
 </body>
 </html>

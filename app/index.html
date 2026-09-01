@@ -7,501 +7,546 @@
   <link rel="icon" href="/images/gulsabi-app-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/ui/gulsabi-ui.css" />
   <style>
-    /* ===== Gulsabi app shell — bright, Google-for-kids look. =====
-       Self-contained (repo convention). Clean white surfaces, soft shadows,
-       Google accent colours per game, big rounded touch targets. */
-    :root {
-      --navy:#15324B; --ink:#1F3A53; --muted:#6B7F95;
-      --bg:#EEF3FA; --surface:#FFFFFF;
-      --g-blue:#4285F4; --g-red:#EA4335; --g-yellow:#FBBC04; --g-green:#34A853;
-      --g-purple:#9B6DF3; --g-teal:#00BFA5; --coral:#FF6B7A; --gold:#F5DF33;
-      --tabbar-h:74px;
-      --safe-top:env(safe-area-inset-top,0px);
-      --safe-bottom:env(safe-area-inset-bottom,0px);
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-    html,body{margin:0;height:100%;font-family:'Fredoka',system-ui,sans-serif;
-      background:var(--bg);color:var(--ink);overscroll-behavior:none;
-      user-select:none;-webkit-user-select:none;}
-    #app{display:flex;flex-direction:column;height:100%;}
+    /* ===== Gulsabi app shell — Android layout on the shared design system.
+       Four destinations (Home · Watch · Play · Learn) in a Material bottom
+       navigation bar; Parents behind the avatar in the app bar. ===== */
+    html, body { height: 100%; }
+    #app { min-height: 100%; display: flex; flex-direction: column; }
+    main { flex: 1 1 auto; }
+    .pane { display: none; padding: 0 var(--g-margin) calc(var(--g-nav-h) + var(--g-safe-bottom) + var(--g-s6)); }
+    .pane.active { display: block; animation: pane-in var(--g-base) var(--g-ease); }
+    @keyframes pane-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-    /* Header — friendly blue gradient so the logo pops */
-    header{flex:0 0 auto;position:relative;
-      padding:calc(14px + var(--safe-top)) 16px 14px;
-      display:flex;align-items:center;justify-content:space-between;
-      background:linear-gradient(120deg,#2E6FB0 0%,#15324B 100%);}
-    header img{height:32px;}
-    header .spacer{width:42px;}
-    header .parents-btn{width:42px;height:42px;border-radius:50%;border:none;
-      background:rgba(255,255,255,.18);color:#fff;font-size:19px;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;}
-    header .parents-btn:active{transform:scale(.92);}
+    /* Top app bar: logo (identity) + Parents avatar (grown-ups) */
+    .topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between;
+      padding: calc(var(--g-safe-top) + 6px) var(--g-s2) 6px var(--g-margin); background: var(--g-ground); }
+    .topbar img { height: 26px; width: auto; }
+    .topbar .parents { color: var(--g-primary); }
+    .topbar .parents svg { width: 26px; height: 26px; }
 
-    /* Content */
-    main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
-      background:var(--bg);
-      padding:20px 16px calc(26px + var(--tabbar-h) + var(--safe-bottom));}
-    .pane{display:none;animation:fade .28s ease;}
-    .pane.active{display:block;}
-    @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
-    .h1{font-size:25px;font-weight:700;color:var(--navy);margin:2px 2px 14px;}
-    .sub{font-size:14px;font-weight:600;color:var(--muted);margin:22px 4px 12px;
-      text-transform:uppercase;letter-spacing:.04em;}
+    .pane-title { display: flex; align-items: center; justify-content: space-between; gap: var(--g-s3); padding: var(--g-s2) 0 var(--g-s4); }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--g-s3); margin: var(--g-s6) 0 var(--g-s3); }
+    .section-head:first-child { margin-top: 0; }
 
-    /* Featured hero tile */
-    .featured{position:relative;width:100%;height:188px;border-radius:26px;
-      overflow:hidden;cursor:pointer;box-shadow:0 12px 26px rgba(21,50,75,.20);}
-    .featured:active{transform:scale(.985);}
-    .featured img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-    .featured .scrim{position:absolute;inset:0;
-      background:linear-gradient(180deg,rgba(0,0,0,0) 28%,rgba(10,22,38,.86) 100%);}
-    .featured .pill{position:absolute;top:14px;left:14px;
-      background:rgba(255,255,255,.92);color:var(--navy);font-weight:700;
-      font-size:12px;padding:6px 12px;border-radius:999px;display:flex;gap:5px;align-items:center;}
-    .featured .meta{position:absolute;left:18px;right:18px;bottom:16px;color:#fff;}
-    .featured .meta h2{margin:0 0 2px;font-size:24px;font-weight:700;
-      text-shadow:0 2px 8px rgba(0,0,0,.35);}
-    .featured .meta p{margin:0 0 12px;font-size:14px;font-weight:500;opacity:.95;
-      text-shadow:0 1px 6px rgba(0,0,0,.4);}
-    .featured .play{display:inline-flex;align-items:center;gap:7px;
-      background:#fff;color:var(--navy);font-weight:700;font-size:15px;
-      padding:11px 20px;border-radius:999px;box-shadow:0 6px 16px rgba(0,0,0,.25);}
+    /* ---- Home ---- */
+    .hello { display: flex; align-items: center; gap: var(--g-s3); padding: var(--g-s2) 0 var(--g-s4); }
+    .hello .txt { flex: 1 1 auto; min-width: 0; }
+    .hello .buddy { width: 104px; height: 104px; object-fit: contain; flex: 0 0 auto; filter: drop-shadow(0 6px 12px rgba(28,46,66,.16)); }
+    .continue { display: flex; align-items: center; gap: var(--g-s3); padding: var(--g-s3); border-radius: var(--g-r-lg); background: var(--g-primary); color: #fff; text-align: left; border: none; width: 100%; }
+    .continue .art { width: 84px; height: 84px; border-radius: var(--g-r-md); object-fit: cover; flex: 0 0 auto; background: var(--g-surface-2); }
+    .continue .art.contain { object-fit: contain; background: rgba(255,255,255,.12); }
+    .continue .body { flex: 1 1 auto; min-width: 0; }
+    .continue .g-eyebrow { color: var(--g-accent); }
+    .continue .t { font: var(--g-section); font-size: 18px; color: #fff; margin: 2px 0; }
+    .continue .s { font: var(--g-support); color: rgba(255,255,255,.78); }
+    .continue .go { width: 44px; height: 44px; border-radius: 50%; background: var(--g-cta); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .continue .go svg { width: 26px; height: 26px; fill: #fff; }
+    .dest { display: grid; gap: var(--g-s3); }
+    .dest .g-row { background: var(--g-surface); border-radius: var(--g-r-md); box-shadow: var(--g-e1); min-height: 84px; padding: var(--g-s3); }
+    .dest .g-row + .g-row { border-top: none; }
+    .dest .lead { width: 60px; height: 60px; border-radius: 14px; object-fit: cover; flex: 0 0 auto; background: var(--g-surface-2); }
+    .dest .lead.icon { display: flex; align-items: center; justify-content: center; color: #fff; }
+    .dest .lead.icon svg { width: 30px; height: 30px; fill: currentColor; }
+    .rail { display: flex; gap: var(--g-s3); overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--g-margin)); padding: 2px var(--g-margin) var(--g-s2); scroll-snap-type: x proximity; }
+    .rail::-webkit-scrollbar { display: none; }
+    .rail > * { scroll-snap-align: start; flex: 0 0 auto; }
+    .mini { width: 132px; background: none; border: none; padding: 0; text-align: left; color: inherit; }
+    .mini img { width: 132px; height: 132px; border-radius: var(--g-r-md); object-fit: cover; background: var(--g-surface-2); }
+    .mini .t { font: var(--g-label); color: var(--g-text); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Game grid */
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
-    .game{background:var(--surface);border:none;border-radius:22px;overflow:hidden;
-      box-shadow:0 6px 16px rgba(21,50,75,.10);cursor:pointer;padding:0;
-      text-align:left;display:flex;flex-direction:column;transition:transform .12s ease;}
-    .game:active{transform:scale(.95);}
-    .game .thumbwrap{position:relative;width:100%;aspect-ratio:1/1;background:#dde6f0;}
-    .game .thumbwrap img{width:100%;height:100%;object-fit:cover;display:block;}
-    .game .accent{height:5px;width:100%;}
-    .game .label{padding:11px 13px 14px;font-weight:600;font-size:15px;color:var(--navy);
-      display:flex;align-items:center;gap:7px;}
-    .game .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+    /* ---- Play ---- */
+    .featured { position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: var(--g-r-lg); overflow: hidden; background: var(--g-primary); border: none; padding: 0; text-align: left; color: #fff; }
+    .featured img { width: 100%; height: 100%; object-fit: cover; }
+    .featured .scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,24,38,0) 40%, rgba(10,24,38,.82) 100%); }
+    .featured .pill { position: absolute; top: var(--g-s3); left: var(--g-s3); }
+    .featured .meta { position: absolute; left: var(--g-s4); right: var(--g-s4); bottom: var(--g-s4); display: flex; align-items: flex-end; justify-content: space-between; gap: var(--g-s3); }
+    .featured .meta h2 { font: var(--g-title); color: #fff; }
+    .featured .meta p { font: var(--g-support); color: rgba(255,255,255,.82); margin-top: 2px; }
+    .featured .fab { width: 52px; height: 52px; border-radius: 50%; background: var(--g-cta); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: 0 6px 16px rgba(0,0,0,.3); }
+    .featured .fab svg { width: 30px; height: 30px; fill: #fff; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--g-s3); }
+    .game { background: var(--g-surface); border: none; padding: 0; border-radius: var(--g-r-md); overflow: hidden; text-align: left; color: inherit; box-shadow: var(--g-e1); }
+    .game img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: var(--g-surface-2); }
+    .game .body { padding: var(--g-s3); display: flex; align-items: center; gap: var(--g-s2); }
+    .game .body .txt { flex: 1 1 auto; min-width: 0; }
+    .game .t { font: var(--g-card-title); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .game .s { font: var(--g-support); color: var(--g-text-2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .game .go { width: 36px; height: 36px; border-radius: 50%; background: var(--g-secondary-container); color: var(--g-secondary); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .game .go svg { width: 22px; height: 22px; fill: currentColor; }
 
-    /* Watch library — in-app browse; playback opens externally */
-    .vtoggle{display:flex;gap:10px;justify-content:center;margin-bottom:18px;}
-    .vtoggle-btn{min-height:44px;padding:0 26px;border:none;border-radius:999px;
-      font-family:inherit;font-weight:700;font-size:15px;background:#E4EBF4;color:var(--navy);cursor:pointer;}
-    .vtoggle-btn.active{background:var(--coral);color:#fff;box-shadow:0 6px 14px rgba(255,107,122,.35);}
-    .shortsgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
-    .videosgrid{display:grid;grid-template-columns:1fr;gap:14px;}
-    .vtile{position:relative;border:none;border-radius:18px;overflow:hidden;cursor:pointer;
-      padding:0;background:#1C3D5A;box-shadow:0 6px 16px rgba(21,50,75,.12);transition:transform .12s;}
-    .vtile:active{transform:scale(.97);}
-    .shortsgrid .vtile{aspect-ratio:9/16;}
-    .videosgrid .vtile{aspect-ratio:16/9;}
-    .vtile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-    .vscrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(10,22,38,.82) 100%);}
-    .vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;
-      border-radius:50%;background:rgba(255,255,255,.92);color:var(--coral);display:flex;
-      align-items:center;justify-content:center;font-size:19px;padding-left:3px;}
-    .vtitle{position:absolute;left:0;right:0;bottom:0;padding:9px 10px;color:#fff;font-size:12.5px;
-      font-weight:600;text-align:left;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;
-      -webkit-box-orient:vertical;overflow:hidden;}
+    /* Game sheet */
+    #gsheet .art { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--g-r-md); background: var(--g-surface-2); }
+    #gsheet .head { margin-top: var(--g-s4); }
+    #gsheet .g-chips { margin: var(--g-s3) 0 var(--g-s4); }
+    #gsheet .g-body { color: var(--g-text-2); }
+    #gsheet .actions { display: flex; gap: var(--g-s2); margin-top: var(--g-s5); }
+    #gsheet .actions .g-btn--cta { flex: 1 1 auto; }
 
-    /* Empty / coming-soon */
-    .empty{text-align:center;padding:44px 22px;background:var(--surface);
-      border-radius:24px;box-shadow:0 6px 16px rgba(21,50,75,.08);}
-    .empty .big{font-size:54px;line-height:1;margin-bottom:14px;}
-    .empty h2{margin:0 0 6px;font-size:20px;color:var(--navy);}
-    .empty p{margin:0;color:var(--muted);font-weight:500;}
+    /* ---- Watch ---- */
+    .seg { display: inline-flex; background: var(--g-surface-2); border-radius: var(--g-r-full); padding: 3px; }
+    .seg button { min-height: 36px; padding: 0 var(--g-s4); border: none; border-radius: var(--g-r-full); background: transparent; color: var(--g-text-2); font: 700 13.5px/1 var(--g-font-body); transition: background var(--g-fast), color var(--g-fast); }
+    .seg button[aria-selected="true"] { background: var(--g-surface); color: var(--g-primary); box-shadow: var(--g-e1); }
+    .vtile { position: relative; background: none; border: none; padding: 0; text-align: left; color: inherit; }
+    .vtile .thumb { position: relative; width: 100%; border-radius: var(--g-r-md); overflow: hidden; background: var(--g-surface-3); }
+    .vtile .thumb img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .vtile .thumb .pl { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--g-cta); display: flex; align-items: center; justify-content: center; box-shadow: var(--g-e2); }
+    .vtile .thumb .pl svg { width: 26px; height: 26px; fill: currentColor; margin-left: 2px; }
+    .vtile .t { font: var(--g-label); color: var(--g-text); margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .shortsgrid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--g-s3); }
+    .shortsgrid .thumb { aspect-ratio: 9 / 14; }
+    .videosgrid { display: grid; gap: var(--g-s4); }
+    .videosgrid .thumb { aspect-ratio: 16 / 9; }
+    .cw { display: flex; align-items: center; gap: var(--g-s3); background: var(--g-surface); border-radius: var(--g-r-md); box-shadow: var(--g-e1); padding: var(--g-s2); border: none; width: 100%; text-align: left; color: inherit; }
+    .cw .thumb { width: 96px; height: 64px; border-radius: 10px; object-fit: cover; flex: 0 0 auto; background: var(--g-surface-3); }
+    .cw .t { flex: 1 1 auto; min-width: 0; font: var(--g-card-title); font-size: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .cw .g-row-trail { color: var(--g-secondary); }
+    .skel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--g-s3); }
+    .skel-grid .g-skel { aspect-ratio: 9 / 14; border-radius: var(--g-r-md); }
+    .offline-note { display: flex; align-items: center; gap: var(--g-s2); margin: 0 0 var(--g-s3); padding: 10px 12px; border-radius: var(--g-r-sm); background: var(--g-surface-2); color: var(--g-text-2); font: var(--g-support); }
+    .offline-note svg { width: 18px; height: 18px; fill: currentColor; flex: 0 0 auto; }
 
-    /* Buttons */
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
-      min-height:54px;padding:0 24px;border:none;border-radius:16px;
-      font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;transition:transform .12s;}
-    .btn:active{transform:scale(.96);}
-    .btn-coral{background:var(--coral);color:#fff;box-shadow:0 6px 16px rgba(255,107,122,.35);}
-    .btn-ghost{background:#E4EBF4;color:var(--navy);}
-    .center-row{display:flex;justify-content:center;margin-top:22px;}
+    /* Player: full-screen surface with its own app bar */
+    #ytbox { position: fixed; inset: 0; z-index: 50; background: #0B1620; display: none; flex-direction: column; }
+    #ytbox.active { display: flex; }
+    #ytbox .bar { display: flex; align-items: center; gap: var(--g-s2); padding: calc(var(--g-safe-top) + 4px) var(--g-s2) 4px; color: #fff; }
+    #ytbox .bar .g-appbar-title { color: #fff; font: var(--g-title); font-size: 17px; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #ytbox .stage { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; padding: 0 var(--g-s4) calc(var(--g-s4) + var(--g-safe-bottom)); }
+    #ytbox .ratio { position: relative; width: 100%; max-width: 480px; border-radius: var(--g-r-md); overflow: hidden; background: #000; }
+    #ytbox.short .ratio { max-width: 340px; aspect-ratio: 9 / 16; }
+    #ytbox.long .ratio { aspect-ratio: 16 / 9; }
+    #ytbox iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-    /* Bottom nav */
-    nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;
-      height:calc(var(--tabbar-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);
-      background:var(--surface);display:flex;align-items:stretch;
-      box-shadow:0 -2px 18px rgba(21,50,75,.12);border-radius:22px 22px 0 0;}
-    nav.tabbar button{flex:1;background:none;border:none;color:#9AAABD;cursor:pointer;
-      font-family:inherit;display:flex;flex-direction:column;align-items:center;
-      justify-content:center;gap:3px;font-size:11.5px;font-weight:600;position:relative;}
-    nav.tabbar button svg{width:25px;height:25px;fill:currentColor;transition:transform .15s;}
-    nav.tabbar button .ico{display:flex;align-items:center;justify-content:center;
-      width:52px;height:30px;border-radius:999px;transition:background .2s;}
-    nav.tabbar button.active{color:var(--g-blue);}
-    nav.tabbar button.active .ico{background:rgba(66,133,244,.14);}
-    nav.tabbar button.active svg{transform:translateY(-1px) scale(1.05);}
+    /* ---- Learn ---- */
+    .learn-hero { display: flex; align-items: center; gap: var(--g-s3); background: var(--g-surface); border-radius: var(--g-r-lg); padding: var(--g-s4); box-shadow: var(--g-e1); }
+    .learn-hero img { width: 112px; height: 112px; object-fit: contain; flex: 0 0 auto; }
+    .learn-hero .txt { flex: 1 1 auto; min-width: 0; }
+    .learn-hero .g-title { font-size: 21px; }
+    .learn-hero p { margin-top: 4px; }
+    .stat { display: grid; grid-template-columns: 1fr 1fr; gap: var(--g-s3); }
+    .stat .g-card { padding: var(--g-s3) var(--g-s4); }
+    .stat .n { font: var(--g-display); font-size: 26px; color: var(--g-primary); }
+    .stat .l { font: var(--g-support); color: var(--g-text-2); }
 
-    /* In-app video popup (YouTube embed) */
-    #ytbox{position:fixed;inset:0;z-index:70;background:rgba(8,16,28,.93);display:none;
-      align-items:center;justify-content:center;padding:16px;}
-    #ytbox.active{display:flex;}
-    #ytbox .frame{position:relative;width:100%;max-width:430px;}
-    #ytbox.short .frame{max-width:300px;}
-    #ytbox .ratio{position:relative;width:100%;border-radius:18px;overflow:hidden;background:#000;
-      box-shadow:0 18px 40px rgba(0,0,0,.5);}
-    #ytbox.short .ratio{aspect-ratio:9/16;}
-    #ytbox.long .ratio{aspect-ratio:16/9;}
-    #ytbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
-    #ytbox .close{position:absolute;top:-54px;right:0;width:46px;height:46px;border-radius:50%;
-      background:rgba(255,255,255,.2);color:#fff;border:none;font-size:21px;cursor:pointer;}
+    /* ---- Banana Break (daily boundary) — full-screen, calm ---- */
+    #banana { position: fixed; left: 0; right: 0; top: 0; z-index: 45; bottom: calc(var(--g-nav-h) + var(--g-safe-bottom));
+      background: var(--g-ground); display: none; flex-direction: column; align-items: center; justify-content: center; padding: var(--g-s8) var(--g-s6); text-align: center; }
+    #banana.active { display: flex; }
+    #banana img { width: 150px; height: 150px; object-fit: contain; }
+    #banana h2 { font: var(--g-title); margin-top: var(--g-s3); }
+    #banana p { max-width: 32ch; margin: var(--g-s2) 0 var(--g-s6); color: var(--g-text-2); }
 
-    /* Banana Break lock — covers the locked module, leaves the tab bar usable */
-    #banana{position:fixed;left:0;right:0;top:0;z-index:55;
-      bottom:calc(var(--tabbar-h) + var(--safe-bottom));
-      background:linear-gradient(160deg,#FFE08A,#FFC23D);display:none;
-      flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;}
-    #banana.active{display:flex;}
-    #banana .emoji{font-size:72px;margin-bottom:8px;}
-    #banana h2{font-size:26px;color:#7a4f00;margin:0 0 10px;font-weight:700;}
-    #banana p{font-size:16px;color:#6b4a08;font-weight:600;line-height:1.5;max-width:340px;margin:0 0 22px;}
-    #banana button{min-height:54px;padding:0 26px;border:none;border-radius:16px;font-family:inherit;
-      font-weight:700;font-size:16px;background:#15324B;color:#fff;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.2);}
-    #banana button:active{transform:scale(.97);}
-    /* Parental gate */
-    #gate{position:fixed;inset:0;z-index:80;background:rgba(21,50,75,.74);
-      display:none;align-items:center;justify-content:center;padding:24px;}
-    #gate.active{display:flex;}
-    #gate .box{background:#fff;border-radius:26px;padding:28px 24px;max-width:340px;
-      width:100%;text-align:center;}
-    #gate .box h2{margin:0 0 4px;color:var(--navy);}
-    #gate .box p{margin:0 0 16px;color:var(--muted);font-weight:500;}
-    #gate .q{font-size:27px;font-weight:700;color:var(--navy);margin-bottom:10px;}
-    #gate input{width:130px;text-align:center;font-family:inherit;font-size:24px;
-      font-weight:700;padding:11px;border:2px solid #D6E0EC;border-radius:14px;color:var(--navy);}
-    #gate .row{display:flex;gap:10px;margin-top:18px;}
-    #gate .row .btn{flex:1;min-height:50px;}
-    #gate .err{color:var(--coral);font-weight:600;min-height:20px;margin-top:8px;font-size:14px;}
+    /* ---- Parental gate (dialog) ---- */
+    #gate { position: fixed; inset: 0; z-index: 80; background: var(--g-scrim); display: none; align-items: center; justify-content: center; padding: var(--g-s6); }
+    #gate.active { display: flex; }
+    #gate .g-dialog { text-align: center; transform: none; }
+    #gate .q { font: var(--g-display); margin: var(--g-s3) 0; }
+    #gate input { width: 132px; min-height: 56px; text-align: center; font: 700 26px/1 var(--g-font-body); border: 1.5px solid var(--g-outline); border-radius: var(--g-r-sm); color: var(--g-text); }
+    #gate input:focus { outline: none; border-color: var(--g-secondary); box-shadow: 0 0 0 3px rgba(46,111,176,.18); }
+    #gate .g-dialog-actions { justify-content: center; }
   </style>
 </head>
 <body>
   <div id="app">
-    <header>
-      <span class="spacer"></span>
+    <div class="topbar">
       <img src="/images/gulsabi-logo.png" alt="Gulsabi" />
-      <button class="parents-btn" id="parents-btn" aria-label="Parents">👤</button>
-    </header>
+      <button class="g-iconbtn parents" id="parents-btn" aria-label="Parents area"></button>
+    </div>
     <main>
-      <!-- PLAY (default) -->
-      <section class="pane active" id="pane-play">
-        <div class="h1">Play</div>
-        <div id="featured"></div>
-        <div class="sub">More games</div>
-        <div class="grid" id="play-grid"></div>
+      <!-- HOME -->
+      <section class="pane active" id="pane-home" role="tabpanel">
+        <div class="hello">
+          <div class="txt">
+            <div class="g-eyebrow" id="hello-eyebrow">Welcome back</div>
+            <h1 class="g-display" id="hello-title">Hi, explorer!</h1>
+            <p class="g-body g-muted" id="hello-sub">What shall we do today?</p>
+          </div>
+          <img class="buddy" src="/app/learn/img/gulsabi-front.png" alt="" />
+        </div>
+        <div id="home-continue"></div>
+        <div class="section-head"><h2 class="g-section">Explore</h2></div>
+        <div class="dest" id="home-dest"></div>
+        <div class="section-head"><h2 class="g-section">Games to try</h2><button class="g-btn g-btn--text" data-goto="play">See all</button></div>
+        <div class="rail" id="home-rail"></div>
       </section>
 
       <!-- WATCH -->
-      <section class="pane" id="pane-watch">
-        <div class="h1">Watch</div>
-        <div id="watch-content"><div class="empty"><div class="big">🎬</div><h2>Loading…</h2></div></div>
+      <section class="pane" id="pane-watch" role="tabpanel">
+        <div class="pane-title"><h1 class="g-title">Watch</h1><div class="seg" id="watch-seg"></div></div>
+        <div id="watch-content"><div class="skel-grid"><div class="g-skel"></div><div class="g-skel"></div><div class="g-skel"></div><div class="g-skel"></div></div></div>
       </section>
 
-      <!-- WORKSHEETS -->
-      <section class="pane" id="pane-sheets">
-        <div class="h1">Learn</div>
-        <div id="sheets-content"><div class="empty"><div class="big">📝</div><h2>Checking…</h2></div></div>
+      <!-- PLAY -->
+      <section class="pane" id="pane-play" role="tabpanel">
+        <div class="pane-title"><h1 class="g-title">Play</h1></div>
+        <div id="featured"></div>
+        <div class="section-head"><h2 class="g-section">All games</h2></div>
+        <div class="grid" id="play-grid"></div>
+      </section>
+
+      <!-- LEARN -->
+      <section class="pane" id="pane-learn" role="tabpanel">
+        <div class="pane-title"><h1 class="g-title">Learn</h1></div>
+        <div id="learn-content"></div>
       </section>
     </main>
   </div>
 
-  <nav class="tabbar">
-    <button data-tab="play" class="active">
-      <span class="ico"><svg viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66A3.996 3.996 0 0 0 16.53 5H7.47C5.48 5 3.79 6.46 3.51 8.43l-1.09 7.66C2.2 17.63 3.39 19 4.94 19c.68 0 1.32-.27 1.8-.75L9 15h6l2.25 3.25c.48.48 1.13.75 1.81.75 1.55 0 2.74-1.37 2.52-2.91zM11 11H9v2H8v-2H6v-1h2V8h1v2h2v1zm4.5 1.5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2-3c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg></span>
-      Play
-    </button>
-    <button data-tab="watch">
-      <span class="ico"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.11-.9-2-2-2zM10 14.5v-5l5 2.5-5 2.5z"/></svg></span>
-      Watch
-    </button>
-    <button data-tab="sheets">
-      <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></span>
-      Learn
-    </button>
-  </nav>
+  <nav class="g-nav" id="nav" role="tablist" aria-label="Main"></nav>
 
-  <!-- In-app video popup (YouTube embed) -->
+  <!-- Game detail sheet -->
+  <div class="g-sheet" id="gsheet" aria-hidden="true"></div>
+
+  <!-- Player -->
   <div id="ytbox">
-    <div class="frame">
-      <button class="close" aria-label="Close">✕</button>
-      <div class="ratio">
-        <iframe id="ytframe" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
-      </div>
+    <div class="bar">
+      <button class="g-iconbtn" id="yt-close" aria-label="Close video"></button>
+      <div class="g-appbar-title" id="yt-title">Video</div>
     </div>
+    <div class="stage"><div class="ratio">
+      <iframe id="ytframe" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+    </div></div>
   </div>
 
   <!-- Banana Break lock (Daily Boundaries) -->
   <div id="banana">
-    <div class="emoji">🍌</div>
+    <img src="/app/learn/img/gulsabi-think.png" alt="" />
     <h2>Banana Break!</h2>
-    <p>Gulsabi is taking a banana break to recharge! 🍌 Time to stretch your muscles, look out a window, or ask a grown-up to unlock a few more minutes.</p>
-    <button id="banana-override">🧑 Grown-Up Override</button>
+    <p>Gulsabi is taking a banana break to recharge 🍌 Time to stretch, look out a window, or ask a grown-up to unlock a few more minutes.</p>
+    <button class="g-btn g-btn--filled g-btn--lg" id="banana-override">Grown-up override</button>
   </div>
 
   <!-- Parental gate -->
   <div id="gate">
-    <div class="box">
+    <div class="g-dialog" role="dialog" aria-modal="true">
       <h2>Ask a grown-up</h2>
       <p id="gate-sub">Just checking — this is for grown-ups.</p>
       <div class="q" id="gate-q">3 + 4 = ?</div>
       <input id="gate-input" type="number" inputmode="numeric" autocomplete="off" />
-      <div class="err" id="gate-err"></div>
-      <div class="row">
-        <button class="btn btn-ghost" id="gate-cancel">Cancel</button>
-        <button class="btn btn-coral" id="gate-ok">Go</button>
+      <div class="g-error-text" id="gate-err"></div>
+      <div class="g-dialog-actions">
+        <button class="g-btn g-btn--text" id="gate-cancel">Cancel</button>
+        <button class="g-btn g-btn--filled" id="gate-ok">Continue</button>
       </div>
     </div>
   </div>
 
+  <script src="/app/ui/gulsabi-ui.js"></script>
   <script>
     // ---- Content sources (hybrid by change-rate) --------------------------
-    // Shell + games bundled. Videos + worksheets load LIVE from gulsabi.com,
-    // falling back to bundled when offline/slow/down. Every live fetch is
-    // time-boxed so a slow/down site never hangs the UI.
+    // Shell + games bundled. Videos load LIVE from gulsabi.com, falling back
+    // to bundled when offline/slow/down. Every live fetch is time-boxed.
     const CONTENT = { liveBase: 'https://gulsabi.com', timeoutMs: 3500 };
-
     async function fetchOk(url, ms) {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), ms);
-      try {
-        const res = await fetch(url, { cache: 'no-cache', signal: ctrl.signal });
-        return res && res.ok ? res : null;
-      } catch (_) { return null; }
-      finally { clearTimeout(t); }
-    }
-    async function liveFirst(path) {
-      return (await fetchOk(CONTENT.liveBase + path, CONTENT.timeoutMs))
-          || (await fetchOk(path, CONTENT.timeoutMs));
+      try { const res = await fetch(url, { cache: 'no-cache', signal: ctrl.signal }); return res && res.ok ? res : null; }
+      catch (_) { return null; } finally { clearTimeout(t); }
     }
 
-    // Link to the explicit index.html — Capacitor's local server serves the ROOT
-    // index.html for any extensionless path (SPA fallback), which would load the
-    // marketing homepage instead of the game.
+    // Games launch STRAIGHT into the game (the website detail page is not
+    // part of the app). Explicit index.html — Capacitor serves the ROOT page
+    // for extensionless paths.
     const GAMES = [
-      { title:'Sky Adventure', href:'/games/sky-adventure/index.html',       thumb:'/games/game1.jpg', color:'#4285F4' },
-      { title:'Cannon Colors', href:'/games/cannon-color-range/index.html',  thumb:'/games/game2.jpg', color:'#EA4335' },
-      { title:'Odd One Out',   href:'/games/odd-one-out/index.html',         thumb:'/games/game3.jpg', color:'#34A853' },
-      { title:'Memory Match',  href:'/games/memory-match/index.html',        thumb:'/games/game4.jpg', color:'#FBBC04' },
-      { title:'Quiz Time',     href:'/games/quiz-time/index.html',           thumb:'/games/game5.jpg', color:'#9B6DF3' },
-      { title:'Chess Quest',   href:'/games/gulsabi-chess-quest/index.html', thumb:'/assets/chess/gulsabi-chess-quest-thumbnail.png', color:'#00BFA5', featured:true, blurb:'Learn chess with Gulsabi!' },
+      { id: 'chess', title: 'Chess Quest', href: '/games/gulsabi-chess-quest/index.html', art: '/assets/chess/gulsabi-chess-quest-thumbnail.png', eyebrow: 'Learn & play', sub: 'Learn chess. Play with a friend. Challenge the bot.', ages: 'Ages 5+', mode: 'Solo · 2 players', featured: true },
+      { id: 'game1', title: 'Sky Adventure', href: '/games/game1/index.html', art: '/games/game1.jpg', eyebrow: 'Flying arcade', sub: 'Tap to fly. Dodge the asteroids. Soar past the aliens.', ages: 'Ages 5+', mode: 'Solo' },
+      { id: 'game2', title: 'Colour Cannon', href: '/games/game2/index.html', art: '/games/game2.jpg', eyebrow: 'Colour matching', sub: 'Spot the colour. Load the cannon. Beat the timer.', ages: 'Ages 3+', mode: 'Solo' },
+      { id: 'game3', title: 'Odd One Out', href: '/games/game3/index.html', art: '/games/game3.jpg', eyebrow: 'Spot the difference', sub: 'Find the one that does not belong before time runs out.', ages: 'Ages 4+', mode: 'Solo' },
+      { id: 'game4', title: 'Memory Match', href: '/games/game4/index.html', art: '/games/game4.jpg', eyebrow: 'Memory', sub: 'Flip, remember and pair — solo or with a friend.', ages: 'Ages 4+', mode: 'Solo · 2 players' },
+      { id: 'game5', title: 'Quiz Time', href: '/games/game5/index.html', art: '/games/game5.jpg', eyebrow: 'Quiz', sub: 'Look, read, tap. Test what you know.', ages: 'Ages 5+', mode: 'Solo' },
     ];
-
     const $ = (s, r = document) => r.querySelector(s);
-    const el = (tag, props = {}) => Object.assign(document.createElement(tag), props);
+    const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); kids.forEach(k => n.append(k)); return n; };
+    const svg = (name) => { const t = document.createElement('template'); t.innerHTML = GUI.icon(name); return t.content.firstChild; };
     const navTo = (href) => { window.location.href = href; };
-    // Launching an actual game records a session-start timestamp and respects the
-    // daily game limit (Banana Break). General navigation uses navTo directly.
+    const lsGet = (k) => { try { return localStorage.getItem(k); } catch (_) { return null; } };
+
+    // Launching a game stamps a session start and respects the daily limit.
+    let launching = false;
     async function launchGame(href) {
-      if (await isOver('game')) { showBanana('game'); return; }
+      if (launching) return; launching = true; setTimeout(() => { launching = false; }, 1500);
+      if (await isOver('game')) { showBanana('game'); launching = false; return; }
       await tstore.set(TKEYS.gameStart, String(Date.now()));
+      GUI.haptic(8);
       navTo(href);
     }
 
-    // ---- Tabs -------------------------------------------------------------
-    const DEFAULT_TAB = 'play';
+    // ---- Navigation ------------------------------------------------------
+    const TABS = [
+      { id: 'home', label: 'Home', icon: 'home' },
+      { id: 'watch', label: 'Watch', icon: 'watch' },
+      { id: 'play', label: 'Play', icon: 'play' },
+      { id: 'learn', label: 'Learn', icon: 'learn' },
+    ];
+    const DEFAULT_TAB = 'home';
+    let activeTab = DEFAULT_TAB;
     function showTab(name) {
+      if (!TABS.some(t => t.id === name)) name = DEFAULT_TAB;
+      activeTab = name;
+      try { sessionStorage.setItem('gulsabi_tab', name); } catch (_) {}
       document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + name));
-      document.querySelectorAll('nav.tabbar button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-      $('main').scrollTop = 0;
-      enforceTab(name); // re-assert the Banana Break lock for the new tab
+      document.querySelectorAll('.g-nav-item').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === name ? 'true' : 'false'));
+      window.scrollTo({ top: 0 });
+      if (name === 'watch') buildWatch();
+      if (name === 'learn') buildLearn();
+      enforceTab(name);
     }
-    document.querySelectorAll('nav.tabbar button').forEach(b =>
-      b.addEventListener('click', () => showTab(b.dataset.tab)));
-
-    // The Parents page gates itself (PIN/biometric unlock, or OTP for the
-    // first time), so we navigate straight there.
+    (function buildNav() {
+      const nav = $('#nav');
+      TABS.forEach(t => {
+        const b = el('button', { className: 'g-nav-item', role: 'tab' });
+        b.dataset.tab = t.id; b.setAttribute('aria-selected', t.id === DEFAULT_TAB ? 'true' : 'false');
+        b.append(el('span', { className: 'g-nav-ico' }, svg(t.icon)), el('span', { textContent: t.label }));
+        b.addEventListener('click', () => { if (activeTab !== t.id) { GUI.haptic(6); showTab(t.id); } else window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        nav.appendChild(b);
+      });
+      document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => showTab(b.dataset.goto)));
+    })();
+    $('#parents-btn').append(svg('person'));
     $('#parents-btn').addEventListener('click', () => navTo('/app/parents/index.html'));
 
-    // ---- Play (featured + grid) -------------------------------------------
+    // ---- Home --------------------------------------------------------------
+    function learnSummary() {
+      let mastered = 0, total = 0;
+      try { const p = JSON.parse(lsGet('gulsabi_learn_progress') || '{}'); for (const k in p) { total++; if (/^mas/.test(String(p[k] && p[k].state))) mastered++; } } catch (_) {}
+      const stars = parseInt(lsGet('gulsabi_learn_stars') || '0', 10) || 0;
+      const last = parseInt(lsGet('gulsabi_learn_last_visit') || '0', 10) || 0;
+      return { mastered, total, stars, last };
+    }
+    function buildHome() {
+      const nick = (lsGet('gulsabi_child_nick') || lsGet('gulsabi_child_name') || '').trim();
+      const h = new Date().getHours();
+      $('#hello-eyebrow').textContent = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+      $('#hello-title').textContent = nick ? `Hi, ${nick}!` : 'Hi, explorer!';
+
+      // One contextual "continue" action: Learn if it has been used, else the featured game.
+      const ls = learnSummary();
+      const host = $('#home-continue'); host.innerHTML = '';
+      const c = el('button', { className: 'continue g-press' });
+      if (ls.last) {
+        c.append(el('img', { className: 'art contain', src: '/app/learn/img/gulsabi-point-right.png', alt: '' }),
+          el('div', { className: 'body' }, el('div', { className: 'g-eyebrow', textContent: 'Continue learning' }),
+            el('div', { className: 't', textContent: 'Trace & learn' }),
+            el('div', { className: 's', textContent: `${ls.stars} stars · ${ls.mastered} skills mastered` })),
+          el('span', { className: 'go' }, svg('playArrow')));
+        c.addEventListener('click', () => navTo('/app/learn/index.html'));
+      } else {
+        const g = GAMES.find(x => x.featured) || GAMES[0];
+        c.append(el('img', { className: 'art', src: g.art, alt: '' }),
+          el('div', { className: 'body' }, el('div', { className: 'g-eyebrow', textContent: "Today's adventure" }),
+            el('div', { className: 't', textContent: g.title }), el('div', { className: 's', textContent: g.sub })),
+          el('span', { className: 'go' }, svg('playArrow')));
+        c.addEventListener('click', () => openGameSheet(g));
+      }
+      host.appendChild(c);
+
+      // Destinations: image-led rows, one tap each.
+      const dest = $('#home-dest'); dest.innerHTML = '';
+      const rows = [
+        { tab: 'watch', title: 'Watch', sub: 'Short videos about the world', color: '#2E6FB0', icon: 'watch' },
+        { tab: 'play', title: 'Play', sub: `${GAMES.length} games to play`, art: '/games/game3.jpg' },
+        { tab: 'learn', title: 'Learn', sub: 'Trace letters, numbers & shapes', art: '/app/learn/img/gulsabi-point.png', contain: true },
+      ];
+      rows.forEach(r => {
+        const b = el('button', { className: 'g-row g-press' });
+        let lead;
+        if (r.art) { lead = el('img', { className: 'lead', src: r.art, alt: '' }); if (r.contain) lead.style.objectFit = 'contain'; }
+        else { lead = el('span', { className: 'lead icon' }, svg(r.icon)); lead.style.background = r.color; }
+        b.append(lead, el('div', { className: 'g-row-body' }, el('div', { className: 'g-row-title', textContent: r.title }), el('div', { className: 'g-row-sub', textContent: r.sub })),
+          el('span', { className: 'g-row-trail' }, svg('chevron')));
+        b.addEventListener('click', () => showTab(r.tab));
+        dest.appendChild(b);
+      });
+      const rail = $('#home-rail'); rail.innerHTML = '';
+      GAMES.filter(g => !g.featured).slice(0, 5).forEach(g => {
+        const m = el('button', { className: 'mini g-press' }, el('img', { src: g.art, alt: '', loading: 'lazy' }), el('div', { className: 't', textContent: g.title }));
+        m.addEventListener('click', () => openGameSheet(g));
+        rail.appendChild(m);
+      });
+    }
+
+    // ---- Play (featured + grid + detail sheet) ----------------------------
     (function buildPlay() {
       const feat = GAMES.find(g => g.featured) || GAMES[0];
-      const host = $('#featured');
-      const card = el('div', { className: 'featured' });
-      const img = el('img', { src: feat.thumb, alt: feat.title });
-      img.onerror = () => { img.style.display = 'none'; card.style.background = 'linear-gradient(135deg,#4285F4,#15324B)'; };
-      card.appendChild(img);
-      card.appendChild(el('div', { className: 'scrim' }));
-      const pill = el('div', { className: 'pill' }); pill.innerHTML = '⭐ Featured';
-      card.appendChild(pill);
-      const meta = el('div', { className: 'meta' });
-      meta.appendChild(el('h2', { textContent: feat.title }));
-      meta.appendChild(el('p', { textContent: feat.blurb || 'Tap to play' }));
-      const play = el('span', { className: 'play' }); play.innerHTML = '▶ Play now';
-      meta.appendChild(play);
-      card.appendChild(meta);
-      card.addEventListener('click', () => launchGame(feat.href));
-      host.appendChild(card);
-
+      const f = el('button', { className: 'featured g-press' });
+      const img = el('img', { src: feat.art, alt: '' });
+      img.onerror = () => { img.style.display = 'none'; };
+      f.append(img, el('div', { className: 'scrim' }), el('span', { className: 'g-chip g-chip--accent pill', textContent: '★ Featured' }),
+        el('div', { className: 'meta' }, el('div', {}, el('h2', { textContent: feat.title }), el('p', { textContent: feat.sub })), el('span', { className: 'fab' }, svg('playArrow'))));
+      f.addEventListener('click', () => openGameSheet(feat));
+      $('#featured').appendChild(f);
       const grid = $('#play-grid');
       GAMES.filter(g => !g.featured).forEach(g => {
-        const c = el('button', { className: 'game' });
-        const tw = el('div', { className: 'thumbwrap' });
-        const im = el('img', { src: g.thumb, alt: g.title, loading: 'lazy' });
-        im.onerror = () => { tw.style.background = g.color; im.style.display = 'none'; };
-        tw.appendChild(im);
-        c.appendChild(tw);
-        const accent = el('div', { className: 'accent' }); accent.style.background = g.color;
-        c.appendChild(accent);
-        const label = el('div', { className: 'label' });
-        const dot = el('span', { className: 'dot' }); dot.style.background = g.color;
-        label.appendChild(dot); label.appendChild(el('span', { textContent: g.title }));
-        c.appendChild(label);
-        c.addEventListener('click', () => launchGame(g.href));
+        const c = el('button', { className: 'game g-press' });
+        const im = el('img', { src: g.art, alt: '', loading: 'lazy' });
+        im.onerror = () => { im.style.background = 'var(--g-surface-3)'; };
+        c.append(im, el('div', { className: 'body' }, el('div', { className: 'txt' }, el('div', { className: 't', textContent: g.title }), el('div', { className: 's', textContent: g.eyebrow }))));
+        c.addEventListener('click', () => openGameSheet(g));
         grid.appendChild(c);
       });
     })();
-
-    // ---- Watch (in-app Shorts/Videos library; playback opens externally) ---
-    // Browsing (the thumbnail grid) is in-app. Tapping a video opens THAT one
-    // video in the SYSTEM browser, so YouTube's player never runs inside the kid
-    // WebView (Designed-for-Families safe). The first external open per session
-    // passes the parental gate. Data is live-first (gulsabi.com) then bundled.
-    const CHANNEL_DATA_URL = '/content/channel-videos.json';
-    let watchData = null, watchTab = 'shorts';
-
-    async function buildWatch() {
-      if (!watchData) {
-        try { const res = await liveFirst(CHANNEL_DATA_URL); if (res) watchData = await res.json(); } catch (_) {}
-        if (!watchData) watchData = { shorts: [], videos: [] };
-      }
-      renderWatch();
+    const gsheet = GUI.sheet($('#gsheet'));
+    function openGameSheet(g) {
+      const box = $('#gsheet'); box.innerHTML = '';
+      box.append(el('img', { className: 'art', src: g.art, alt: '' }),
+        el('div', { className: 'head' }, el('div', { className: 'g-eyebrow', textContent: g.eyebrow }), el('h2', { className: 'g-title', textContent: g.title })),
+        el('div', { className: 'g-chips' }, el('span', { className: 'g-chip', textContent: g.ages }), el('span', { className: 'g-chip', textContent: g.mode })),
+        el('p', { className: 'g-body', textContent: g.sub }));
+      const play = el('button', { className: 'g-btn g-btn--cta g-btn--lg' }, svg('playArrow'), document.createTextNode('Play now'));
+      play.addEventListener('click', () => { play.classList.add('is-loading'); launchGame(g.href); setTimeout(() => play.classList.remove('is-loading'), 2000); });
+      const close = el('button', { className: 'g-btn g-btn--tonal', textContent: 'Not now' });
+      close.addEventListener('click', gsheet.close);
+      box.append(el('div', { className: 'actions' }, play, close));
+      gsheet.open();
     }
 
-    function renderWatch() {
-      const box = $('#watch-content');
-      box.innerHTML = '';
-      const toggle = el('div', { className: 'vtoggle' });
+    // ---- Watch -------------------------------------------------------------
+    const CHANNEL_DATA_URL = '/content/channel-videos.json';
+    let watchData = null, watchTab = 'shorts', watchLive = true, watchLoading = false;
+    (function buildSeg() {
+      const seg = $('#watch-seg');
       [['shorts', 'Shorts'], ['videos', 'Videos']].forEach(([key, label]) => {
-        const b = el('button', {
-          className: 'vtoggle-btn' + (watchTab === key ? ' active' : ''), textContent: label,
-        });
-        b.addEventListener('click', () => { watchTab = key; renderWatch(); });
-        toggle.appendChild(b);
+        const b = el('button', { textContent: label, role: 'tab' }); b.setAttribute('aria-selected', key === watchTab ? 'true' : 'false');
+        b.addEventListener('click', () => { watchTab = key; seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-selected', x === b ? 'true' : 'false')); if (watchData) renderWatch(); });
+        seg.appendChild(b);
       });
-      box.appendChild(toggle);
-
+    })();
+    async function buildWatch() {
+      if (watchData) { renderWatch(); return; }
+      if (watchLoading) return; watchLoading = true;
+      try {
+        const live = await fetchOk(CONTENT.liveBase + CHANNEL_DATA_URL, CONTENT.timeoutMs);
+        const res = live || await fetchOk(CHANNEL_DATA_URL, CONTENT.timeoutMs);
+        watchLive = !!live;
+        if (res) watchData = await res.json();
+      } catch (_) {}
+      if (!watchData) watchData = { shorts: [], videos: [] };
+      watchLoading = false;
+      renderWatch();
+    }
+    const thumbUrl = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+    function renderWatch() {
+      const box = $('#watch-content'); box.innerHTML = '';
+      // A timed-out/live-feed request can fall back to bundled videos while
+      // the device is still online. Only the browser's actual offline signal
+      // should show the offline banner.
+      const online = navigator.onLine !== false;
+      if (!online) box.appendChild(el('div', { className: 'offline-note' }, svg('offline'), el('span', { textContent: 'You’re offline — videos need a connection to play.' })));
+      // Continue watching (last opened video on this device)
+      const last = (lsGet('gulsabi_watch_last') || '').split('|');
+      if (last[0]) {
+        box.appendChild(el('div', { className: 'section-head' }, el('h2', { className: 'g-section', textContent: 'Continue watching' })));
+        const cw = el('button', { className: 'cw g-press' }, el('img', { className: 'thumb', src: thumbUrl(last[0]), alt: '' }), el('div', { className: 't', textContent: last[2] || 'Video' }), el('span', { className: 'g-row-trail' }, svg('playArrow')));
+        cw.addEventListener('click', () => openVideo(last[0], last[1] === '1', last[2]));
+        box.appendChild(cw);
+        box.appendChild(el('div', { className: 'section-head' }, el('h2', { className: 'g-section', textContent: watchTab === 'shorts' ? 'Shorts' : 'Videos' })));
+      }
       const items = watchData[watchTab] || [];
       if (items.length === 0) {
-        box.appendChild(emptyState('🎬',
-          watchTab === 'videos' ? 'Coming soon' : 'No videos yet',
-          watchTab === 'videos' ? 'Longer Gulsabi videos are on the way!' : 'Check back soon!'));
+        box.appendChild(el('div', { className: 'g-empty' }, el('img', { src: '/app/learn/img/gulsabi-think.png', alt: '' }),
+          el('h2', { className: 'g-section', textContent: watchTab === 'videos' ? 'Longer videos are coming soon' : 'No videos yet' }),
+          el('p', { className: 'g-support', textContent: 'Check back soon — Gulsabi is busy making new ones!' })));
         return;
       }
       const grid = el('div', { className: watchTab === 'shorts' ? 'shortsgrid' : 'videosgrid' });
       items.forEach(v => {
-        const card = el('button', { className: 'vtile' });
-        const img = el('img', { src: `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`, alt: v.name || '', loading: 'lazy' });
-        img.onerror = () => { img.style.opacity = '0'; };
-        card.append(img, el('div', { className: 'vscrim' }),
-          el('div', { className: 'vplay', textContent: '▶' }),
-          el('div', { className: 'vtitle', textContent: v.name || 'Video' }));
-        card.addEventListener('click', () => openVideo(v.id, watchTab === 'shorts'));
-        grid.appendChild(card);
+        const t = el('button', { className: 'vtile g-press' });
+        const img = el('img', { src: thumbUrl(v.id), alt: '', loading: 'lazy' }); img.onerror = () => { img.style.display = 'none'; };
+        t.append(el('div', { className: 'thumb' }, img, el('span', { className: 'pl' }, svg('playArrow'))), el('div', { className: 't', textContent: v.name || 'Video' }));
+        t.addEventListener('click', () => openVideo(v.id, watchTab === 'shorts', v.name));
+        grid.appendChild(t);
       });
       box.appendChild(grid);
     }
-
-    // In-app popup playback (YouTube embed). nocookie + rel=0 + modestbranding
-    // keep it as contained as YouTube allows.
+    // In-app playback (YouTube nocookie embed) inside a full-screen player surface.
     const ytbox = $('#ytbox'), ytframe = $('#ytframe');
-    async function openVideo(id, isShort) {
-      if (await isOver('video')) { showBanana('video'); return; } // daily watch limit
-      ytbox.classList.toggle('short', isShort);
-      ytbox.classList.toggle('long', !isShort);
+    $('#yt-close').append(svg('close'));
+    async function openVideo(id, isShort, name) {
+      if (await isOver('video')) { showBanana('video'); return; }
+      try { localStorage.setItem('gulsabi_watch_last', `${id}|${isShort ? 1 : 0}|${name || ''}`); } catch (_) {}
+      $('#yt-title').textContent = name || 'Video';
+      ytbox.classList.toggle('short', !!isShort); ytbox.classList.toggle('long', !isShort);
       ytframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3`;
       ytbox.classList.add('active');
+      GUI.statusBar('DARK');
       startVideoTracking();
     }
     function closeVideo() {
       stopVideoTracking();
       ytframe.src = 'about:blank';
       ytbox.classList.remove('active', 'short', 'long');
+      GUI.statusBar('LIGHT');
     }
-    $('#ytbox .close').addEventListener('click', closeVideo);
-    ytbox.addEventListener('click', (e) => { if (e.target === ytbox) closeVideo(); });
+    $('#yt-close').addEventListener('click', closeVideo);
 
-    function emptyState(big, title, sub) {
-      const d = el('div', { className: 'empty' });
-      d.append(el('div', { className: 'big', textContent: big }),
-               el('h2', { textContent: title }),
-               el('p', { textContent: sub }));
-      return d;
+    // ---- Learn tab -----------------------------------------------------------
+    function buildLearn() {
+      const box = $('#learn-content'); box.innerHTML = '';
+      const ls = learnSummary();
+      const hero = el('div', { className: 'learn-hero' }, el('img', { src: '/app/learn/img/gulsabi-point-right.png', alt: '' }),
+        el('div', { className: 'txt' }, el('h2', { className: 'g-title', textContent: 'Trace & learn' }), el('p', { className: 'g-support', textContent: 'Letters, numbers and shapes — Gulsabi guides every stroke.' })));
+      box.appendChild(hero);
+      const start = el('button', { className: 'g-btn g-btn--cta g-btn--lg g-btn--block' }, svg('playArrow'), document.createTextNode(ls.last ? 'Keep practising' : 'Start practising'));
+      start.style.marginTop = 'var(--g-s4)';
+      start.addEventListener('click', () => { GUI.haptic(8); navTo('/app/learn/index.html'); });
+      box.appendChild(start);
+      // Languages the grown-up chose (read-only here; changed in Parents)
+      let langs = null; try { langs = JSON.parse(lsGet('gulsabi_learn_languages') || 'null'); } catch (_) {}
+      const NAMES = { en: 'English', ml: 'മലയാളം', kn: 'ಕನ್ನಡ', hi: 'हिन्दी', ta: 'தமிழ்' };
+      if (langs && Array.isArray(langs.languages) && langs.languages.length) {
+        box.appendChild(el('div', { className: 'section-head' }, el('h2', { className: 'g-section', textContent: 'Languages' })));
+        const chips = el('div', { className: 'g-chips' });
+        langs.languages.forEach(code => chips.appendChild(el('span', { className: 'g-chip' + (code === langs.primary ? ' g-chip--selected' : ''), textContent: NAMES[code] || code })));
+        box.appendChild(chips);
+      }
+      box.appendChild(el('div', { className: 'section-head' }, el('h2', { className: 'g-section', textContent: 'Progress' })));
+      box.appendChild(el('div', { className: 'stat' },
+        el('div', { className: 'g-card' }, el('div', { className: 'n', textContent: String(ls.stars) }), el('div', { className: 'l', textContent: 'stars earned' })),
+        el('div', { className: 'g-card' }, el('div', { className: 'n', textContent: String(ls.mastered) }), el('div', { className: 'l', textContent: 'skills mastered' }))));
     }
 
-    // ---- Worksheets (live-first) ------------------------------------------
-    async function resolveWorksheetsUrl() {
-      const live = CONTENT.liveBase + '/worksheet-maker/';
-      if (await fetchOk(live, CONTENT.timeoutMs)) return live;
-      if (await fetchOk('/worksheet-maker/index.html', CONTENT.timeoutMs)) return '/worksheet-maker/index.html';
-      return null;
-    }
-    function buildSheets() {
-      const box = $('#sheets-content');
-      box.innerHTML = '';
-      box.appendChild(emptyState('✏️', 'Trace & learn',
-        'Letters, numbers and shapes — Gulsabi guides every stroke, with new activities every day.'));
-      const row = el('div', { className: 'center-row' });
-      const start = el('button', { className: 'btn btn-coral', textContent: '✏️ Start learning' });
-      start.addEventListener('click', () => navTo('/app/learn/index.html'));
-      row.appendChild(start);
-      box.appendChild(row);
-    }
-
-    // ---- Parental gate ----------------------------------------------------
+    // ---- Parental gate ------------------------------------------------------
     const gate = $('#gate');
     let gateA = 0, gateB = 0, gatePass = null;
     function parentalGate(onPass, subtitle) {
       $('#gate-sub').textContent = subtitle || 'Just checking — this is for grown-ups.';
-      gateA = 2 + Math.floor(Math.random() * 6);
-      gateB = 2 + Math.floor(Math.random() * 6);
+      gateA = 2 + Math.floor(Math.random() * 6); gateB = 2 + Math.floor(Math.random() * 6);
       $('#gate-q').textContent = gateA + ' + ' + gateB + ' = ?';
       $('#gate-input').value = ''; $('#gate-err').textContent = '';
       gatePass = onPass; gate.classList.add('active');
       setTimeout(() => $('#gate-input').focus(), 50);
     }
-    function closeGate() { gate.classList.remove('active'); gatePass = null; }
+    function closeGate() { gate.classList.remove('active'); gatePass = null; $('#gate-input').blur(); }
     $('#gate-cancel').addEventListener('click', closeGate);
-    $('#gate-ok').addEventListener('click', () => {
-      if (parseInt($('#gate-input').value, 10) === gateA + gateB) {
-        const cb = gatePass; closeGate(); if (cb) cb();
-      } else { $('#gate-err').textContent = 'Not quite — try again.'; $('#gate-input').value = ''; }
-    });
-
-    // ---- External links (always native, never in the kid WebView) ---------
-    function openExternal(url) { window.open(url, '_system'); }
+    function gateCheck() {
+      if (parseInt($('#gate-input').value, 10) === gateA + gateB) { const cb = gatePass; closeGate(); if (cb) cb(); }
+      else { $('#gate-err').textContent = 'Not quite — try again.'; $('#gate-input').value = ''; }
+    }
+    $('#gate-ok').addEventListener('click', gateCheck);
+    $('#gate-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') gateCheck(); });
 
     // ---- Android hardware back --------------------------------------------
     function wireBackButton() {
       if (!(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App)) return;
       window.Capacitor.Plugins.App.addListener('backButton', () => {
         if (gate.classList.contains('active')) { closeGate(); return; }
+        if (gsheet.isOpen) { gsheet.close(); return; }
         if (ytbox.classList.contains('active')) { closeVideo(); return; }
-        const active = document.querySelector('nav.tabbar button.active')?.dataset.tab;
-        if (active !== DEFAULT_TAB) { showTab(DEFAULT_TAB); return; }
+        if (activeTab !== DEFAULT_TAB) { showTab(DEFAULT_TAB); return; }
         window.Capacitor.Plugins.App.minimizeApp();
       });
     }
 
-    // ===== Step 3: Daily Boundaries — local time tracking + Banana Break =====
-    // Dual-write: localStorage (always shared with the Parents page, same origin)
-    // + Capacitor Preferences (durability). Read localStorage first so the shell
-    // always sees the limits the Parents page set — even if the Preferences proxy
-    // isn't available in a plain static page.
+    // ===== Daily Boundaries — local time tracking + Banana Break ============
+    // Dual-write: localStorage (shared with the Parents page) + Capacitor
+    // Preferences (durability). Read localStorage first.
     const _tpref = () => window.Capacitor?.Plugins?.Preferences;
     const tstore = {
-      async set(k, v) {
-        try { localStorage.setItem(k, String(v)); } catch (_) {}
-        try { await _tpref()?.set({ key: k, value: String(v) }); } catch (_) {}
-      },
-      async get(k) {
-        try { const ls = localStorage.getItem(k); if (ls != null) return ls; } catch (_) {}
-        try { const r = await _tpref()?.get({ key: k }); return (r && r.value != null) ? r.value : null; } catch (_) { return null; }
-      },
-      async remove(k) {
-        try { localStorage.removeItem(k); } catch (_) {}
-        try { await _tpref()?.remove({ key: k }); } catch (_) {}
-      },
+      async set(k, v) { try { localStorage.setItem(k, String(v)); } catch (_) {} try { await _tpref()?.set({ key: k, value: String(v) }); } catch (_) {} },
+      async get(k) { try { const ls = localStorage.getItem(k); if (ls != null) return ls; } catch (_) {} try { const r = await _tpref()?.get({ key: k }); return (r && r.value != null) ? r.value : null; } catch (_) { return null; } },
+      async remove(k) { try { localStorage.removeItem(k); } catch (_) {} try { await _tpref()?.remove({ key: k }); } catch (_) {} },
     };
     const TKEYS = {
       prov: 'gulsabi_provisioned',
@@ -512,16 +557,17 @@
     };
     const DEF_LIMIT = { game: 30, video: 45 };
     const banana = $('#banana');
-
     async function tnum(k, def = 0) { const v = await tstore.get(k); return (v == null || v === '') ? def : (parseInt(v, 10) || 0); }
     async function limitSec(which) {
       const lim = await tnum(which === 'game' ? TKEYS.limGame : TKEYS.limVideo, DEF_LIMIT[which]);
+      // Parents label zero as Off. It must never silently become an immediate
+      // Banana Break because zero seconds have been spent.
+      if (lim <= 0) return Infinity;
       const ext = await tnum(which === 'game' ? TKEYS.extGame : TKEYS.extVideo, 0);
       return (lim + ext) * 60;
     }
     async function spentSec(which) { return await tnum(which === 'game' ? TKEYS.secGame : TKEYS.secVideo, 0); }
     async function isOver(which) { return (await spentSec(which)) >= (await limitSec(which)); }
-
     async function midnightFlush() {
       const today = new Date().toISOString().slice(0, 10);
       if ((await tstore.get(TKEYS.resetDay)) !== today) {
@@ -529,7 +575,6 @@
         await tstore.set(TKEYS.resetDay, today);
       }
     }
-    // Game time is tallied per session: start stamped on launch, added on return.
     async function resolveGameSession() {
       const ts = await tstore.get(TKEYS.gameStart);
       if (ts) {
@@ -538,17 +583,10 @@
         await tstore.remove(TKEYS.gameStart);
       }
     }
-
-    // Banana Break overlay — un-dismissible except via grown-up override.
-    // Gentle Gulsabi voice on the Banana Break (uses the Learn module's
-    // generated line if present; silent fallback otherwise). One play only.
     let _bananaSpoke = false;
     function bananaVoice() {
       if (_bananaSpoke) return; _bananaSpoke = true;
-      try {
-        const a = new Audio('/app/learn/audio/vo_learn_break_banana.mp3');
-        a.play().catch(() => {});
-      } catch (_) {}
+      try { new Audio('/app/learn/audio/vo_learn_break_banana.mp3').play().catch(() => {}); } catch (_) {}
       setTimeout(() => { _bananaSpoke = false; }, 4000);
     }
     function showBanana(which) {
@@ -574,8 +612,6 @@
       await tstore.set(k, (await tnum(k, 0)) + 15);
       hideBanana();
     }
-
-    // Video watch-time: accumulate in memory, persist every 5s + on stop.
     let vBase = 0, vSession = 0, vLimit = 0, vTimer = null;
     async function startVideoTracking() {
       vBase = await spentSec('video'); vLimit = await limitSec('video'); vSession = 0;
@@ -590,31 +626,26 @@
       if (vTimer) { clearInterval(vTimer); vTimer = null; await tstore.set(TKEYS.secVideo, vBase + vSession); }
     }
     window.addEventListener('pagehide', () => { stopVideoTracking(); });
-
-    // Re-assert Daily Boundaries whenever we (re)enter the app — boot only runs
-    // on a fresh load, but the parent changes limits on a SEPARATE page and
-    // returns (often a bfcache restore / resume that skips boot). pageshow +
-    // visibilitychange catch the return; the interval catches mid-session changes.
-    function enforceCurrentTab() {
-      const active = document.querySelector('nav.tabbar button.active')?.dataset.tab || DEFAULT_TAB;
-      return enforceTab(active);
-    }
+    function enforceCurrentTab() { return enforceTab(activeTab); }
     window.addEventListener('pageshow', () => enforceCurrentTab());
     document.addEventListener('visibilitychange', () => { if (!document.hidden) enforceCurrentTab(); });
     setInterval(() => enforceCurrentTab(), 3000);
+    window.addEventListener('online', () => { watchData = null; if (activeTab === 'watch') buildWatch(); });
 
-    // ---- Boot -------------------------------------------------------------
+    // ---- Boot ---------------------------------------------------------------
     (async function boot() {
-      // Step 1: block the child interface until the device is provisioned.
+      GUI.statusBar('LIGHT'); // light ground → dark status-bar icons
       if ((await tstore.get(TKEYS.prov)) !== '1') { navTo('/app/parents/index.html'); return; }
       await midnightFlush();
       await resolveGameSession();
-      // Kid Mode: lock the device into the app (screen pinning) if enabled.
       try { if ((await tstore.get('gulsabi_kid_mode')) === '1') window.Capacitor?.Plugins?.KidLock?.enter(); } catch (_) {}
-      buildWatch();
-      buildSheets();
+      buildHome();
       wireBackButton();
-      await enforceTab(DEFAULT_TAB);
+      // Coming back from a game / Learn lands on the tab the child left from.
+      let restore = DEFAULT_TAB; try { restore = sessionStorage.getItem('gulsabi_tab') || DEFAULT_TAB; } catch (_) {}
+      if (restore !== DEFAULT_TAB) showTab(restore); else await enforceTab(DEFAULT_TAB);
+      // Warm the Watch feed in the background so the tab opens instantly.
+      setTimeout(() => { if (!watchData && activeTab !== 'watch') buildWatch(); }, 800);
     })();
   </script>
 </body>

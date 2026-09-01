@@ -363,7 +363,7 @@
     </style>
 
 <style id="gw-nav">
-  .gw-bar{position:fixed;inset:16px 0 auto 0;z-index:9999;display:flex;justify-content:center;pointer-events:none;}
+  .gw-bar{position:fixed;inset:calc(16px + var(--safe-top)) 0 auto 0;z-index:9999;display:flex;justify-content:center;pointer-events:none;}
   .gw-inner{pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:16px;width:calc(100% - 32px);max-width:1152px;height:64px;padding:0 18px 0 24px;border-radius:9999px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.65);box-shadow:0 8px 32px rgba(31,41,55,.08);-webkit-backdrop-filter:saturate(150%) blur(16px);backdrop-filter:saturate(150%) blur(16px);transition:background .3s,box-shadow .3s,height .3s,border-color .3s;}
   .gw-bar.scrolled .gw-inner{height:56px;background:rgba(255,255,255,.78);-webkit-backdrop-filter:saturate(160%) blur(20px);backdrop-filter:saturate(160%) blur(20px);}
   .gw-logo{display:flex;align-items:center;}
@@ -390,7 +390,7 @@
      phones). The native app chrome (app-bar + tab-bar) stays hidden. */
   .app-bar{display:none;}
   .tab-bar{display:none !important;}
-  body{padding-top:96px !important;}
+  body{padding-top:calc(96px + var(--safe-top)) !important;}
   /* App interface: ONLY when installed as a PWA (standalone / fullscreen /
      minimal-ui) do we hide the website nav and switch to the native app chrome. */
   @media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui){
@@ -503,14 +503,15 @@
 <body>
 <header class="gw-bar" id="gwBar"><div class="gw-inner">
   <a class="gw-logo" href="/#spark"><img src="/images/gulsabi-logo.png" alt="Gulsabi World"></a>
-  <ul class="gw-links"><li><a class="gw-link" href="/#spark">Home</a></li><li><a class="gw-link" href="/videos">Watch</a></li><li><a class="gw-link" href="/companion"><span class="neon-ai">AI</span> Buddy</a></li><li><a class="gw-link active" aria-current="page" href="/games">Games</a></li><li><a class="gw-link" href="/about">About</a></li></ul>
+  <!-- canonical nav - static mirror of lib/navigation.ts NAV_LINKS; keep both in sync -->
+  <ul class="gw-links"><li><a class="gw-link" href="/#spark">Home</a></li><li><a class="gw-link" href="/videos/">Watch</a></li><li><a class="gw-link" href="/companion/"><span class="neon-ai">AI</span> Buddy</a></li><li><a class="gw-link active" aria-current="page" href="/games/">Games</a></li><li><a class="gw-link" href="/worksheet-maker/">Worksheets</a></li><li><a class="gw-link" href="/about/">About</a></li></ul>
   <div class="gw-right">
     <a class="gw-cta" href="/#companion">Connect Gulsabi Fam</a>
-    <button class="gw-burger" id="gwBurger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="#1f2937" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button class="gw-burger" id="gwBurger" aria-label="Menu" aria-expanded="false" aria-controls="gwMobile"><svg viewBox="0 0 24 24" fill="none" stroke="#1f2937" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   </div>
 </div></header>
-<div class="gw-mobile" id="gwMobile"><a href="/#spark">Home</a><a href="/videos">Watch</a><a href="/companion"><span class="neon-ai">AI</span> Buddy</a><a class="active" aria-current="page" href="/games">Games</a><a href="/about">About</a><a class="gw-cta" href="/#companion">Connect Gulsabi Fam</a></div>
-<script>(function(){var b=document.getElementById('gwBar'),u=document.getElementById('gwBurger'),m=document.getElementById('gwMobile');function s(){b.classList.toggle('scrolled',window.scrollY>50);}s();window.addEventListener('scroll',s,{passive:true});if(u)u.addEventListener('click',function(){m.classList.toggle('open');});})();</script>
+<div class="gw-mobile" id="gwMobile"><a href="/#spark">Home</a><a href="/videos/">Watch</a><a href="/companion/"><span class="neon-ai">AI</span> Buddy</a><a class="active" aria-current="page" href="/games/">Games</a><a href="/worksheet-maker/">Worksheets</a><a href="/about/">About</a><a class="gw-cta" href="/#companion">Connect Gulsabi Fam</a></div>
+<script>(function(){var b=document.getElementById('gwBar'),u=document.getElementById('gwBurger'),m=document.getElementById('gwMobile');function s(){b.classList.toggle('scrolled',window.scrollY>50);}s();window.addEventListener('scroll',s,{passive:true});if(u)u.addEventListener('click',function(){var o=m.classList.toggle('open');u.setAttribute('aria-expanded',o?'true':'false');});})();</script>
 
     <!-- Splash (installed-app only) -->
     <div id="appSplash" aria-hidden="true"><div class="splash-progress"></div></div>
@@ -1063,11 +1064,16 @@
           });
         }
         if (document.readyState !== 'loading') fix(); else document.addEventListener('DOMContentLoaded', fix);
+        // In the app the "Play now" button lands below the fold on phones (e.g. 360×780);
+        // let a tap on the big cover picture start the game too — the CTA is unchanged.
+        var art = document.querySelector('.ex-art');
+        if (art) { art.style.cursor = 'pointer'; art.addEventListener('click', function () { var p = document.getElementById('exPlay'); if (p && p.getAttribute('href') && p.getAttribute('href') !== '#') p.click(); }); }
         document.addEventListener('click', function (e) {
           var a = e.target && e.target.closest ? e.target.closest('a') : null;
           if (a && ESCAPE[a.getAttribute('href')]) { e.preventDefault(); window.location.href = '/app/index.html'; }
         }, true);
       })();
     </script>
+<script>/* Gulsabi app: light page → dark status-bar icons (edge-to-edge WebView). No-op on the web. */try{var _sb=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SystemBars;_sb&&_sb.setStyle({style:"LIGHT"});}catch(e){}</script>
 </body>
 </html>

@@ -845,6 +845,12 @@
         fullscreenBtn.onclick = () => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else if (document.exitFullscreen) document.exitFullscreen(); };
         
         window.addEventListener('resize', resize);
+        // Background/lock: stop the music scheduler + suspend Web Audio so nothing
+        // keeps sounding on the home screen; resume when the game is visible again.
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) { audio.stopMusic(); try { audio.ctx && audio.ctx.suspend(); } catch (_) {} }
+            else { try { audio.ctx && audio.ctx.resume(); } catch (_) {} if (currentState === STATE.PLAYING) audio.startMusic(); }
+        });
         window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && helpOverlay.style.display === 'flex') closeHelp(); });
         refreshHighScoreUI();
         init();
