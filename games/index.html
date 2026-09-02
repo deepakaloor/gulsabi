@@ -1036,7 +1036,11 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            if (!dismissed && !window.matchMedia('(display-mode: standalone)').matches) {
+            /* "Add to your home screen" only makes sense on touch devices —
+               on a laptop/desktop browser this should read as a plain webpage,
+               so the banner is limited to coarse-pointer (phone/tablet). */
+            const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+            if (!dismissed && isTouchDevice && !window.matchMedia('(display-mode: standalone)').matches) {
                 banner.classList.add('show');
             }
         });

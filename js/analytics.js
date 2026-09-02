@@ -33,7 +33,11 @@ const KEYS = {
   sessionTime: "gulsabi_session_started_at",
   firstVisit:  "gulsabi_first_visit_at",
   visitCount:  "gulsabi_visit_count",
-  lastGameSession: "gulsabi_last_game_session_id"
+  lastGameSession: "gulsabi_last_game_session_id",
+  // ids whose DB row is known to exist — lets ensureProfile skip the
+  // INSERT on later page views (see the 409 note in ensureProfile)
+  profileCreated:  "gulsabi_profile_row_created",
+  sessionRecorded: "gulsabi_session_row_created"
 };
 
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes of inactivity
@@ -185,9 +189,21 @@ function ensureProfile() {
     };
     // anon cannot use upsert (ON CONFLICT needs SELECT, which is admin-only here),
     // so create-then-refresh: a plain INSERT (new visitor) + a plain UPDATE (last_seen).
+    // The INSERT only runs while the row isn't known to exist: a duplicate-key
+    // INSERT is harmless to the data, but the browser logs the 409 response as
+    // a console error on every page view before our duplicate check can swallow
+    // it — so once a row is confirmed (created, or 409 = already there), we
+    // remember that per id and skip straight to the UPDATE.
     try {
-      const ins = await safeInsert("anonymous_users", userRow);
-      if (ins.error && !isDuplicate(ins.error)) logFail("anonymous_users insert", ins.error);
+      let created = null;
+      try { created = localStorage.getItem(KEYS.profileCreated); } catch (e) {}
+      if (created !== anonId) {
+        const ins = await safeInsert("anonymous_users", userRow);
+        if (ins.error && !isDuplicate(ins.error)) logFail("anonymous_users insert", ins.error);
+        else if (!ins.queued) {
+          try { localStorage.setItem(KEYS.profileCreated, anonId); } catch (e) {}
+        }
+      }
       const upd = await safeUpdate("anonymous_users",
         { last_seen_at: userRow.last_seen_at, is_returning_user: userRow.is_returning_user },
         "anonymous_user_id", anonId);
@@ -207,10 +223,20 @@ function ensureProfile() {
       os:                detectOS()
     };
     // sessions: a fresh session_id each session, so a plain INSERT is enough
-    // (no ON CONFLICT, which anon can't do); a stray duplicate is harmless.
+    // (no ON CONFLICT, which anon can't do). The session id persists across
+    // page views (30-min inactivity window), so — like the profile row above —
+    // skip the INSERT once this session's row is known to exist, instead of
+    // logging a 409 on every subsequent page view.
     try {
-      const { error } = await safeInsert("sessions", sessRow);
-      if (error && !isDuplicate(error)) logFail("sessions insert", error);
+      let recorded = null;
+      try { recorded = localStorage.getItem(KEYS.sessionRecorded); } catch (e) {}
+      if (recorded !== sessId) {
+        const { error, queued } = await safeInsert("sessions", sessRow);
+        if (error && !isDuplicate(error)) logFail("sessions insert", error);
+        else if (!queued) {
+          try { localStorage.setItem(KEYS.sessionRecorded, sessId); } catch (e) {}
+        }
+      }
     } catch (e) { logFail("sessions insert", e); }
 
     return { anonId, sessId };
