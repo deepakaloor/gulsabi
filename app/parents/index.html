@@ -74,6 +74,8 @@
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--g-secondary); border: 3px solid #fff; box-shadow: 0 1px 4px rgba(28,46,66,.3); }
     input[type=range]:focus { box-shadow: none; }
     .slider-sub { font: var(--g-support); color: var(--g-text-3); margin-top: 2px; }
+    .slider-type { display: flex; align-items: center; gap: 8px; margin-top: 6px; font: var(--g-support); color: var(--g-text-2); }
+    .slider-type input[type=number] { width: 72px; padding: 6px 8px; border: 1px solid var(--g-outline, #c8d1dc); border-radius: 8px; font: inherit; color: var(--g-text); background: var(--g-surface, #fff); text-align: center; }
     /* Notice board */
     .notice { display: block; text-align: left; width: 100%; background: var(--g-surface-2); border: none; border-radius: var(--g-r-sm); padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
     .notice b { display: block; color: var(--g-text); font: var(--g-card-title); font-size: 15px; margin-bottom: 2px; }
@@ -297,12 +299,14 @@
       <div class="slider-row">
         <div class="lbl"><span>🎮 Interactive Play (Games)</span><span class="val" id="val-game">30m</span></div>
         <input type="range" id="slider-game" min="0" max="120" step="5" value="30" />
-        <div class="slider-sub">Off = no daily limit · 120m = 2 hours</div>
+        <div class="slider-type"><label for="num-game">Or type minutes:</label><input type="number" id="num-game" min="0" max="480" step="1" inputmode="numeric" /></div>
+        <div class="slider-sub">0m = no play today (Banana Break right away) · 120m = 2 hours</div>
       </div>
       <div class="slider-row">
         <div class="lbl"><span>📺 Curiosity Watch (Videos)</span><span class="val" id="val-video">45m</span></div>
         <input type="range" id="slider-video" min="0" max="120" step="5" value="45" />
-        <div class="slider-sub">Off = no daily limit · 120m = 2 hours</div>
+        <div class="slider-type"><label for="num-video">Or type minutes:</label><input type="number" id="num-video" min="0" max="480" step="1" inputmode="numeric" /></div>
+        <div class="slider-sub">0m = no videos today (Banana Break right away) · 120m = 2 hours</div>
       </div>
       <div class="ok" id="bound-ok"></div>
     </div>
@@ -657,22 +661,28 @@
         setProfileCollapsed(willCollapse);
       });
 
-      // Boundaries sliders
-      const wireSlider = (sliderId, valId, key, extKey) => {
-        const save = async () => {
-          $(valId).textContent = Number($(sliderId).value) === 0 ? 'Off' : $(sliderId).value + 'm';
-          await store.set(key, $(sliderId).value);
+      // Boundaries: slider + typed-minutes box, kept in sync. 0 = none today.
+      const wireLimit = (sliderId, numId, valId, key, extKey, zeroLabel) => {
+        const apply = async (raw) => {
+          const v = Math.max(0, Math.min(480, Math.round(Number(raw) || 0)));
+          $(valId).textContent = v === 0 ? zeroLabel : v + 'm';
+          $(sliderId).value = Math.min(v, 120); // slider caps at 120; typed values can go higher
+          if (Number($(numId).value) !== v) $(numId).value = v;
+          await store.set(key, String(v));
           // Changing the limit clears any leftover "+15 min" grant from a previous
           // Grown-Up Override — otherwise it would silently override the new limit.
           await store.set(extKey, '0');
           $('#bound-ok').textContent = 'Limits saved on this device.';
         };
+        const fromSlider = () => apply($(sliderId).value);
         // Save on input AND change — some touch WebViews fire only one of them.
-        $(sliderId).addEventListener('input', save);
-        $(sliderId).addEventListener('change', save);
+        $(sliderId).addEventListener('input', fromSlider);
+        $(sliderId).addEventListener('change', fromSlider);
+        // Number box saves on change (enter/blur) so half-typed values don't save.
+        $(numId).addEventListener('change', () => apply($(numId).value));
       };
-      wireSlider('#slider-game', '#val-game', L.limGame, 'gulsabi_ext_game_min');
-      wireSlider('#slider-video', '#val-video', L.limVideo, 'gulsabi_ext_video_min');
+      wireLimit('#slider-game', '#num-game', '#val-game', L.limGame, 'gulsabi_ext_game_min', 'None today');
+      wireLimit('#slider-video', '#num-video', '#val-video', L.limVideo, 'gulsabi_ext_video_min', 'None today');
 
       // Kid Mode: open phone security settings (for "Ask for PIN before unpinning")
       $('#kidmode-settings').addEventListener('click', async () => {
@@ -831,10 +841,14 @@
       $('#child-nick').value = (await store.get(L.cNick)) || '';
       $('#age-band').value = (await store.get(L.cAge)) || '';
       renderProfileHeader(); // heading shows the nickname; form collapsed if data exists
-      $('#slider-game').value = (await store.get(L.limGame)) ?? 30;
-      $('#slider-video').value = (await store.get(L.limVideo)) ?? 45;
-      $('#val-game').textContent = Number($('#slider-game').value) === 0 ? 'Off' : $('#slider-game').value + 'm';
-      $('#val-video').textContent = Number($('#slider-video').value) === 0 ? 'Off' : $('#slider-video').value + 'm';
+      const limGameV = Math.max(0, parseInt((await store.get(L.limGame)) ?? '30', 10) || 0);
+      const limVideoV = Math.max(0, parseInt((await store.get(L.limVideo)) ?? '45', 10) || 0);
+      $('#slider-game').value = Math.min(limGameV, 120);
+      $('#slider-video').value = Math.min(limVideoV, 120);
+      $('#num-game').value = limGameV;
+      $('#num-video').value = limVideoV;
+      $('#val-game').textContent = limGameV === 0 ? 'None today' : limGameV + 'm';
+      $('#val-video').textContent = limVideoV === 0 ? 'None today' : limVideoV + 'm';
       await showFact();
       await renderProgress();
       await renderLanguages();

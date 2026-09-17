@@ -560,9 +560,8 @@
     async function tnum(k, def = 0) { const v = await tstore.get(k); return (v == null || v === '') ? def : (parseInt(v, 10) || 0); }
     async function limitSec(which) {
       const lim = await tnum(which === 'game' ? TKEYS.limGame : TKEYS.limVideo, DEF_LIMIT[which]);
-      // Parents label zero as Off. It must never silently become an immediate
-      // Banana Break because zero seconds have been spent.
-      if (lim <= 0) return Infinity;
+      // Zero means "none today": the Banana Break appears as soon as the child
+      // opens Play/Watch. A Grown-up Override (+15 min) still works on top.
       const ext = await tnum(which === 'game' ? TKEYS.extGame : TKEYS.extVideo, 0);
       return (lim + ext) * 60;
     }
